@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Shapes
 import "../common"
+import "CalendarMath.js" as CalendarMath
 
 FocusScope {
     id: root
@@ -69,7 +70,7 @@ FocusScope {
     }
 
     readonly property int selectedWeekNumber: {
-        return root.getWeekNumber(root.selectedYear, root.selectedMonth, root.selectedDay);
+        return CalendarMath.getWeekNumber(root.selectedYear, root.selectedMonth, root.selectedDay);
     }
 
     focus: root.showCondition
@@ -129,25 +130,11 @@ FocusScope {
         root.updateCalendarModel();
     }
 
-    function daysInMonth(y, m) {
-        return new Date(y, m + 1, 0).getDate();
-    }
-
-    function daysInPrevMonth(y, m) {
-        return new Date(y, m, 0).getDate();
-    }
-
-    // Monday-based first day of week: 0 = Monday, ..., 6 = Sunday
-    function firstDayOfWeek(y, m) {
-        const day = new Date(y, m, 1).getDay();
-        return (day + 6) % 7;
-    }
-
     function updateCalendarModel() {
         const cells = [];
-        const firstDay = root.firstDayOfWeek(root.viewYear, root.viewMonth);
-        const daysCur = root.daysInMonth(root.viewYear, root.viewMonth);
-        const daysPrev = root.daysInPrevMonth(root.viewYear, root.viewMonth);
+        const firstDay = CalendarMath.firstDayOfWeek(root.viewYear, root.viewMonth);
+        const daysCur = CalendarMath.daysInMonth(root.viewYear, root.viewMonth);
+        const daysPrev = CalendarMath.daysInPrevMonth(root.viewYear, root.viewMonth);
 
         for (let i = 0; i < 42; i++) {
             let d, m, y, isCur = false;
@@ -222,13 +209,6 @@ FocusScope {
         if (monthChanged) {
             root.updateCalendarModel();
         }
-    }
-
-    function getWeekNumber(y, m, d) {
-        const target = new Date(Date.UTC(y, m, d));
-        target.setUTCDate(target.getUTCDate() + 4 - (target.getUTCDay() || 7));
-        const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1));
-        return Math.ceil((((target.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
     }
 
     ColumnLayout {

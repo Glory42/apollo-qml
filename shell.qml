@@ -1,9 +1,9 @@
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import "qml/common"
 import "qml/island"
 import "qml/weather"
+import "qml/ipc"
 
 Scope {
     id: shellRoot
@@ -159,143 +159,16 @@ Scope {
             callback(fallbackWindow);
     }
 
-    IpcHandler {
-        target: "overview"
-
-        function toggle() {
-            shellRoot.toggleOverviewAll();
-        }
-
-        function open() {
-            shellRoot.openOverviewAll();
-        }
-
-        function close() {
-            shellRoot.closeOverviewAll();
-        }
-
-        function refreshWallpaperCache() {
-            shellRoot.refreshOverviewWallpaperCaches();
-        }
+    OverviewIpc {
+        shellRoot: shellRoot
     }
 
-    IpcHandler {
-        target: "island"
-
-        function show() {
-            shellRoot.showIslandAll();
-        }
-
-        function open() {
-            shellRoot.showIslandAll();
-        }
-
-        function reveal() {
-            shellRoot.showIslandAll();
-        }
-
-        function hide() {
-            shellRoot.hideIslandAll();
-        }
-
-        function toggle() {
-            shellRoot.toggleIslandAll();
-        }
-
-        function enableAutoHide() {
-            shellRoot.islandAutoHideRuntimeEnabled = true;
-            shellRoot.refreshIslandAutoHideAll();
-        }
-
-        function disableAutoHide() {
-            shellRoot.islandAutoHideRuntimeEnabled = false;
-            shellRoot.showIslandAll();
-        }
+    IslandIpc {
+        shellRoot: shellRoot
     }
 
-    IpcHandler {
-        target: "tide"
-
-        function showClock() {
-            shellRoot.forFocusedWindow((window) => window.showClockWindow());
-        }
-
-        function showTimer() {
-            shellRoot.forFocusedWindow((window) => window.showTimerWindow());
-        }
-
-        function showCustom() {
-            shellRoot.forFocusedWindow((window) => window.showCustomInfoWindow());
-        }
-
-        function showLyrics() {
-            shellRoot.forFocusedWindow((window) => window.showLyricsWindow());
-        }
-
-        function swipeRight() {
-            shellRoot.forFocusedWindow((window) => window.swipeRightWindow());
-        }
-
-        function swipeLeft() {
-            shellRoot.forFocusedWindow((window) => window.swipeLeftWindow());
-        }
-
-        function togglePlayer() {
-            shellRoot.forFocusedWindow((window) => window.togglePlayerWindow());
-        }
-
-        function toggleControlCenter() {
-            shellRoot.forFocusedWindow((window) => window.toggleControlCenterWindow());
-        }
-
-        function togglePowerMenu() {
-            shellRoot.forFocusedWindow((window) => window.togglePowerMenuWindow());
-        }
-
-        function toggleNotificationCenter() {
-            shellRoot.forFocusedWindow((window) => window.toggleNotificationCenterWindow());
-        }
-
-        function toggleWallpaperPicker() {
-            shellRoot.forFocusedWindow((window) => window.toggleWallpaperPickerWindow());
-        }
-
-        function toggleWeather() {
-            shellRoot.forFocusedWindow((window) => window.toggleWeatherWindow());
-        }
-
-        function showWeather() {
-            shellRoot.forFocusedWindow((window) => window.showWeatherWindow ? window.showWeatherWindow() : window.toggleWeatherWindow());
-        }
-
-        function openWeather() {
-            shellRoot.forFocusedWindow((window) => window.showWeatherWindow ? window.showWeatherWindow() : window.toggleWeatherWindow());
-        }
-
-        function closeWeather() {
-            shellRoot.forFocusedWindow((window) => window.closeWeatherWindow ? window.closeWeatherWindow() : window.toggleWeatherWindow());
-        }
-
-        function refreshWeather() {
-            if (shellRoot.weatherService)
-                shellRoot.weatherService.refresh();
-        }
-
-        function toggleCalendar() {
-            shellRoot.forFocusedWindow((window) => window.toggleCalendarWindow());
-        }
-
-        function showCalendar() {
-            shellRoot.forFocusedWindow((window) => window.showCalendarWindow ? window.showCalendarWindow() : window.toggleCalendarWindow());
-        }
-
-        function openCalendar() {
-            shellRoot.forFocusedWindow((window) => window.showCalendarWindow ? window.showCalendarWindow() : window.toggleCalendarWindow());
-        }
-
-        function closeCalendar() {
-            shellRoot.forFocusedWindow((window) => window.closeCalendarWindow ? window.closeCalendarWindow() : window.toggleCalendarWindow());
-        }
+    TideIpc {
+        shellRoot: shellRoot
     }
 
     Component.onDestruction: {

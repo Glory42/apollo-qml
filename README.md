@@ -52,7 +52,21 @@ because they aren't installed on the current dev machine.
 
 # Architecture Refactor Plan
 
-Two god-files have absorbed most of the app's logic over time:
+**Status: all 5 phases complete.** `DynamicIslandWindow.qml` (3090 lines) is
+now `qml/island/IslandWindow.qml`; `ControlCenterLayer.qml` went from 2483 to
+1569 lines; `shell.qml` went from ~440 to 196. Every phase was verified with
+`qmllint` plus an actual `quickshell` relaunch, and every panel's
+toggle/open/close was re-tested over real `quickshell ipc call` invocations
+after Phase 3's and Phase 5's file moves specifically (not just a clean-load
+smoke test — see Phase 4's writeup for why that distinction mattered). One
+pre-existing, unrelated bug was surfaced along the way and left alone:
+`WallpaperPickerLayer.qml` reads `userConfig.wallpaperPywalEnabled` and
+`userConfig.wallpaperTransitionInvertY`, neither of which exist on
+`UserConfig.qml` — both silently resolve to `undefined`/`false`. Not
+introduced by this refactor (verified pre-existing), not a structural issue,
+so it wasn't fixed here.
+
+Two god-files had absorbed most of the app's logic over time:
 `DynamicIslandWindow.qml` (~3090 lines) and
 `qml/controlcenter/ControlCenterLayer.qml` (~2480 lines). Several other files
 are large enough to be worth splitting too. This section is the plan for
@@ -388,13 +402,39 @@ inheritance boundary safely — only bare `id:` references don't. Anyone doing
 further work on this inheritance chain should assume the same: properties
 and functions inherit, `id:`-based references never do.
 
-### Phase 5 — Low-priority hygiene extractions (do whenever, non-blocking)
+### Phase 5 — Low-priority hygiene extractions — done
 
-- Wallpaper picker's embedded Python source strings → `wallpaper/scripts/*.py`.
-- `calendar/CalendarMath.js` pure day-grid function extraction.
-- `wallpaper/WallpaperConfig.js` pure validator extraction.
-- `shell.qml`'s `IpcHandler` blocks → one file per target under `qml/ipc/`
-  (`overview`, `island`, `tide` — three files now, not six).
+- **`shell.qml`'s `IpcHandler` blocks → `qml/ipc/{Overview,Island,Tide}Ipc.qml`.**
+  Discovered along the way: `IpcHandler` reflects *every* property declared
+  directly on it as an IPC-facing property, and warns loudly at startup for
+  any that aren't IPC-marshalable — which a plain object reference like
+  `shellRoot` never is. Declaring `required property var shellRoot` straight
+  on the handler produced three `Type QVariant cannot be used across IPC`
+  warnings per launch. Fixed by wrapping each handler in a plain `QtObject`
+  that holds `shellRoot` and exposes the `IpcHandler` as one of its own
+  properties — only the handler's own functions are then part of its
+  reflected surface. Verified warning-free and re-tested every `tide`/
+  `island`/`overview` IPC call afterward.
+- **`calendar/CalendarMath.js`** — `daysInMonth`, `daysInPrevMonth`,
+  `firstDayOfWeek`, `getWeekNumber` pulled out as a `.pragma library` module;
+  `CalendarLayer.qml` calls them as `CalendarMath.fn(...)` instead of
+  `root.fn(...)`. Verified via a real `toggleCalendar` IPC round-trip.
+- **`wallpaper/WallpaperConfig.js`** — `boundedInt`, `boundedReal`,
+  `nonEmptyString`, `validTransitionType` pulled out the same way.
+  `validTransitionType` now takes `transitionTypes` as a parameter instead
+  of reading it off `root`, since a `.pragma library` module has no `root`
+  to read from.
+- **Wallpaper scan/apply Python source → real `.py` files.** Was two
+  `readonly property string` values built from string concatenation, passed
+  to `python3 -c <script>`. Now `wallpaper/scripts/scan_wallpapers.py` and
+  `wallpaper/scripts/apply_wallpaper.py`, invoked as `python3 <path>
+  <args...>` with `Qt.resolvedUrl("scripts/scan_wallpapers.py").toString()
+  .replace("file://", "")` resolving the real filesystem path relative to
+  the QML file — `sys.argv` indexing is unaffected either way, since
+  `argv[0]` is the script identifier and the real arguments start at
+  `argv[1]` in both invocation styles. Verified both scripts still
+  byte-for-byte match the original inline source (`python3 -m py_compile`
+  clean) and exercised a real wallpaper-picker open over IPC afterward.
 
 ## Resolved decisions
 

@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell.Io
 import Quickshell.Widgets
 import "../common"
+import "WallpaperConfig.js" as WallpaperConfig
 
 FocusScope {
     id: root
@@ -18,13 +19,13 @@ FocusScope {
     property bool pywalEnabled: userConfig.wallpaperPywalEnabled
     property bool customCommandEnabled: userConfig.wallpaperCustomCommandEnabled === true
     property string customCommand: userConfig.wallpaperCustomCommand === undefined || userConfig.wallpaperCustomCommand === null ? "" : String(userConfig.wallpaperCustomCommand)
-    property int transitionFps: boundedInt(userConfig.wallpaperTransitionFps, 60, 1, 240)
-    property int transitionStep: boundedInt(userConfig.wallpaperTransitionStep, 5, 1, 255)
-    property real transitionDuration: boundedReal(userConfig.wallpaperTransitionDuration, 3.0, 0, 120)
-    property int transitionAngle: boundedInt(userConfig.wallpaperTransitionAngle, 45, 0, 360)
-    property string transitionPosition: nonEmptyString(userConfig.wallpaperTransitionPosition, "center")
-    property string transitionBezier: nonEmptyString(userConfig.wallpaperTransitionBezier, ".54,0,.34,.99")
-    property string transitionWave: nonEmptyString(userConfig.wallpaperTransitionWave, "20,20")
+    property int transitionFps: WallpaperConfig.boundedInt(userConfig.wallpaperTransitionFps, 60, 1, 240)
+    property int transitionStep: WallpaperConfig.boundedInt(userConfig.wallpaperTransitionStep, 5, 1, 255)
+    property real transitionDuration: WallpaperConfig.boundedReal(userConfig.wallpaperTransitionDuration, 3.0, 0, 120)
+    property int transitionAngle: WallpaperConfig.boundedInt(userConfig.wallpaperTransitionAngle, 45, 0, 360)
+    property string transitionPosition: WallpaperConfig.nonEmptyString(userConfig.wallpaperTransitionPosition, "center")
+    property string transitionBezier: WallpaperConfig.nonEmptyString(userConfig.wallpaperTransitionBezier, ".54,0,.34,.99")
+    property string transitionWave: WallpaperConfig.nonEmptyString(userConfig.wallpaperTransitionWave, "20,20")
     property bool transitionInvertY: userConfig.wallpaperTransitionInvertY
     property string wallpaperDir: userConfig.wallpaperLibraryPath
     property string targetWallpaperPath: userConfig.wallpaperPath
@@ -91,44 +92,11 @@ FocusScope {
     onSearchQueryChanged: rebuildFilteredWallpapers()
 
     readonly property string effectiveActiveWallpaper: latestAppliedWallpaper !== "" ? latestAppliedWallpaper : activeWallpaper
-    readonly property string scanScript: "import json,os,sys\n"
-        + "wallpaper_dir=os.path.expanduser(sys.argv[1])\n"
-        + "exts={'.jpg','.jpeg','.png','.webp','.gif','.avif','.tiff','.bmp'}\n"
-        + "def record(path):\n"
-        + "    st=os.stat(path)\n"
-        + "    return {'filePath':path,'fileName':os.path.basename(path),'mtime':st.st_mtime_ns,'size':st.st_size}\n"
-        + "fresh=[]\n"
-        + "if os.path.isdir(wallpaper_dir):\n"
-        + "    for entry in sorted(os.scandir(wallpaper_dir),key=lambda e:e.name.lower()):\n"
-        + "        if entry.is_file() and os.path.splitext(entry.name)[1].lower() in exts:\n"
-        + "            try:\n"
-        + "                print(json.dumps(record(entry.path),separators=(',',':')),flush=True)\n"
-        + "            except OSError:\n"
-        + "                pass\n"
-    readonly property string applyScript: "import os,shutil,subprocess,sys\n"
-        + "source,target,transition,step,duration,fps,angle,pos,bezier,wave,invert_y,pywal_enabled=sys.argv[1:13]\n"
-        + "if not source:\n"
-        + "    sys.exit(2)\n"
-        + "applied=source\n"
-        + "if target:\n"
-        + "    target=os.path.expanduser(target)\n"
-        + "    if os.path.realpath(source) != os.path.realpath(target):\n"
-        + "        os.makedirs(os.path.dirname(target) or '.',exist_ok=True)\n"
-        + "        shutil.copy2(source,target)\n"
-        + "    applied=target\n"
-        + "cmd=['awww','img',applied,'--transition-type',transition,'--transition-step',step,'--transition-duration',duration,'--transition-fps',fps,'--transition-angle',angle,'--transition-pos',pos,'--transition-bezier',bezier,'--transition-wave',wave]\n"
-        + "if invert_y == 'true':\n"
-        + "    cmd.append('--invert-y')\n"
-        + "result=subprocess.run(cmd,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\n"
-        + "if result.returncode == 0 and pywal_enabled == 'true':\n"
-        + "    if not shutil.which('wal'):\n"
-        + "        print(\"Pywal is enabled, but the 'wal' command was not found in PATH.\",file=sys.stderr)\n"
-        + "        sys.exit(127)\n"
-        + "    result=subprocess.run(['wal','-n','-q','-i',source])\n"
-        + "sys.exit(result.returncode)\n"
+    readonly property string scanScriptPath: Qt.resolvedUrl("scripts/scan_wallpapers.py").toString().replace("file://", "")
+    readonly property string applyScriptPath: Qt.resolvedUrl("scripts/apply_wallpaper.py").toString().replace("file://", "")
 
     readonly property var transitionTypes: ["none", "simple", "fade", "left", "right", "top", "bottom", "wipe", "wave", "grow", "center", "any", "outer", "random"]
-    readonly property string configuredTransitionType: validTransitionType(userConfig.wallpaperTransitionType)
+    readonly property string configuredTransitionType: WallpaperConfig.validTransitionType(userConfig.wallpaperTransitionType, transitionTypes)
 
     focus: showCondition
     activeFocusOnTab: true
@@ -195,30 +163,6 @@ FocusScope {
 
     function displayPath(path) {
         return path === "" ? "wallpaperLibraryPath" : path;
-    }
-
-    function boundedInt(value, fallback, minimumValue, maximumValue) {
-        const number = Number(value);
-        if (!isFinite(number))
-            return fallback;
-        return Math.max(minimumValue, Math.min(maximumValue, Math.round(number)));
-    }
-
-    function boundedReal(value, fallback, minimumValue, maximumValue) {
-        const number = Number(value);
-        if (!isFinite(number))
-            return fallback;
-        return Math.max(minimumValue, Math.min(maximumValue, number));
-    }
-
-    function nonEmptyString(value, fallback) {
-        const text = String(value === undefined || value === null ? "" : value).trim();
-        return text.length > 0 ? text : fallback;
-    }
-
-    function validTransitionType(value) {
-        const text = nonEmptyString(value, "center");
-        return transitionTypes.indexOf(text) >= 0 ? text : "center";
     }
 
     function upsertWallpaper(record) {
@@ -337,7 +281,7 @@ FocusScope {
 
     Process {
         id: scanProcess
-        command: ["python3", "-c", root.scanScript, root.wallpaperDir]
+        command: ["python3", root.scanScriptPath, root.wallpaperDir]
         stdout: SplitParser {
             onRead: data => {
                 if (!root.acceptingScanResults)
@@ -363,7 +307,7 @@ FocusScope {
         property string targetPath: ""
         property string transitionType: "center"
         command: [
-            "python3", "-c", root.applyScript,
+            "python3", root.applyScriptPath,
             wallpaperPath,
             targetPath,
             transitionType,
