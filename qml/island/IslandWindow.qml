@@ -2,10 +2,16 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.Mpris
-import "qml/common"
-import "qml/controlcenter"
-import "qml/connectivity"
-import "qml/island"
+import "../common"
+import "../controlcenter"
+import "../connectivity"
+import "../workspace"
+import "../weather"
+import "../calendar"
+import "../wallpaper"
+import "../player"
+import "../services"
+import "../notifications"
 
 PanelWindow {
     id: root
@@ -73,7 +79,7 @@ PanelWindow {
 
         active: !root.compositorIsNiri
         asynchronous: false
-        source: active ? "qml/island/HyprlandWindowIntegration.qml" : ""
+        source: active ? "../workspace/HyprlandWindowIntegration.qml" : ""
     }
 
     Binding {

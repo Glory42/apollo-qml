@@ -5,7 +5,7 @@ import Quickshell.Networking
 import Quickshell.Io
 import "../common"
 import "../common/BluetoothFormatting.js" as BluetoothFormatting
-import "../island"
+import "../weather"
 
 Item {
     id: controlCenter

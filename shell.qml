@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Io
 import "qml/common"
 import "qml/island"
+import "qml/weather"
 
 Scope {
     id: shellRoot
@@ -311,7 +312,7 @@ Scope {
 
         model: Quickshell.screens
 
-        DynamicIslandWindow {
+        IslandWindow {
             required property var modelData
 
             screen: modelData

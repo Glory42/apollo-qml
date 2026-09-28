@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Shapes
 import "../common"
-import "../island"
 
 Item {
     id: notificationCenter
