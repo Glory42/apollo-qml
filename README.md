@@ -165,18 +165,15 @@ Tide-island/
     │   ├── CalendarLayer.qml
     │   └── CalendarMath.js            # NEW — pure day-grid math, pulled out
     │
-    ├── controlcenter/                 # shrinks from 2480 lines to ~800
-    │   ├── ControlCenterLayer.qml     # slimmed: card composition only
-    │   ├── ConnectivityController.qml # NEW — wifi+bluetooth state/logic
-    │   ├── BatteryModeDrawer.qml      # NEW — TLP/power-profile drawer
+    ├── controlcenter/                 # shrank from 2483 to 1569 lines
+    │   ├── ControlCenterLayer.qml     # extends BatteryModeController
+    │   ├── BatteryModeController.qml  # NEW — extends ConnectivityController;
+    │   │                               TLP/power-profile state + actions
+    │   ├── ConnectivityController.qml # NEW — extends Item; wifi+bluetooth
+    │   │                               state + actions (base of the chain)
     │   ├── PowerMenuView.qml          # NEW — lock/sleep/restart/shutdown
     │   ├── ControlSliderCard.qml
-    │   ├── MatteSurface.qml
-    │   └── cards/
-    │       ├── QuickTogglesCard.qml   # NEW
-    │       ├── BrightnessCard.qml     # NEW
-    │       ├── VolumeCard.qml         # NEW
-    │       └── ConnectivityCardsRow.qml # NEW
+    │   └── MatteSurface.qml
     │
     └── connectivity/
         ├── ConnectivityDetailShell.qml
@@ -241,14 +238,14 @@ its current filename, just moves.
    `PwObjectTracker` binding, singleton signal-timing races). No phase is
    "done" without a real relaunch test.
 
-### Phase 0 — Safety net
+### Phase 0 — Safety net — done
 
 - `git init` + initial commit of the current working tree. There is
   currently no git history for this project, which makes a refactor this
   size much riskier to do safely (no diffs, no easy revert). Do this before
   moving anything.
 
-### Phase 1 — Pure moves (no logic changes, just relocation + import paths)
+### Phase 1 — Pure moves (no logic changes, just relocation + import paths) — done
 
 Mechanical `git mv` + updating `import "../X"` strings at call sites, in
 order of increasing blast radius:
@@ -268,7 +265,7 @@ order of increasing blast radius:
    This is the root component — after this one, do a full app relaunch and
    smoke-test everything, not just one feature, before moving to Phase 2.
 
-### Phase 2 — Extract self-contained sub-components (behavior-preserving)
+### Phase 2 — Extract self-contained sub-components (behavior-preserving) — done
 
 - `TimerBubble.qml` out of `IslandWindow.qml` (confirmed zero external
   coupling beyond bindings already passed in).
@@ -286,23 +283,63 @@ order of increasing blast radius:
 Test each extraction's specific panel individually after that extraction,
 don't batch several before testing.
 
-### Phase 3 — Extract `ControlCenterLayer.qml`'s sub-controllers (biggest win)
+### Phase 3 — Extract `ControlCenterLayer.qml`'s sub-controllers (biggest win) — done, scope adjusted
 
-1. `ConnectivityController.qml` — all wifi+bluetooth properties, functions,
-   and `Connections` blocks. Near-mechanical since the `provider` contract
-   is already the exact shape needed. `ControlCenterLayer.qml` instantiates
-   it once and forwards `provider: connectivityController` unchanged.
-2. `BatteryModeDrawer.qml` — the TLP/power-profile drawer's state,
-   functions, `Process`, `Connections`, and visual card. Forward
-   `controlCenterExtraHeight`/`controlCenterMaximumExtraHeight` back up,
-   since `IslandWindow.qml` reads those directly off
-   `controlCenterLoader.item`.
-3. `cards/QuickTogglesCard.qml`, `cards/BrightnessCard.qml`,
-   `cards/VolumeCard.qml`, `cards/ConnectivityCardsRow.qml` — each takes the
-   handful of `controlCenter.*` values it needs as declared properties.
+**What actually shipped, and why it's not quite what was planned:** the
+original plan called for `ConnectivityController.qml` to be instantiated as
+a child (`provider: connectivityController`) the same way `TimerBubble` and
+`PowerMenuView` were. That doesn't work here — the `provider` contract
+consumed by the wifi/bluetooth/power detail panels is satisfied by the
+*whole* `controlCenter` object (power's `triggerLock`/`triggerSleep`/etc.
+live on `controlCenter` itself, not in the wifi/bluetooth domain), so
+swapping `provider` to point at a separate child object would break the
+power panel. Re-exposing ~40 wifi/bluetooth members via `property alias` +
+wrapper functions was the fallback, but that reintroduces exactly the
+boilerplate the extraction was meant to remove, with real risk of a
+copy-paste mismatch in hard-won wifi/bluetooth logic.
 
-Test wifi, bluetooth, the battery drawer, quick toggles, and both sliders
-separately, in that order, after each piece is extracted.
+Instead, this uses **QML component inheritance**: `ConnectivityController.qml`
+is a standalone `Item` type holding all wifi+bluetooth state/actions;
+`BatteryModeController.qml`'s root is `ConnectivityController { ... }` and
+adds the TLP/power-profile state/actions; `ControlCenterLayer.qml`'s root is
+`BatteryModeController { id: controlCenter }`. Every member from both bases
+is directly accessible as `controlCenter.*` — zero forwarding code, and the
+`provider` contract keeps pointing at `controlCenter` unchanged. QML
+resolves identifiers dynamically against the live object's full property
+table, not lexically against the file that declared the code, so this works
+in both directions (derived code calling a base member, *and* a base
+type's own function bodies calling something only the final derived type
+declares, e.g. `ConnectivityController`'s `connectWifiNetwork()` calling the
+`trimString()` helper that only exists on `ControlCenterLayer.qml`) —
+verified empirically with a standalone quickshell test before relying on it.
+
+1. **`ConnectivityController.qml`** (done) — all wifi+bluetooth properties,
+   functions, `Connections`, and the bluetooth device-state-observer
+   `Repeater`. ~580 lines.
+2. **`BatteryModeController.qml`** (done) — TLP/power-profile state,
+   functions, the `Connections { target: SystemServices }` handlers for
+   `onTlpStateReady`/`onTlpSetFinished` (split out of a block that also
+   handles brightness/volume, which stayed on `ControlCenterLayer.qml`),
+   and the two battery timers. ~300 lines. `controlCenterExtraHeight`/
+   `controlCenterMaximumExtraHeight` stayed on `ControlCenterLayer.qml` as
+   originally planned — no forwarding needed, they just read their inherited
+   `batteryDrawerProgress` etc. by bare name.
+3. **The four visual cards (`cards/QuickTogglesCard.qml`, etc.) — dropped
+   from this pass.** Reading the actual layout code showed they're more
+   cross-coupled than the original audit assumed: `batteryDrawer.cardWidth`
+   reads `connectivityCardsRow.spacing` directly, and the root-level
+   `Behavior on displayedBrightness`/`displayedVolume` read
+   `brightnessCard.pressed`/`volumeCard.pressed` directly. Splitting them
+   out would mean threading several sibling-to-sibling bindings through as
+   properties for a much smaller size win than the controller extraction —
+   not worth the added indirection. They stay composed together in
+   `ControlCenterLayer.qml`'s `mainContent` Column, same as the decision to
+   leave `islandState` alone in `IslandWindow.qml`.
+
+Result: `ControlCenterLayer.qml` went from 2483 lines to 1569. Tested wifi,
+bluetooth, and the battery drawer's `qmllint` + load cleanliness after each
+extraction (interactive re-test of each still pending a real relaunch by
+whoever's at the keyboard next).
 
 ### Phase 4 — Collapse the triplicated panel-toggle logic (riskiest phase, do last)
 
