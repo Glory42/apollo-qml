@@ -259,30 +259,6 @@ Scope {
             shellRoot.forFocusedWindow((window) => window.toggleWallpaperPickerWindow());
         }
 
-        function toggleApplicationLauncher() {
-            shellRoot.forFocusedWindow((window) => window.toggleApplicationLauncherWindow());
-        }
-
-        function toggleFileShelf() {
-            shellRoot.forFocusedWindow((window) => window.toggleFileShelfWindow());
-        }
-
-        function toggleClipboard() {
-            shellRoot.forFocusedWindow((window) => window.toggleClipboardWindow());
-        }
-
-        function showClipboard() {
-            shellRoot.forFocusedWindow((window) => window.showClipboardWindow ? window.showClipboardWindow() : window.toggleClipboardWindow());
-        }
-
-        function openClipboard() {
-            shellRoot.forFocusedWindow((window) => window.showClipboardWindow ? window.showClipboardWindow() : window.toggleClipboardWindow());
-        }
-
-        function closeClipboard() {
-            shellRoot.forFocusedWindow((window) => window.closeClipboardWindow ? window.closeClipboardWindow() : window.toggleClipboardWindow());
-        }
-
         function toggleWeather() {
             shellRoot.forFocusedWindow((window) => window.toggleWeatherWindow());
         }
@@ -299,6 +275,11 @@ Scope {
             shellRoot.forFocusedWindow((window) => window.closeWeatherWindow ? window.closeWeatherWindow() : window.toggleWeatherWindow());
         }
 
+        function refreshWeather() {
+            if (shellRoot.weatherService)
+                shellRoot.weatherService.refresh();
+        }
+
         function toggleCalendar() {
             shellRoot.forFocusedWindow((window) => window.toggleCalendarWindow());
         }
@@ -312,71 +293,6 @@ Scope {
         }
 
         function closeCalendar() {
-            shellRoot.forFocusedWindow((window) => window.closeCalendarWindow ? window.closeCalendarWindow() : window.toggleCalendarWindow());
-        }
-    }
-
-    IpcHandler {
-        target: "clipboard"
-
-        function toggle() {
-            shellRoot.forFocusedWindow((window) => window.toggleClipboardWindow());
-        }
-
-        function show() {
-            shellRoot.forFocusedWindow((window) => window.showClipboardWindow ? window.showClipboardWindow() : window.toggleClipboardWindow());
-        }
-
-        function open() {
-            shellRoot.forFocusedWindow((window) => window.showClipboardWindow ? window.showClipboardWindow() : window.toggleClipboardWindow());
-        }
-
-        function close() {
-            shellRoot.forFocusedWindow((window) => window.closeClipboardWindow ? window.closeClipboardWindow() : window.toggleClipboardWindow());
-        }
-    }
-
-    IpcHandler {
-        target: "weather"
-
-        function toggle() {
-            shellRoot.forFocusedWindow((window) => window.toggleWeatherWindow());
-        }
-
-        function show() {
-            shellRoot.forFocusedWindow((window) => window.showWeatherWindow ? window.showWeatherWindow() : window.toggleWeatherWindow());
-        }
-
-        function open() {
-            shellRoot.forFocusedWindow((window) => window.showWeatherWindow ? window.showWeatherWindow() : window.toggleWeatherWindow());
-        }
-
-        function close() {
-            shellRoot.forFocusedWindow((window) => window.closeWeatherWindow ? window.closeWeatherWindow() : window.toggleWeatherWindow());
-        }
-
-        function refresh() {
-            if (shellRoot.weatherService)
-                shellRoot.weatherService.refresh();
-        }
-    }
-
-    IpcHandler {
-        target: "calendar"
-
-        function toggle() {
-            shellRoot.forFocusedWindow((window) => window.toggleCalendarWindow());
-        }
-
-        function show() {
-            shellRoot.forFocusedWindow((window) => window.showCalendarWindow ? window.showCalendarWindow() : window.toggleCalendarWindow());
-        }
-
-        function open() {
-            shellRoot.forFocusedWindow((window) => window.showCalendarWindow ? window.showCalendarWindow() : window.toggleCalendarWindow());
-        }
-
-        function close() {
             shellRoot.forFocusedWindow((window) => window.closeCalendarWindow ? window.closeCalendarWindow() : window.toggleCalendarWindow());
         }
     }

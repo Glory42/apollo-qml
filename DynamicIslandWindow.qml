@@ -176,9 +176,6 @@ PanelWindow {
 
     exclusiveZone: Math.ceil(root.baseExclusiveZone * root.exclusiveZoneProgress)
     WlrLayershell.layer: islandContainer.wallpaperPickerLayerVisible
-        || islandContainer.applicationLauncherLayerVisible
-        || islandContainer.fileShelfLayerVisible
-        || islandContainer.clipboardLayerVisible
         || islandContainer.weatherLayerVisible
         || islandContainer.calendarLayerVisible
         ? WlrLayer.Overlay
@@ -186,11 +183,8 @@ PanelWindow {
     WlrLayershell.keyboardFocus: {
         if (islandContainer.controlCenterLayerVisible
                 || islandContainer.wallpaperPickerLayerVisible
-                || islandContainer.applicationLauncherLayerVisible
-                || islandContainer.clipboardLayerVisible
                 || islandContainer.weatherLayerVisible
-                || islandContainer.calendarLayerVisible
-                || islandContainer.fileShelfLayerVisible)
+                || islandContainer.calendarLayerVisible)
             return WlrKeyboardFocus.OnDemand;
         // Keep keyboard focus on the overview until an overview action closes it.
         // Click-to-focus closes the overview before focusing the selected client.
@@ -204,8 +198,6 @@ PanelWindow {
     }
     readonly property bool dismissablePanelOpen: islandContainer.controlCenterLayerVisible
         || islandContainer.wallpaperPickerLayerVisible
-        || islandContainer.applicationLauncherLayerVisible
-        || islandContainer.clipboardLayerVisible
         || islandContainer.weatherLayerVisible
         || islandContainer.calendarLayerVisible
     readonly property string iconFontFamily: userConfig.iconFontFamily
@@ -673,36 +665,6 @@ PanelWindow {
             islandContainer.showWallpaperPicker();
     }
 
-    function toggleApplicationLauncherWindow() {
-        if (islandContainer.islandState === "application_launcher")
-            islandContainer.smartRestoreState();
-        else
-            islandContainer.showApplicationLauncher();
-    }
-
-    function toggleFileShelfWindow() {
-        if (islandContainer.islandState === "file_shelf")
-            islandContainer.smartRestoreState();
-        else
-            islandContainer.showFileShelf(true);
-    }
-
-    function toggleClipboardWindow() {
-        if (islandContainer.islandState === "clipboard")
-            islandContainer.smartRestoreState();
-        else
-            islandContainer.showClipboard();
-    }
-
-    function showClipboardWindow() {
-        islandContainer.showClipboard();
-    }
-
-    function closeClipboardWindow() {
-        if (islandContainer.islandState === "clipboard")
-            islandContainer.smartRestoreState();
-    }
-
     function toggleWeatherWindow() {
         if (islandContainer.islandState === "weather")
             islandContainer.smartRestoreState();
@@ -896,9 +858,6 @@ PanelWindow {
         anchors.fill: parent
         focus: controlCenterLayerVisible
             || wallpaperPickerLayerVisible
-            || applicationLauncherLayerVisible
-            || fileShelfLayerVisible
-            || clipboardLayerVisible
             || weatherLayerVisible
             || calendarLayerVisible
             || expandedPlayerKeyboardFocusRequested
@@ -948,7 +907,6 @@ PanelWindow {
         property bool timerCompletionAnimating: false
         property real timerCompletionPulse: 0
         property real timerCompletionFlash: 0
-        property bool fileShelfOpenedManually: false
         readonly property int defaultAutoHideInterval: 1250
         readonly property int notificationAutoHideInterval: 4200
         readonly property int bluetoothExpandedAutoHideInterval: 2500
@@ -956,33 +914,21 @@ PanelWindow {
         readonly property bool showsMediaInNormal: restingState === "lyrics"
             || (restingState === "normal" && !!currentTrack)
             || (restingState === "custom" && !hasCustomLeftItems && !!currentTrack)
-        readonly property bool fileShelfLayerInteractive: !root.overviewVisible
-            && (islandState === "file_shelf" || islandState === "normal" || islandState === "lyrics" || islandState === "custom")
-        readonly property bool clipboardLayerInteractive: !root.overviewVisible
-            && (islandState === "clipboard" || islandState === "normal" || islandState === "lyrics" || islandState === "custom")
         readonly property bool weatherLayerInteractive: !root.overviewVisible
             && (islandState === "weather" || islandState === "normal" || islandState === "lyrics" || islandState === "custom")
         readonly property bool calendarLayerInteractive: !root.overviewVisible
             && (islandState === "calendar" || islandState === "normal" || islandState === "lyrics" || islandState === "custom")
-        readonly property bool fileShelfOverlayActive: false
-        readonly property bool fileShelfAcceptingDrop: false
         readonly property real timerProgress: timerActive && timerTotalSeconds > 0
             ? Math.max(0, Math.min(1, timerRemainingSeconds / timerTotalSeconds))
             : 0
         readonly property bool timerBubbleWanted: (timerActive && timerRemainingSeconds > 0 || timerCompletionAnimating)
             && !root.overviewVisible
             && (islandState === "normal" || islandState === "lyrics" || islandState === "custom")
-        readonly property bool fileShelfBubbleWanted: false
-        readonly property bool fileShelfCanAutoOpen: !root.overviewVisible
-            && (islandState === "normal" || islandState === "lyrics" || islandState === "custom")
         readonly property bool blocksTransientSplit: islandState === "expanded"
             || islandState === "bluetooth_expanded"
             || islandState === "control_center"
             || islandState === "notification"
             || islandState === "wallpaper_picker"
-            || islandState === "application_launcher"
-            || islandState === "file_shelf"
-            || islandState === "clipboard"
             || islandState === "weather"
             || islandState === "calendar"
         readonly property bool splitShowsProgress: islandState === "split" && osdProgress >= 0
@@ -1027,9 +973,6 @@ PanelWindow {
         readonly property bool controlCenterLayerVisible: !root.overviewVisible && islandState === "control_center"
         readonly property bool notificationCenterLayerVisible: !root.overviewVisible && islandState === "notification_center"
         readonly property bool wallpaperPickerLayerVisible: !root.overviewVisible && islandState === "wallpaper_picker"
-        readonly property bool applicationLauncherLayerVisible: !root.overviewVisible && islandState === "application_launcher"
-        readonly property bool fileShelfLayerVisible: !root.overviewVisible && islandState === "file_shelf"
-        readonly property bool clipboardLayerVisible: !root.overviewVisible && islandState === "clipboard"
         readonly property bool weatherLayerVisible: !root.overviewVisible && islandState === "weather"
         readonly property bool calendarLayerVisible: !root.overviewVisible && islandState === "calendar"
         readonly property var activePlayer: mediaController.activePlayer
@@ -1059,11 +1002,6 @@ PanelWindow {
                 else
                     root.closeAllConnectivityDetails();
             }
-        }
-
-        onFileShelfLayerVisibleChanged: {
-            if (!fileShelfLayerVisible)
-                fileShelfOpenedManually = false;
         }
 
         onCustomLeftItemsChanged: {
@@ -1289,20 +1227,6 @@ PanelWindow {
                 return;
             case "restoreRestingCapsule":
                 smartRestoreState();
-                return;
-            case "toggleClipboard":
-                if (islandState === "clipboard")
-                    smartRestoreState();
-                else
-                    showClipboard();
-                return;
-            case "openClipboard":
-            case "showClipboard":
-                showClipboard();
-                return;
-            case "closeClipboard":
-                if (islandState === "clipboard")
-                    smartRestoreState();
                 return;
             case "toggleWeather":
                 if (islandState === "weather")
@@ -1662,7 +1586,7 @@ PanelWindow {
 
         function showNotificationCapsule(appName, summary, body) {
             if (root.overviewVisible || islandState === "control_center"
-                    || islandState === "expanded" || islandState === "file_shelf") return;
+                    || islandState === "expanded") return;
 
             const cleanedAppName = cleanNotificationText(appName);
             const cleanedSummary = cleanNotificationText(summary);
@@ -1770,7 +1694,7 @@ PanelWindow {
 
         function showBluetoothExpanded(device) {
             if (!device || root.overviewVisible || islandState === "control_center"
-                    || islandState === "notification" || islandState === "file_shelf")
+                    || islandState === "notification")
                 return;
 
             cancelSideSwipeSettle();
@@ -1807,46 +1731,6 @@ PanelWindow {
             abortSideTransientMode();
             clearTransientCapsule();
             islandState = "wallpaper_picker";
-            mainCapsule.displayedWidth = mainCapsule.baseTargetWidth;
-            stopAutoHideTimer();
-        }
-
-        function showApplicationLauncher() {
-            cancelSideSwipeSettle();
-            abortSideTransientMode();
-            clearTransientCapsule();
-            islandState = "application_launcher";
-            mainCapsule.displayedWidth = mainCapsule.baseTargetWidth;
-            stopAutoHideTimer();
-        }
-
-        function showFileShelf(manuallyOpened) {
-            const manual = manuallyOpened === true;
-            if (islandState === "file_shelf") {
-                if (manual)
-                    fileShelfOpenedManually = true;
-                return;
-            }
-
-            cancelSideSwipeSettle();
-            abortSideTransientMode();
-            clearTransientCapsule();
-            fileShelfOpenedManually = manual;
-            islandState = "file_shelf";
-            mainCapsule.displayedWidth = mainCapsule.baseTargetWidth;
-            stopAutoHideTimer();
-        }
-
-        function closeAutoOpenedFileShelf() {
-            if (islandState === "file_shelf" && !fileShelfOpenedManually)
-                smartRestoreState();
-        }
-
-        function showClipboard() {
-            cancelSideSwipeSettle();
-            abortSideTransientMode();
-            clearTransientCapsule();
-            islandState = "clipboard";
             mainCapsule.displayedWidth = mainCapsule.baseTargetWidth;
             stopAutoHideTimer();
         }
@@ -1984,8 +1868,7 @@ PanelWindow {
             if (currentTrack !== ""
                     && islandState !== "control_center"
                     && islandState !== "notification"
-                    && islandState !== "bluetooth_expanded"
-                    && islandState !== "file_shelf") {
+                    && islandState !== "bluetooth_expanded") {
                 if (root.autoHideSuppressesTransientReveal) return;
                 if (islandState === "expanded" && !expandedByPlayerAutoOpen) return;
                 showExpandedPlayer(true);
@@ -2042,11 +1925,7 @@ PanelWindow {
                 case "notification_center":
                     return 410;
                 case "wallpaper_picker":
-                case "application_launcher":
-                case "file_shelf":
                     return 1100;
-                case "clipboard":
-                    return 520;
                 case "weather":
                     return 460;
                 case "calendar":
@@ -2075,11 +1954,7 @@ PanelWindow {
                 case "notification_center":
                     return notificationCenterLoader.item ? notificationCenterLoader.item.contentHeight : 200;
                 case "wallpaper_picker":
-                case "application_launcher":
-                case "file_shelf":
                     return 260;
-                case "clipboard":
-                    return 350;
                 case "weather":
                 case "calendar":
                     return 340;
@@ -2103,9 +1978,6 @@ PanelWindow {
                 case "notification_center":
                     return mainCapsule.targetHeight * 36 / 165;
                 case "wallpaper_picker":
-                case "application_launcher":
-                case "file_shelf":
-                case "clipboard":
                 case "weather":
                 case "calendar":
                     return 34;

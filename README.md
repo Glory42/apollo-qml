@@ -30,13 +30,10 @@ quickshell -c ~/Projects/shitthatiamtestting/Tide-island
 - Workspace overview (Hyprland)
 - Bluetooth pairing/connection flows, wifi connect/forget flows
 
-**Not yet built** (state plumbing exists — `islandState` has these values,
-with working show/toggle/IPC/keyboard-focus/mask wiring — but no visual
-component exists yet, so triggering them just resizes the capsule to an empty
-rounded rectangle):
-- Application launcher
-- File shelf
-- Clipboard history
+Upstream also had an application launcher, file shelf, and clipboard
+history — this fork never built visuals for them, and the unused
+`islandState` plumbing for all three has since been removed (see the
+resolved "unbuilt panels" question below).
 
 ## Portability
 
@@ -109,10 +106,11 @@ Tide-island/
     ├── ipc/                           # NEW — one file per IpcHandler target
     │   ├── OverviewIpc.qml
     │   ├── IslandIpc.qml
-    │   ├── TideIpc.qml
-    │   ├── ClipboardIpc.qml
-    │   ├── WeatherIpc.qml
-    │   └── CalendarIpc.qml
+    │   └── TideIpc.qml                # sole namespace for all panel commands
+    │                                    (clipboard/weather/calendar duplicate
+    │                                    top-level targets were collapsed into
+    │                                    this one, matching upstream's own
+    │                                    documented `tide.*` IPC surface)
     │
     ├── services/                      # NEW — headless trackers, no visuals
     │   ├── IslandClock.qml
@@ -222,7 +220,11 @@ its current filename, just moves.
   someday, but as its own separate, carefully-tested task — not part of this
   pass.
 - **Building the application launcher / file shelf / clipboard history
-  panels.** Out of scope for a structural refactor; see open question below.
+  panels.** Their half-built `islandState` plumbing (state flags, capsule
+  sizing, IPC toggle functions, keyboard-focus/mask wiring, with zero visual
+  component behind any of it) has been removed rather than finished or kept
+  around. If these come back, they get designed and built as real features,
+  not resurrected from leftover scaffolding.
 
 ## Migration plan
 
@@ -316,19 +318,27 @@ afterward individually — not a couple as a sample, all of them.
 - Wallpaper picker's embedded Python source strings → `wallpaper/scripts/*.py`.
 - `calendar/CalendarMath.js` pure day-grid function extraction.
 - `wallpaper/WallpaperConfig.js` pure validator extraction.
-- `shell.qml`'s `IpcHandler` blocks → one file per target under `qml/ipc/`.
+- `shell.qml`'s `IpcHandler` blocks → one file per target under `qml/ipc/`
+  (`overview`, `island`, `tide` — three files now, not six).
 
-## Open questions (need an answer before/during execution)
+## Resolved decisions
 
-1. **Duplicate IPC namespaces.** `shell.qml` currently exposes identical
-   behavior under two different `quickshell ipc call` targets — e.g.
-   `tide.toggleClipboard` and `clipboard.toggle` do the exact same thing.
-   Same for weather and calendar. When splitting into `qml/ipc/` files:
-   keep both namespaces (in case something external already targets either
-   one), or collapse to one canonical namespace per feature?
-2. **The three unbuilt panels.** `application_launcher`, `file_shelf`, and
-   `clipboard` island states have full plumbing (state flags, capsule
-   sizing, IPC toggle functions, keyboard-focus/mask/backdrop wiring) but no
-   visual component — triggering them just resizes the capsule to an empty
-   rounded rectangle. Is building these three a goal for later, or should
-   the half-built plumbing be removed until they're actually designed?
+Both open questions from the original plan have been settled and already
+acted on, ahead of the phased migration below:
+
+1. **Duplicate IPC namespaces → collapsed.** The standalone `clipboard`,
+   `weather`, and `calendar` top-level `IpcHandler` targets have been
+   removed from `shell.qml`. `weather.refresh` became `tide.refreshWeather`.
+   Everything panel-related now lives under the single `tide` namespace,
+   matching what upstream's own README actually documented (it never
+   mentioned the standalone targets). `overview` and `island` stay as their
+   own targets — those are genuinely distinct concerns, not duplicates.
+2. **The three unbuilt panels → removed.** All `application_launcher`,
+   `file_shelf`, and `clipboard` `islandState` plumbing has been deleted
+   from `DynamicIslandWindow.qml` and `shell.qml`: the state-visibility
+   flags, the three IPC wrapper functions per panel, the
+   `handleConfiguredClickAction` cases, the capsule width/height/radius
+   switch cases, and the file-shelf-specific auto-open bookkeeping
+   (`fileShelfOpenedManually`, `closeAutoOpenedFileShelf`, etc.) that had no
+   caller even before this cleanup. Verified brace-balanced and
+   `qmllint`-clean on both files afterward.
