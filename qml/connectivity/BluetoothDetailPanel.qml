@@ -5,15 +5,11 @@ Item {
     id: root
 
     property var provider: null
-    property string panelKind: "wifi"
     property string iconFontFamily: ""
     property string textFontFamily: ""
     property string heroFontFamily: textFontFamily
     property real presentationProgress: 1
 
-    readonly property bool isWifi: panelKind === "wifi"
-    readonly property bool isBluetooth: panelKind === "bluetooth"
-    readonly property bool isPower: panelKind === "power"
     readonly property var bluetoothDevices: provider ? provider.bluetoothDeviceValues || [] : []
     readonly property var bluetoothConnectedDevices: bluetoothDevicesForSection("connected")
     readonly property var bluetoothPairedDevices: bluetoothDevicesForSection("paired")
@@ -24,15 +20,6 @@ Item {
     readonly property bool bluetoothScanning: provider && provider.bluetoothAdapter
         ? provider.bluetoothAdapter.discovering
         : !!(provider && provider.bluetoothListRunning)
-
-    function safeString(value) {
-        return value === undefined || value === null ? "" : String(value);
-    }
-
-    function wifiEntryVisible(connected) {
-        if (!root.provider) return false;
-        return !(connected && root.provider.wifiEnabled && safeString(root.provider.wifiCurrentSsid).length > 0);
-    }
 
     function bluetoothDeviceVisible(device, section) {
         return root.provider && root.provider.bluetoothDeviceMatchesSection
@@ -73,11 +60,6 @@ Item {
     }
 
     function focusPromptField() {
-        if (wifiPasswordPrompt.visible) {
-            wifiPasswordField.forceActiveFocus();
-            return;
-        }
-
         if (bluetoothPairingPrompt.visible && bluetoothSecretField.visible)
             bluetoothSecretField.forceActiveFocus();
     }
@@ -92,10 +74,6 @@ Item {
     Connections {
         target: root.provider
         ignoreUnknownSignals: true
-
-        function onWifiPendingPasswordSsidChanged() {
-            promptFocusTimer.restart();
-        }
 
         function onBluetoothPairingActiveChanged() {
             promptFocusTimer.restart();
@@ -124,16 +102,15 @@ Item {
 
         Item {
             id: headerRow
-            visible: !root.isPower
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
-            height: root.isPower ? 0 : 24
+            height: 24
 
             Text {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                text: root.isWifi ? "Wi-Fi" : root.isBluetooth ? "Bluetooth" : "Power"
+                text: "Bluetooth"
                 color: StyleTokens.textPrimary
                 font.pixelSize: 15
                 font.family: root.heroFontFamily
@@ -147,7 +124,7 @@ Item {
                 width: 58
                 height: 24
                 radius: 12
-                visible: root.isBluetooth && root.provider
+                visible: root.provider
                     && root.provider.bluetoothAvailable
                     && root.provider.bluetoothEnabled
                 color: bluetoothScanMouse.containsMouse
@@ -181,110 +158,12 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: headerRow.bottom
-            anchors.topMargin: root.isPower ? 0 : 14
+            anchors.topMargin: 14
             spacing: 10
 
-            Rectangle {
-                width: parent.width
-                height: visible ? 64 : 0
-                radius: 16
-                color: StyleTokens.transparent
-                visible: root.isWifi && root.provider && root.provider.wifiEnabled && root.provider.wifiCurrentSsid.length > 0
-
-                MouseArea {
-                    anchors.fill: parent
-                    enabled: root.provider
-                        && root.provider.wifiSupported
-                        && root.provider.wifiAvailable
-                        && !root.provider.wifiBusy
-                    onClicked: {
-                        if (root.provider)
-                            root.provider.disconnectWifi();
-                    }
-                }
-
-                Item {
-                    anchors.fill: parent
-                    anchors.margins: 14
-
-                    Text {
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: root.provider ? root.provider.wifiGlyph : ""
-                        color: StyleTokens.accent
-                        font.pixelSize: 16
-                        font.family: root.iconFontFamily
-                    }
-
-                    Text {
-                        anchors.left: parent.left
-                        anchors.leftMargin: 28
-                        anchors.top: parent.top
-                        anchors.right: parent.right
-                        anchors.rightMargin: 24
-                        text: root.provider ? root.provider.wifiCurrentSsid : ""
-                        color: StyleTokens.textPrimary
-                        font.pixelSize: 12
-                        font.family: root.textFontFamily
-                        font.weight: Font.DemiBold
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        anchors.left: parent.left
-                        anchors.leftMargin: 28
-                        anchors.bottom: parent.bottom
-                        text: "Connected"
-                        color: StyleTokens.textSoft
-                        font.pixelSize: 11
-                        font.family: root.textFontFamily
-                    }
-
-                    Text {
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: "✓"
-                        color: StyleTokens.success
-                        font.pixelSize: 18
-                        font.family: root.textFontFamily
-                        font.weight: Font.DemiBold
-                    }
-                }
-            }
-
             Text {
                 width: parent.width
-                visible: root.provider && root.provider.wifiAvailabilityMessage.length > 0 && root.isWifi
-                text: root.provider ? root.provider.wifiAvailabilityMessage : ""
-                color: StyleTokens.textMuted
-                font.pixelSize: 11
-                font.family: root.textFontFamily
-                wrapMode: Text.Wrap
-            }
-
-            Text {
-                width: parent.width
-                visible: root.provider && root.provider.wifiInfoMessage.length > 0 && root.isWifi
-                text: root.provider ? root.provider.wifiInfoMessage : ""
-                color: StyleTokens.accentSoft
-                font.pixelSize: 11
-                font.family: root.textFontFamily
-                wrapMode: Text.Wrap
-            }
-
-            Text {
-                width: parent.width
-                visible: root.provider && root.provider.wifiError.length > 0 && root.isWifi
-                text: root.provider ? root.provider.wifiError : ""
-                color: StyleTokens.error
-                font.pixelSize: 11
-                font.family: root.textFontFamily
-                wrapMode: Text.Wrap
-            }
-
-            Text {
-                width: parent.width
-                visible: root.provider && root.provider.bluetoothAvailabilityMessage.length > 0 && root.isBluetooth
+                visible: root.provider && root.provider.bluetoothAvailabilityMessage.length > 0
                 text: root.provider ? root.provider.bluetoothAvailabilityMessage : ""
                 color: StyleTokens.textMuted
                 font.pixelSize: 11
@@ -294,7 +173,7 @@ Item {
 
             Text {
                 width: parent.width
-                visible: root.provider && root.provider.bluetoothInfoMessage.length > 0 && root.isBluetooth
+                visible: root.provider && root.provider.bluetoothInfoMessage.length > 0
                 text: root.provider ? root.provider.bluetoothInfoMessage : ""
                 color: StyleTokens.accentSoft
                 font.pixelSize: 11
@@ -304,7 +183,7 @@ Item {
 
             Text {
                 width: parent.width
-                visible: root.provider && root.provider.bluetoothError.length > 0 && root.isBluetooth
+                visible: root.provider && root.provider.bluetoothError.length > 0
                 text: root.provider ? root.provider.bluetoothError : ""
                 color: StyleTokens.error
                 font.pixelSize: 11
@@ -322,7 +201,7 @@ Item {
                     : 0
                 radius: 16
                 color: StyleTokens.prompt
-                visible: root.isBluetooth && root.provider && root.provider.bluetoothPairingActive
+                visible: root.provider && root.provider.bluetoothPairingActive
                 clip: true
 
                 onVisibleChanged: {
@@ -488,147 +367,6 @@ Item {
                     }
                 }
             }
-
-            Rectangle {
-                id: wifiPasswordPrompt
-                width: parent.width
-                height: visible ? 92 : 0
-                radius: 16
-                color: StyleTokens.prompt
-                visible: root.isWifi && root.provider && root.provider.wifiPendingPasswordSsid.length > 0
-                clip: true
-
-                onVisibleChanged: {
-                    if (visible)
-                        promptFocusTimer.restart();
-                }
-
-                Item {
-                    anchors.fill: parent
-                    anchors.margins: 12
-
-                    Text {
-                        anchors.left: parent.left
-                        anchors.top: parent.top
-                        anchors.right: parent.right
-                        text: "Enter password for " + (root.provider ? root.provider.wifiPendingPasswordSsid : "")
-                        color: StyleTokens.textPrimary
-                        font.pixelSize: 12
-                        font.family: root.textFontFamily
-                        font.weight: Font.DemiBold
-                        elide: Text.ElideRight
-                    }
-
-                    Rectangle {
-                        anchors.left: parent.left
-                        anchors.right: joinButton.left
-                        anchors.rightMargin: 8
-                        anchors.bottom: parent.bottom
-                        height: 34
-                        radius: 12
-                        color: StyleTokens.input
-                        border.color: StyleTokens.inputBorder
-                        border.width: 1
-
-                        Text {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 12
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: "Password"
-                            color: StyleTokens.textTertiary
-                            font.pixelSize: 11
-                            font.family: root.textFontFamily
-                            visible: root.provider && root.provider.wifiPendingPasswordValue.length === 0 && !wifiPasswordField.activeFocus
-                        }
-
-                        TextInput {
-                            id: wifiPasswordField
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.leftMargin: 12
-                            anchors.rightMargin: 12
-                            height: Math.min(parent.height - 8, implicitHeight + 2)
-                            color: StyleTokens.textPrimary
-                            font.pixelSize: 11
-                            font.family: root.textFontFamily
-                            echoMode: TextInput.Password
-                            verticalAlignment: TextInput.AlignVCenter
-                            topPadding: 0
-                            bottomPadding: 0
-                            leftPadding: 0
-                            rightPadding: 0
-                            clip: true
-                            selectByMouse: true
-                            cursorVisible: activeFocus
-                            text: root.provider ? root.provider.wifiPendingPasswordValue : ""
-                            onTextChanged: {
-                                if (root.provider)
-                                    root.provider.wifiPendingPasswordValue = text;
-                            }
-                            Keys.onReturnPressed: {
-                                if (root.provider)
-                                    root.provider.submitWifiPassword();
-                            }
-                        }
-                    }
-
-                    Rectangle {
-                        id: joinButton
-                        anchors.right: cancelButton.left
-                        anchors.rightMargin: 8
-                        anchors.bottom: parent.bottom
-                        width: 50
-                        height: 34
-                        radius: 12
-                        color: StyleTokens.accent
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Join"
-                            color: StyleTokens.white
-                            font.pixelSize: 11
-                            font.family: root.textFontFamily
-                            font.weight: Font.DemiBold
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                if (root.provider)
-                                    root.provider.submitWifiPassword();
-                            }
-                        }
-                    }
-
-                    Rectangle {
-                        id: cancelButton
-                        anchors.right: parent.right
-                        anchors.bottom: parent.bottom
-                        width: 50
-                        height: 34
-                        radius: 12
-                        color: StyleTokens.secondaryButton
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Cancel"
-                            color: StyleTokens.textPrimary
-                            font.pixelSize: 11
-                            font.family: root.textFontFamily
-                            font.weight: Font.DemiBold
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                if (root.provider)
-                                    root.provider.clearWifiPrompt();
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         Flickable {
@@ -647,165 +385,9 @@ Item {
                 width: contentFlick.width
                 spacing: 8
 
-                Row {
-                    visible: root.isPower
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 12
-
-                    Repeater {
-                        model: [
-                            { glyph: "\uf023", action: "triggerLock" },
-                            { glyph: "\uf186", action: "triggerSleep" },
-                            { glyph: "\uf021", action: "triggerRestart" },
-                            { glyph: "\uf011", action: "triggerShutdown" }
-                        ]
-
-                        delegate: Rectangle {
-                            width: 48
-                            height: 48
-                            radius: 14
-                            color: StyleTokens.secondaryButton
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: modelData.glyph
-                                color: StyleTokens.textPrimary
-                                font.pixelSize: 17
-                                font.family: root.iconFontFamily
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    if (root.provider && root.provider[modelData.action])
-                                        root.provider[modelData.action]();
-                                }
-                            }
-                        }
-                    }
-                }
-
                 Text {
                     width: parent.width
-                    visible: root.isWifi && root.provider
-                        && root.provider.wifiSupported
-                        && root.provider.wifiAvailable
-                        && !root.provider.wifiEnabled
-                    text: "Turn on Wi-Fi to see nearby networks."
-                    color: StyleTokens.textMuted
-                    font.pixelSize: 12
-                    font.family: root.textFontFamily
-                    wrapMode: Text.Wrap
-                }
-
-                Text {
-                    width: parent.width
-                    visible: root.isWifi && root.provider && root.provider.wifiListRunning
-                    text: "Scanning nearby networks..."
-                    color: StyleTokens.textMuted
-                    font.pixelSize: 12
-                    font.family: root.textFontFamily
-                }
-
-                Repeater {
-                    model: root.isWifi && root.provider ? root.provider.wifiNetworks : null
-
-                    delegate: Rectangle {
-                        required property var modelData
-
-                        readonly property bool connected: !!modelData.connected
-                        readonly property bool secure: root.provider ? root.provider.wifiNetworkIsSecure(modelData) : false
-                        readonly property int signalPercent: root.provider ? root.provider.wifiNetworkSignalPercent(modelData) : -1
-
-                        width: contentColumn.width
-                        height: visible ? 52 : 0
-                        radius: 14
-                        color: StyleTokens.transparent
-                        visible: root.wifiEntryVisible(connected)
-                        clip: true
-
-                        MouseArea {
-                            anchors.fill: parent
-                            enabled: root.provider
-                                && root.provider.wifiSupported
-                                && root.provider.wifiAvailable
-                                && root.provider.wifiEnabled
-                                && !root.provider.wifiBusy
-                            onClicked: {
-                                if (!root.provider) return;
-                                root.provider.connectWifiNetwork(modelData);
-                            }
-                        }
-
-                        Item {
-                            anchors.fill: parent
-                            anchors.margins: 12
-
-                            Text {
-                                anchors.left: parent.left
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: root.provider ? root.provider.wifiGlyph : ""
-                                color: connected ? StyleTokens.accent : StyleTokens.disabledControl
-                                font.pixelSize: 14
-                                font.family: root.iconFontFamily
-                            }
-
-                            Text {
-                                anchors.left: parent.left
-                                anchors.leftMargin: 26
-                                anchors.top: parent.top
-                                anchors.right: rightInfo.left
-                                anchors.rightMargin: 8
-                                text: modelData.name
-                                color: StyleTokens.textPrimary
-                                font.pixelSize: 12
-                                font.family: root.textFontFamily
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
-                            }
-
-                            Text {
-                                anchors.left: parent.left
-                                anchors.leftMargin: 26
-                                anchors.bottom: parent.bottom
-                                anchors.right: rightInfo.left
-                                anchors.rightMargin: 8
-                                text: secure ? "Secure network" : "Open network"
-                                color: StyleTokens.textMuted
-                                font.pixelSize: 10
-                                font.family: root.textFontFamily
-                                elide: Text.ElideRight
-                            }
-
-                            Row {
-                                id: rightInfo
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                spacing: 6
-
-                                Text {
-                                    text: signalPercent + "%"
-                                    color: "#f0f0f3"
-                                    font.pixelSize: 11
-                                    font.family: root.textFontFamily
-                                    visible: signalPercent >= 0
-                                }
-
-                                Text {
-                                    text: ""
-                                    color: StyleTokens.textSubtle
-                                    font.pixelSize: 11
-                                    font.family: root.iconFontFamily
-                                    visible: secure
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Text {
-                    width: parent.width
-                    visible: root.isBluetooth && root.provider && root.provider.bluetoothAvailable && !root.provider.bluetoothEnabled
+                    visible: root.provider && root.provider.bluetoothAvailable && !root.provider.bluetoothEnabled
                     text: "Turn on Bluetooth to see nearby devices."
                     color: StyleTokens.textMuted
                     font.pixelSize: 12
@@ -815,7 +397,7 @@ Item {
 
                 Text {
                     width: parent.width
-                    visible: root.isBluetooth && root.provider
+                    visible: root.provider
                         && root.provider.bluetoothEnabled
                         && root.bluetoothScanning
                     text: "Scanning nearby devices..."
@@ -826,7 +408,7 @@ Item {
 
                 Text {
                     width: parent.width
-                    visible: root.isBluetooth && root.provider
+                    visible: root.provider
                         && root.provider.bluetoothEnabled
                         && !root.bluetoothScanning
                         && root.bluetoothDeviceCount === 0
@@ -840,7 +422,7 @@ Item {
                 Item {
                     width: parent.width
                     height: btConnectedSection.visible ? btConnectedSection.implicitHeight : 0
-                    visible: root.isBluetooth && root.bluetoothConnectedDevices.length > 0
+                    visible: root.bluetoothConnectedDevices.length > 0
 
                     Column {
                         id: btConnectedSection
@@ -873,7 +455,7 @@ Item {
                 Item {
                     width: parent.width
                     height: btPairedSection.visible ? btPairedSection.implicitHeight : 0
-                    visible: root.isBluetooth && root.bluetoothPairedDevices.length > 0
+                    visible: root.bluetoothPairedDevices.length > 0
 
                     Column {
                         id: btPairedSection
@@ -906,7 +488,7 @@ Item {
                 Item {
                     width: parent.width
                     height: btAvailableSection.visible ? btAvailableSection.implicitHeight : 0
-                    visible: root.isBluetooth && root.bluetoothAvailableDevices.length > 0
+                    visible: root.bluetoothAvailableDevices.length > 0
 
                     Column {
                         id: btAvailableSection
@@ -937,6 +519,5 @@ Item {
                 }
             }
         }
-
     }
 }

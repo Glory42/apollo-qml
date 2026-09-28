@@ -112,26 +112,26 @@ PanelWindow {
         // Add existing detail shells
         Region {
             intersection: Intersection.Combine
-            x: Math.floor(wifiConnectivityDetailShell.x)
-            y: Math.floor(wifiConnectivityDetailShell.y)
-            width: wifiConnectivityDetailShell.visible ? Math.ceil(wifiConnectivityDetailShell.width) : 0
-            height: wifiConnectivityDetailShell.visible ? Math.ceil(wifiConnectivityDetailShell.height) : 0
+            x: Math.floor(connectivityDetailShells.wifiShell.x)
+            y: Math.floor(connectivityDetailShells.wifiShell.y)
+            width: connectivityDetailShells.wifiShell.visible ? Math.ceil(connectivityDetailShells.wifiShell.width) : 0
+            height: connectivityDetailShells.wifiShell.visible ? Math.ceil(connectivityDetailShells.wifiShell.height) : 0
         }
 
         Region {
             intersection: Intersection.Combine
-            x: Math.floor(bluetoothConnectivityDetailShell.x)
-            y: Math.floor(bluetoothConnectivityDetailShell.y)
-            width: bluetoothConnectivityDetailShell.visible ? Math.ceil(bluetoothConnectivityDetailShell.width) : 0
-            height: bluetoothConnectivityDetailShell.visible ? Math.ceil(bluetoothConnectivityDetailShell.height) : 0
+            x: Math.floor(connectivityDetailShells.bluetoothShell.x)
+            y: Math.floor(connectivityDetailShells.bluetoothShell.y)
+            width: connectivityDetailShells.bluetoothShell.visible ? Math.ceil(connectivityDetailShells.bluetoothShell.width) : 0
+            height: connectivityDetailShells.bluetoothShell.visible ? Math.ceil(connectivityDetailShells.bluetoothShell.height) : 0
         }
 
         Region {
             intersection: Intersection.Combine
-            x: Math.floor(powerConnectivityDetailShell.x)
-            y: Math.floor(powerConnectivityDetailShell.y)
-            width: powerConnectivityDetailShell.visible ? Math.ceil(powerConnectivityDetailShell.width) : 0
-            height: powerConnectivityDetailShell.visible ? Math.ceil(powerConnectivityDetailShell.height) : 0
+            x: Math.floor(connectivityDetailShells.powerShell.x)
+            y: Math.floor(connectivityDetailShells.powerShell.y)
+            width: connectivityDetailShells.powerShell.visible ? Math.ceil(connectivityDetailShells.powerShell.width) : 0
+            height: connectivityDetailShells.powerShell.visible ? Math.ceil(connectivityDetailShells.powerShell.height) : 0
         }
 
         // While a dismissable panel (Control Center, Wallpaper Picker, etc.) is
@@ -2638,300 +2638,20 @@ PanelWindow {
 
         }
 
-        Item {
+        TimerBubble {
             id: timerBubble
 
-            property bool mounted: false
-            property real reveal: islandContainer.timerBubbleWanted ? 1 : 0
-            readonly property int bubbleSize: 34
-            readonly property real hiddenX: mainCapsule.x + mainCapsule.width - width * 0.62
-            readonly property real shownX: mainCapsule.x + mainCapsule.width + 8
-            readonly property real centerY: mainCapsule.y + mainCapsule.height / 2 - height / 2
-
-            width: bubbleSize
-            height: bubbleSize
-            x: hiddenX + (shownX - hiddenX) * reveal
-            y: centerY + (1 - reveal) * 10
-            z: 6
-            visible: mounted
-            opacity: reveal * root.autoHideProgress
-            scale: (0.55 + reveal * 0.45) * (0.96 + root.autoHideProgress * 0.04) * (1 + islandContainer.timerCompletionPulse * 0.12)
-            transformOrigin: Item.Center
-
-            Connections {
-                target: islandContainer
-
-                function onTimerBubbleWantedChanged() {
-                    timerBubbleShowAnimation.stop();
-                    timerBubbleHideAnimation.stop();
-
-                    if (islandContainer.timerBubbleWanted) {
-                        timerBubble.mounted = true;
-                        timerBubbleShowAnimation.restart();
-                    } else {
-                        timerBubbleHideAnimation.restart();
-                    }
-                }
-
-                function onTimerProgressChanged() {
-                    timerBubbleRing.requestPaint();
-                }
-
-                function onTimerRemainingSecondsChanged() {
-                    timerBubbleRing.requestPaint();
-                }
-
-                function onTimerTotalSecondsChanged() {
-                    timerBubbleRing.requestPaint();
-                }
-
-                function onTimerCompletionAnimatingChanged() {
-                    timerBubbleRing.requestPaint();
-                }
-
-                function onTimerCompletionFlashChanged() {
-                    timerBubbleRing.requestPaint();
-                }
-            }
-
-            NumberAnimation {
-                id: timerBubbleShowAnimation
-
-                target: timerBubble
-                property: "reveal"
-                from: timerBubble.reveal
-                to: 1
-                duration: 360
-                easing.type: Easing.OutCubic
-            }
-
-            NumberAnimation {
-                id: timerBubbleHideAnimation
-
-                target: timerBubble
-                property: "reveal"
-                from: timerBubble.reveal
-                to: 0
-                duration: 280
-                easing.type: Easing.InCubic
-                onStopped: {
-                    if (!islandContainer.timerBubbleWanted && timerBubble.reveal <= 0.001)
-                        timerBubble.mounted = false;
-                }
-            }
-
-            SequentialAnimation {
-                id: timerBubbleCompletionAnimation
-
-                running: islandContainer.timerCompletionAnimating
-
-                onStarted: {
-                    timerBubbleShowAnimation.stop();
-                    timerBubbleHideAnimation.stop();
-                    timerBubble.mounted = true;
-                    timerBubble.reveal = 1;
-                }
-
-                onStopped: {
-                    if (islandContainer.timerCompletionAnimating)
-                        islandContainer.timerCompletionAnimating = false;
-                    islandContainer.timerCompletionPulse = 0;
-                    islandContainer.timerCompletionFlash = 0;
-                    timerBubbleRing.requestPaint();
-                }
-
-                ParallelAnimation {
-                    NumberAnimation {
-                        target: islandContainer
-                        property: "timerCompletionPulse"
-                        from: 0
-                        to: 1
-                        duration: 140
-                        easing.type: Easing.OutCubic
-                    }
-
-                    NumberAnimation {
-                        target: islandContainer
-                        property: "timerCompletionFlash"
-                        from: 0
-                        to: 1
-                        duration: 140
-                        easing.type: Easing.OutCubic
-                    }
-                }
-
-                ParallelAnimation {
-                    NumberAnimation {
-                        target: islandContainer
-                        property: "timerCompletionPulse"
-                        from: 1
-                        to: 0
-                        duration: 380
-                        easing.type: Easing.OutCubic
-                    }
-
-                    NumberAnimation {
-                        target: islandContainer
-                        property: "timerCompletionFlash"
-                        from: 1
-                        to: 0
-                        duration: 380
-                        easing.type: Easing.InOutQuad
-                    }
-                }
-
-                PauseAnimation {
-                    duration: 380
-                }
-            }
-
-            Rectangle {
-                anchors.fill: parent
-                anchors.margins: 2
-                radius: width / 2
-                color: StyleTokens.black
-            }
-
-            Canvas {
-                id: timerBubbleRing
-
-                anchors.fill: parent
-                anchors.margins: 1
-
-                Component.onCompleted: requestPaint()
-                onVisibleChanged: requestPaint()
-                onWidthChanged: requestPaint()
-                onHeightChanged: requestPaint()
-
-                onPaint: {
-                    const ctx = getContext("2d");
-                    const centerX = width / 2;
-                    const centerY = height / 2;
-                    const completionActive = islandContainer.timerCompletionAnimating;
-                    const flash = Math.max(0, Math.min(1, islandContainer.timerCompletionFlash));
-                    const lineWidth = completionActive ? 3 + flash : 3;
-                    const radius = Math.min(width, height) / 2 - lineWidth / 2;
-                    const progress = Math.max(0, Math.min(1, islandContainer.timerProgress));
-                    const startAngle = -Math.PI / 2;
-                    const endAngle = startAngle - Math.PI * 2 * progress;
-
-                    ctx.clearRect(0, 0, width, height);
-                    ctx.lineCap = "round";
-                    ctx.lineWidth = lineWidth;
-
-                    ctx.beginPath();
-                    ctx.strokeStyle = "#303036";
-                    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-                    ctx.stroke();
-
-                    if (completionActive) {
-                        if (flash > 0) {
-                            ctx.beginPath();
-                            ctx.lineWidth = lineWidth + 1.5;
-                            ctx.strokeStyle = "rgba(255, 204, 0, " + (0.18 * flash) + ")";
-                            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-                            ctx.stroke();
-                        }
-
-                        ctx.beginPath();
-                        ctx.lineWidth = lineWidth;
-                        ctx.strokeStyle = "rgba(255, 204, 0, " + (0.72 + 0.28 * flash) + ")";
-                        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-                        ctx.stroke();
-                    } else if (progress > 0) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = "#ffcc00";
-                        ctx.arc(centerX, centerY, radius, startAngle, endAngle, true);
-                        ctx.stroke();
-                    }
-                }
-            }
-
-            Text {
-                anchors.centerIn: parent
-                anchors.horizontalCenterOffset: -1
-                text: "󰔛"
-                color: "white"
-                font.pixelSize: root.iconFontSize - 1
-                font.family: root.iconFontFamily
-                font.weight: Font.DemiBold
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                enabled: timerBubble.mounted && root.autoHideProgress > 0.5
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onEntered: {
-                    if (root.autoHideEnabled) {
-                        root.autoHidePointerInside = true;
-                        root.showAutoHiddenIsland();
-                    }
-                }
-                onExited: {
-                    if (root.autoHideEnabled) {
-                        root.autoHidePointerInside = false;
-                        root.scheduleAutoHide();
-                    }
-                }
-                onClicked: islandContainer.showExpandedTimerPage()
-            }
+            root: root
+            islandContainer: islandContainer
+            mainCapsule: mainCapsule
         }
 
-        ConnectivityDetailShell {
-            id: wifiConnectivityDetailShell
+        ConnectivityDetailShells {
+            id: connectivityDetailShells
 
-            open: root.wifiConnectivityDetailOpen
-            mounted: root.wifiConnectivityDetailMounted
-            rightSide: false
-            panelKind: "wifi"
-            provider: controlCenterLoader.item
+            root: root
             mainCapsule: mainCapsule
-            availableWidth: root.width
-            detailWidth: root.connectivityDetailWidth
-            detailHeight: root.connectivityDetailHeight
-            detailGap: root.connectivityDetailGap
-            iconFontFamily: root.iconFontFamily
-            textFontFamily: root.textFontFamily
-            heroFontFamily: root.heroFontFamily
-        }
-
-        ConnectivityDetailShell {
-            id: bluetoothConnectivityDetailShell
-
-            open: root.bluetoothConnectivityDetailOpen
-            mounted: root.bluetoothConnectivityDetailMounted
-            rightSide: true
-            panelKind: "bluetooth"
             provider: controlCenterLoader.item
-            mainCapsule: mainCapsule
-            availableWidth: root.width
-            detailWidth: root.connectivityDetailWidth
-            detailHeight: root.connectivityDetailHeight
-            detailGap: root.connectivityDetailGap
-            iconFontFamily: root.iconFontFamily
-            textFontFamily: root.textFontFamily
-            heroFontFamily: root.heroFontFamily
-        }
-
-        ConnectivityDetailShell {
-            id: powerConnectivityDetailShell
-
-            open: root.powerConnectivityDetailOpen
-            mounted: root.powerConnectivityDetailMounted
-            rightSide: true
-            panelKind: "power"
-            provider: controlCenterLoader.item
-            mainCapsule: mainCapsule
-            availableWidth: root.width
-            detailWidth: 260
-            detailHeight: 88
-            detailGap: root.connectivityDetailGap
-            iconFontFamily: root.iconFontFamily
-            textFontFamily: root.textFontFamily
-            heroFontFamily: root.heroFontFamily
         }
     }
 

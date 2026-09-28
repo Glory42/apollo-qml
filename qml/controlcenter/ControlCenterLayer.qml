@@ -2437,47 +2437,7 @@ Item {
             onCancelRequested: SystemServices.requestVolume()
         }
     }
-    Item {
-        anchors.fill: parent
-        visible: controlCenter.powerViewActive
-
-        Behavior on opacity {
-            NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
-        }
-
-        Row {
-            anchors.centerIn: parent
-            spacing: 26
-
-            Repeater {
-                model: [
-                    { glyph: "\uf023", action: "triggerLock" },
-                    { glyph: "\uf186", action: "triggerSleep" },
-                    { glyph: "\uf021", action: "triggerRestart" },
-                    { glyph: "\uf011", action: "triggerShutdown" }
-                ]
-
-                delegate: Item {
-                    width: 56
-                    height: 56
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: modelData.glyph
-                        color: StyleTokens.textPrimary
-                        font.pixelSize: 38
-                        font.family: controlCenter.iconFontFamily
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            if (controlCenter[modelData.action])
-                                controlCenter[modelData.action]();
-                        }
-                    }
-                }
-            }
-        }
+    PowerMenuView {
+        controlCenter: controlCenter
     }
 }

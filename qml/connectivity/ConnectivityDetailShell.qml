@@ -85,16 +85,44 @@ Item {
             asynchronous: false
             visible: active
 
-            sourceComponent: Component {
-                ConnectivityDetailPanel {
-                    provider: shell.provider
-                    panelKind: shell.panelKind
-                    iconFontFamily: shell.iconFontFamily
-                    textFontFamily: shell.textFontFamily
-                    heroFontFamily: shell.heroFontFamily
-                    presentationProgress: shell.revealProgress
-                }
-            }
+            sourceComponent: shell.panelKind === "wifi"
+                ? wifiPanelComponent
+                : shell.panelKind === "bluetooth"
+                    ? bluetoothPanelComponent
+                    : powerPanelComponent
+        }
+    }
+
+    Component {
+        id: wifiPanelComponent
+        WifiDetailPanel {
+            provider: shell.provider
+            iconFontFamily: shell.iconFontFamily
+            textFontFamily: shell.textFontFamily
+            heroFontFamily: shell.heroFontFamily
+            presentationProgress: shell.revealProgress
+        }
+    }
+
+    Component {
+        id: bluetoothPanelComponent
+        BluetoothDetailPanel {
+            provider: shell.provider
+            iconFontFamily: shell.iconFontFamily
+            textFontFamily: shell.textFontFamily
+            heroFontFamily: shell.heroFontFamily
+            presentationProgress: shell.revealProgress
+        }
+    }
+
+    Component {
+        id: powerPanelComponent
+        PowerDetailPanel {
+            provider: shell.provider
+            iconFontFamily: shell.iconFontFamily
+            textFontFamily: shell.textFontFamily
+            heroFontFamily: shell.heroFontFamily
+            presentationProgress: shell.revealProgress
         }
     }
 }
