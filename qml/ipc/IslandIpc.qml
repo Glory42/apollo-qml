@@ -1,8 +1,7 @@
 import QtQuick
 import Quickshell.Io
 
-// See OverviewIpc.qml for why shellRoot lives on a wrapping QtObject
-// instead of directly on the IpcHandler.
+// See OverviewIpc.qml for why shellRoot lives on a wrapping QtObject instead of directly on the IpcHandler.
 QtObject {
     id: wrapper
 

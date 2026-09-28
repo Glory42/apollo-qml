@@ -1,11 +1,7 @@
 import QtQuick
 import Quickshell.Io
 
-// IpcHandler reflects every property declared directly on it as an
-// IPC-facing property (and warns loudly at startup if the type isn't
-// marshalable, which a plain object reference like shellRoot never is).
-// Wrapping it in a QtObject keeps shellRoot off the handler itself --
-// only the handler's own functions end up IPC-facing.
+// IpcHandler reflects its own properties as IPC-facing and warns if they aren't marshalable, so shellRoot lives on this wrapping QtObject instead.
 QtObject {
     id: wrapper
 

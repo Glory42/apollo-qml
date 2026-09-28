@@ -93,8 +93,7 @@ PanelWindow {
     color: StyleTokens.transparent
     anchors { top: true; left: true; right: true }
     mask: Region {
-        // Input is the union of the island's visible surfaces plus a compact top
-        // gesture strip. The gesture strip must not grow with expanded content.
+        // Input is the union of the island's visible surfaces plus a compact top gesture strip that must not grow with expanded content.
         Region {
             x: Math.floor(root.topGestureInputX)
             y: 0
@@ -135,9 +134,7 @@ PanelWindow {
             height: connectivityDetailShells.powerShell.visible ? Math.ceil(connectivityDetailShells.powerShell.height) : 0
         }
 
-        // While a dismissable panel (Control Center, Wallpaper Picker, etc.) is
-        // open, capture the whole surface so a click outside the panel closes
-        // it instead of leaking through to whatever else this surface overlaps.
+        // While a dismissable panel is open, capture the whole surface so an outside click closes it instead of leaking through.
         Region {
             intersection: Intersection.Combine
             x: 0
@@ -162,9 +159,7 @@ PanelWindow {
         root.overviewWindowHeight,
         Math.ceil(root.controlCenterWindowHeight)
     )
-    // Grow the layer surface immediately, but keep the old extent while the
-    // capsule finishes its collapse animation. A later expansion interrupts
-    // the pending shrink instead of letting a stale timer clip new content.
+    // Grow the layer surface immediately, but keep the old extent until the capsule's collapse animation finishes shrinking it.
     property real retainedWindowHeight: 0
     implicitHeight: Math.max(root.requestedWindowHeight, root.retainedWindowHeight)
 
@@ -193,8 +188,7 @@ PanelWindow {
                 || islandContainer.weatherLayerVisible
                 || islandContainer.calendarLayerVisible)
             return WlrKeyboardFocus.OnDemand;
-        // Keep keyboard focus on the overview until an overview action closes it.
-        // Click-to-focus closes the overview before focusing the selected client.
+        // Keep keyboard focus on the overview until an overview action closes it (click-to-focus closes it before focusing the client).
         if (root.monitorFocused && root.overviewVisible)
             return WlrKeyboardFocus.Exclusive;
         if (islandContainer.expandedPlayerKeyboardFocusRequested)

@@ -3,12 +3,7 @@ import Quickshell.Bluetooth
 import Quickshell.Networking
 import "../common/BluetoothFormatting.js" as BluetoothFormatting
 
-// Wifi + Bluetooth state and actions, factored out of ControlCenterLayer.qml.
-// ControlCenterLayer.qml's root object extends this type (via QML component
-// inheritance), so everything declared here is directly accessible as
-// controlCenter.* -- this is what lets the ConnectivityDetailPanel family's
-// "provider" contract (40+ wifi/bluetooth members) keep working unchanged
-// even though the implementation now lives in a separate file.
+// Wifi + Bluetooth state/actions; ControlCenterLayer.qml extends this type, so everything here is accessible as controlCenter.* with no forwarding.
 Item {
     id: root
 
@@ -471,10 +466,7 @@ Item {
         bluetoothMessageClearTimer.restart();
     }
 
-    // Timer ids below are only visible within this file (QML id scoping is
-    // per-document, not inherited), so callers in derived types (e.g.
-    // ControlCenterLayer.qml's setConnectivityPanelOpen) go through these
-    // wrapper functions instead of referencing the timers directly.
+    // Timer ids below aren't visible to derived types (QML id scoping is per-document), so derived code calls these wrappers instead of the timers directly.
     function startBluetoothScanForPanel() {
         if (bluetoothAdapter && bluetoothEnabled && !bluetoothAdapter.discovering) {
             bluetoothAdapter.discovering = true;
@@ -573,10 +565,7 @@ Item {
                 bluetoothScanStopTimer.stop();
         }
     }
-    // Keep device state observers outside the filtered UI rows. A device moves
-    // from "available" to "paired" during first-time pairing, which destroys
-    // its old row before a row-local PairedChanged handler can reliably finish
-    // the trust-and-connect sequence.
+    // Keep device state observers outside the filtered UI rows so a device moving from "available" to "paired" mid-filter doesn't destroy its own PairedChanged handler.
     Repeater {
         model: bluetoothDeviceValues
 

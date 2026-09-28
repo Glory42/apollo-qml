@@ -34,8 +34,7 @@ function isUsefulName(value, address) {
 }
 
 function friendlyName(alias, advertisedName, address) {
-    // BlueZ Alias is the user-facing name and may contain a user rename. The
-    // advertised Name is only the fallback, and can be an address placeholder.
+    // BlueZ Alias is the user-facing name; advertised Name is only a fallback and can be an address placeholder.
     if (isUsefulName(alias, address))
         return cleanText(alias);
     if (isUsefulName(advertisedName, address))

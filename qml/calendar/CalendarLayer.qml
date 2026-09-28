@@ -216,9 +216,7 @@ FocusScope {
         anchors.margins: 16
         spacing: 8
 
-        // ──────────────────────────────────────────
-        // 1. TOP HEADER BAR
-        // ──────────────────────────────────────────
+        // Top header bar
         RowLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: 28
@@ -369,9 +367,7 @@ FocusScope {
             color: "#22252e"
         }
 
-        // ──────────────────────────────────────────
-        // 2. DAY NAMES HEADER (Mo, Tu, We, Th, Fr, Sa, Su)
-        // ──────────────────────────────────────────
+        // Day names header (Mo, Tu, We, Th, Fr, Sa, Su)
         Grid {
             id: dayNamesGrid
             Layout.fillWidth: true
@@ -405,9 +401,7 @@ FocusScope {
             }
         }
 
-        // ──────────────────────────────────────────
-        // 3. 42-CELL DAYS GRID (6 rows x 7 cols)
-        // ──────────────────────────────────────────
+        // 42-cell days grid (6 rows x 7 cols)
         Grid {
             id: daysGrid
             Layout.fillWidth: true
@@ -483,9 +477,7 @@ FocusScope {
             }
         }
 
-        // ──────────────────────────────────────────
-        // 4. FOOTER DETAILS STRIP
-        // ──────────────────────────────────────────
+        // Footer details strip
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 30

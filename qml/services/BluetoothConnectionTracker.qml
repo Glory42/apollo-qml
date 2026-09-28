@@ -168,8 +168,7 @@ Item {
             property var bluetoothDevice: modelData
 
             Component.onCompleted: root.sync(true)
-            // Queue work on the long-lived tracker. A Qt.callLater closure made
-            // by this delegate loses its QML context when the delegate dies.
+            // Queue work on the long-lived tracker, since a Qt.callLater closure made by this delegate loses its QML context when the delegate dies.
             Component.onDestruction: root.scheduleSync(true)
 
             Connections {

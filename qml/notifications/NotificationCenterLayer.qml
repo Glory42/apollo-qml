@@ -31,8 +31,7 @@ Item {
         heroFontFamily: notificationCenter.heroFontFamily
     }
 
-    // Keep the action inside the first notification card so it does not create
-    // a separate black toolbar above the list.
+    // Keep the action inside the first notification card so it doesn't create a separate black toolbar above the list.
     Item {
         id: clearButton
 

@@ -1,10 +1,7 @@
 import QtQuick
 import "../common"
 
-// Power-profile / TLP battery mode state and actions, factored out of
-// ControlCenterLayer.qml. ControlCenterLayer.qml's root object extends this
-// type (which itself extends ConnectivityController), so everything here is
-// directly accessible as controlCenter.* with no forwarding boilerplate.
+// Power-profile / TLP state/actions; ControlCenterLayer.qml extends this (which extends ConnectivityController), so everything here is accessible as controlCenter.*.
 ConnectivityController {
     id: root
 
@@ -78,9 +75,7 @@ ConnectivityController {
             refreshBatteryModeState();
     }
 
-    // batteryDrawerSettleTimer's id is only visible within this file (QML id
-    // scoping is per-document, not inherited); derived types call this
-    // wrapper instead of referencing the timer directly.
+    // batteryDrawerSettleTimer's id isn't visible to derived types (QML id scoping is per-document), so they call this wrapper instead.
     function stopBatteryDrawerSettle() {
         batteryDrawerSettleTimer.stop();
     }
