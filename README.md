@@ -341,14 +341,52 @@ bluetooth, and the battery drawer's `qmllint` + load cleanliness after each
 extraction (interactive re-test of each still pending a real relaunch by
 whoever's at the keyboard next).
 
-### Phase 4 — Collapse the triplicated panel-toggle logic (riskiest phase, do last)
+### Phase 4 — Collapse the triplicated panel-toggle logic — done, scope adjusted
 
-Build `island/IslandCommands.js` and rewrite the ~25 IPC-wrapper triples plus
-`handleConfiguredClickAction()`'s switch to consult it. This changes real
-control flow for every panel in the app (control center, wallpaper picker,
-weather, calendar, notification center, power menu, player, and the 3
-unbuilt states). Test every single panel's open/close/toggle/IPC path
-afterward individually — not a couple as a sample, all of them.
+**Reality check vs. the plan:** re-reading the current code (after Phases
+1-3) showed the "~25 near-identical triples" was an overstatement. Several
+of the root-level `showXWindow`/`toggleXWindow` functions (clock, timer,
+custom info, lyrics, swipe-left/right, wallpaper picker) either aren't
+toggle-shaped at all or only exist at one call site. The genuine duplication
+— the exact same `if (state === X) smartRestoreState(); else showX();`
+shape appearing in *both* the root IPC wrappers *and*
+`handleConfiguredClickAction()`'s switch — was really just **weather,
+calendar, and notificationCenter**. `controlCenter` and `expandedPlayer`
+looked identical at a glance but each has one real, pre-existing behavioral
+difference between its two call sites (`toggleControlCenterWindow` resets
+`powerViewActive` on open, its click-action counterpart doesn't;
+`toggleExpandedPlayer`'s click-action path calls `autoHideTimer.stop()`
+before closing, its root counterpart doesn't) — unifying those would have
+silently changed one of the two behaviors, so they stayed hand-written.
+
+Shipped `island/IslandCommands.js` (`.pragma library`) with `toggle(container,
+key, showFn)` / `close(container, key)` covering `weather`, `calendar`,
+`notificationCenter`, `wallpaperPicker` (root-only, but same shape), and
+`controlCenter` (click-action path only, since that's the one *without* the
+`powerViewActive` side effect). Both the root wrapper functions and the
+click-action switch now call into it for those five panels; `controlCenter`'s
+root wrapper, `expandedPlayer` (both call sites), and the power-menu function
+stayed exactly as they were, with a comment in `IslandCommands.js` explaining
+why they're not folded in.
+
+**A real regression, caught by actually testing:** the Phase 3 controller
+extraction turned out to have broken bluetooth-panel-close and the battery
+drawer's drag-to-cancel-settle behavior. Root cause: QML `id:` scoping is
+**per-document, not inherited** — a `Timer { id: bluetoothScanStopTimer }`
+declared inside `ConnectivityController.qml` is invisible by that name from
+`ControlCenterLayer.qml`, even though `ControlCenterLayer.qml`'s root
+*extends* `ConnectivityController` and freely inherits its *properties* and
+*functions* by bare name. `qmllint` did not catch this on either file. It
+only surfaced by actually launching the shell and exercising the toggles
+over real IPC calls (`quickshell ipc -p <path> call tide toggleControlCenter`
+etc.) and reading the shell's own log output for `ReferenceError`s — a
+"launch and see if it loads" smoke test is not enough for this class of bug.
+Fixed by adding small wrapper functions (`startBluetoothScanForPanel()`,
+`stopBluetoothActivityForPanelClose()`, `stopBatteryDrawerSettle()`) next to
+the timers in the files that declare them, since *functions* do cross the
+inheritance boundary safely — only bare `id:` references don't. Anyone doing
+further work on this inheritance chain should assume the same: properties
+and functions inherit, `id:`-based references never do.
 
 ### Phase 5 — Low-priority hygiene extractions (do whenever, non-blocking)
 

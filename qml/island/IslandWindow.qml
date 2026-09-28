@@ -12,6 +12,7 @@ import "../wallpaper"
 import "../player"
 import "../services"
 import "../notifications"
+import "IslandCommands.js" as IslandCommands
 
 PanelWindow {
     id: root
@@ -658,24 +659,15 @@ PanelWindow {
     }
 
     function toggleNotificationCenterWindow() {
-        if (islandContainer.islandState === "notification_center")
-            islandContainer.smartRestoreState();
-        else
-            islandContainer.showNotificationCenter();
+        IslandCommands.toggle(islandContainer, "notificationCenter", () => islandContainer.showNotificationCenter());
     }
 
     function toggleWallpaperPickerWindow() {
-        if (islandContainer.islandState === "wallpaper_picker")
-            islandContainer.smartRestoreState();
-        else
-            islandContainer.showWallpaperPicker();
+        IslandCommands.toggle(islandContainer, "wallpaperPicker", () => islandContainer.showWallpaperPicker());
     }
 
     function toggleWeatherWindow() {
-        if (islandContainer.islandState === "weather")
-            islandContainer.smartRestoreState();
-        else
-            islandContainer.showWeather();
+        IslandCommands.toggle(islandContainer, "weather", () => islandContainer.showWeather());
     }
 
     function showWeatherWindow() {
@@ -683,15 +675,11 @@ PanelWindow {
     }
 
     function closeWeatherWindow() {
-        if (islandContainer.islandState === "weather")
-            islandContainer.smartRestoreState();
+        IslandCommands.close(islandContainer, "weather");
     }
 
     function toggleCalendarWindow() {
-        if (islandContainer.islandState === "calendar")
-            islandContainer.smartRestoreState();
-        else
-            islandContainer.showCalendar();
+        IslandCommands.toggle(islandContainer, "calendar", () => islandContainer.showCalendar());
     }
 
     function showCalendarWindow() {
@@ -699,8 +687,7 @@ PanelWindow {
     }
 
     function closeCalendarWindow() {
-        if (islandContainer.islandState === "calendar")
-            islandContainer.smartRestoreState();
+        IslandCommands.close(islandContainer, "calendar");
     }
 
     onOverviewVisibleChanged: {
@@ -1185,30 +1172,22 @@ PanelWindow {
                     smartRestoreState();
                 return;
             case "toggleNotificationCenter":
-                if (islandState === "notification_center")
-                    smartRestoreState();
-                else
-                    showNotificationCenter();
+                IslandCommands.toggle(islandContainer, "notificationCenter", () => showNotificationCenter());
                 return;
             case "openNotificationCenter":
                 showNotificationCenter();
                 return;
             case "closeNotificationCenter":
-                if (islandState === "notification_center")
-                    smartRestoreState();
+                IslandCommands.close(islandContainer, "notificationCenter");
                 return;
             case "toggleControlCenter":
-                if (islandState === "control_center")
-                    smartRestoreState();
-                else
-                    showControlCenter();
+                IslandCommands.toggle(islandContainer, "controlCenter", () => showControlCenter());
                 return;
             case "openControlCenter":
                 showControlCenter();
                 return;
             case "closeControlCenter":
-                if (islandState === "control_center")
-                    smartRestoreState();
+                IslandCommands.close(islandContainer, "controlCenter");
                 return;
             case "toggleOverview":
                 root.toggleOverviewEverywhere();
@@ -1235,32 +1214,24 @@ PanelWindow {
                 smartRestoreState();
                 return;
             case "toggleWeather":
-                if (islandState === "weather")
-                    smartRestoreState();
-                else
-                    showWeather();
+                IslandCommands.toggle(islandContainer, "weather", () => showWeather());
                 return;
             case "openWeather":
             case "showWeather":
                 showWeather();
                 return;
             case "closeWeather":
-                if (islandState === "weather")
-                    smartRestoreState();
+                IslandCommands.close(islandContainer, "weather");
                 return;
             case "toggleCalendar":
-                if (islandState === "calendar")
-                    smartRestoreState();
-                else
-                    showCalendar();
+                IslandCommands.toggle(islandContainer, "calendar", () => showCalendar());
                 return;
             case "openCalendar":
             case "showCalendar":
                 showCalendar();
                 return;
             case "closeCalendar":
-                if (islandState === "calendar")
-                    smartRestoreState();
+                IslandCommands.close(islandContainer, "calendar");
                 return;
             default:
             }

@@ -78,6 +78,13 @@ ConnectivityController {
             refreshBatteryModeState();
     }
 
+    // batteryDrawerSettleTimer's id is only visible within this file (QML id
+    // scoping is per-document, not inherited); derived types call this
+    // wrapper instead of referencing the timer directly.
+    function stopBatteryDrawerSettle() {
+        batteryDrawerSettleTimer.stop();
+    }
+
     function toggleBatteryDrawer() {
         setBatteryDrawerOpen(!batteryDrawerOpen);
     }

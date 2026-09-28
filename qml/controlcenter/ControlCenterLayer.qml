@@ -150,25 +150,11 @@ BatteryModeController {
             changed = bluetoothPanelOpen !== nextOpen;
             bluetoothPanelOpen = nextOpen;
 
-            if (nextOpen) {
-                if (bluetoothAdapter && bluetoothEnabled && !bluetoothAdapter.discovering) {
-                    bluetoothAdapter.discovering = true;
-                    bluetoothInfoMessage = "Scanning for nearby devices...";
-                    bluetoothScanStopTimer.restart();
-                }
-            } else {
-                if (bluetoothPairingActive)
-                    cancelBluetoothPairing();
-                if (bluetoothAdapter && bluetoothAdapter.discovering)
-                    bluetoothAdapter.discovering = false;
-                bluetoothScanStopTimer.stop();
-                bluetoothConnectAfterPairTimer.stop();
-                bluetoothConnectionTimeoutTimer.stop();
-                bluetoothPairAndConnectPath = "";
-                bluetoothPendingSecretValue = "";
-                clearBluetoothMessages();
-            }
-        } 
+            if (nextOpen)
+                startBluetoothScanForPanel();
+            else
+                stopBluetoothActivityForPanelClose();
+        }
         else if (kind === "power") {
             changed = powerPanelOpen !== nextOpen;
             powerPanelOpen = nextOpen;
@@ -1454,7 +1440,7 @@ BatteryModeController {
                     }
 
                     onPressed: function(mouse) {
-                        batteryDrawerSettleTimer.stop();
+                        controlCenter.stopBatteryDrawerSettle();
                         controlCenter.batteryDrawerSettling = false;
                         pointerGrabOffset = pointerY(mouse) - itemTop(batteryDrawerHandle);
                         moved = false;

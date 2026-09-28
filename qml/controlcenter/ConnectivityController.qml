@@ -470,6 +470,32 @@ Item {
         bluetoothInfoMessage = "Forgot " + name + ".";
         bluetoothMessageClearTimer.restart();
     }
+
+    // Timer ids below are only visible within this file (QML id scoping is
+    // per-document, not inherited), so callers in derived types (e.g.
+    // ControlCenterLayer.qml's setConnectivityPanelOpen) go through these
+    // wrapper functions instead of referencing the timers directly.
+    function startBluetoothScanForPanel() {
+        if (bluetoothAdapter && bluetoothEnabled && !bluetoothAdapter.discovering) {
+            bluetoothAdapter.discovering = true;
+            bluetoothInfoMessage = "Scanning for nearby devices...";
+            bluetoothScanStopTimer.restart();
+        }
+    }
+
+    function stopBluetoothActivityForPanelClose() {
+        if (bluetoothPairingActive)
+            cancelBluetoothPairing();
+        if (bluetoothAdapter && bluetoothAdapter.discovering)
+            bluetoothAdapter.discovering = false;
+        bluetoothScanStopTimer.stop();
+        bluetoothConnectAfterPairTimer.stop();
+        bluetoothConnectionTimeoutTimer.stop();
+        bluetoothPairAndConnectPath = "";
+        bluetoothPendingSecretValue = "";
+        clearBluetoothMessages();
+    }
+
     Timer {
         id: bluetoothScanStopTimer
         interval: 8000
