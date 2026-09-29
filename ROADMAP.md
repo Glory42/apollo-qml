@@ -500,3 +500,159 @@ itself, and the four visual cards inside `ControlCenterView.qml`
 Both would require threading many more sibling-to-sibling bindings through
 as properties for a much smaller size win than this phase's split — not
 worth the added indirection.
+
+## Phase 7 — direct-open panels, weather rework, Control Center content swap
+
+**Status: all three parts shipped.** Unlike Phases 1–6, this isn't a
+file-structure refactor — it's real behavior/content changes, grilled out
+before writing any code so the reasoning is captured here rather than
+rediscovered later.
+
+**1. Direct-open connectivity panels — done.** Today `tide` only had
+`toggleControlCenter` — there was no single call that opened Control Center
+already expanded to one connectivity detail. Added, on `IslandWindow.qml` /
+`TideIpc.qml`:
+- `showWifiWindow()` / `showBluetoothWindow()` (IPC: `showWifi` /
+  `showBluetooth`), each calling `islandContainer.showControlCenter()` then
+  `mainCapsule.controlCenterLoader.item.setConnectivityPanelOpen(kind,
+  true)` — the same path a real click on the wifi/bluetooth card already
+  took, so the card itself and the mounted detail overlay both end up in the
+  correct "open" state, not just the overlay. One IPC call now opens Control
+  Center pre-expanded to that detail, instead of "open Control Center, then
+  tap the card" by hand. Verified over real `quickshell ipc call` + `grim`
+  screenshots for both.
+- `showPowerMenuWindow()` (IPC: `showPowerMenu`) — a `show`-not-`toggle`
+  sibling of the existing `togglePowerMenuWindow()`, since a direct-open
+  shortcut should always land on the power menu, never close it. Verified
+  the same way; the 5-icon row (see part 3) rendered correctly.
+- **Explicitly not** reviving `panelKind: "power"`
+  (`PowerDetailPanel.qml`, wired end-to-end through
+  `ControlCenterLayer.setConnectivityPanelOpen("power", …)` /
+  `IslandWindow.setConnectivityDetailVisible("power", …)` but with zero UI
+  entry points anywhere) — confirmed dead code, a near-duplicate of
+  `PowerMenuView` minus Logout. Left alone, not deleted, not built on.
+- Hyprland keybinds (e.g. mirroring Omarchy's `SUPER+CTRL+W` →
+  network-panel scheme) are **not** this repo's concern — they get
+  configured in the user's own `~/.config/hypr/bindings.lua`, outside this
+  project, same as Omarchy's own bindings are never touched here.
+
+**2. Weather rework (`qml/weather/WeatherService.qml`) — done.** Old
+implementation was a single `wttr.in/<location>?format=j1` XHR fetch for
+everything (current conditions + forecast + display name) — chosen as
+unreliable/inaccurate in practice. Replaced with:
+- `api.open-meteo.com/v1/forecast` (coordinate-based) as the sole weather
+  data source once a location is known — current conditions, 3-day forecast,
+  sunrise/sunset, UV index, all in one call. WMO weather codes (Open-Meteo's
+  scheme) mapped to the same `weatherType`/`iconGlyph`/`iconColor` buckets
+  `WeatherIcon.qml` already understood, so that file needed no changes.
+  Verified the exact response shape against the live API with `curl` before
+  writing the parser, not guessed from memory.
+- `wttr.in` kept for exactly one thing: `wttr.in/?format=%l` IP-based
+  auto-location when no location is configured yet (Open-Meteo has no
+  equivalent). **Not** used as a data-format fallback as originally
+  sketched — a single data source is easier to keep correct than two
+  parallel parsers, and Open-Meteo alone covers everything the UI needs.
+  **Bug caught by testing, not review:** wttr.in serves a full HTML page
+  instead of the requested plain-text `%l` format when the User-Agent
+  doesn't look like curl — Qt's `XMLHttpRequest` looks like a browser by
+  default, so every auto-detect call was silently getting an HTML document
+  back (surfaced as "Location not found: <!DOCTYPE html>..." in the UI).
+  Fixed with an explicit `xhr.setRequestHeader("User-Agent", "curl/8.0")`,
+  plus a defensive length/`<` check on the response as a second line of
+  defense. Reproduced the exact failure with `curl -A "Mozilla/5.0..."`
+  before fixing, to confirm the cause rather than guess at it.
+- A location search/autocomplete UI in `WeatherLayer.qml` (click the pin
+  icon or the location name), backed by `geocoding-api.open-meteo.com/v1/
+  search`, debounced 300ms, with stale-response protection (a query that
+  moved on while a request was in flight can't clobber a newer one). There
+  was previously no location input at all — `displayLocation` was read-only
+  text.
+- The chosen location (lat/lon + display name) persists across shell
+  restarts via `FileView` + `JsonAdapter` at
+  `~/.local/state/tide-island/weather-location.json`, read on startup and
+  falling back to `UserConfig.weatherLocation`/auto-detect if absent or not
+  yet `configured`. This is the first place in the project where a runtime
+  choice gets written back to disk — every other setting lives in the
+  hand-edited, `readonly` `UserConfig.qml` singleton. Verified `FileView`
+  auto-creates missing parent directories on write and correctly no-ops
+  (`onLoadFailed`) on a missing file, with a standalone throwaway QML
+  harness, before wiring it into the real service. Considered and rejected:
+  skip persistence and
+  make the search UI a one-time lookup you hand-copy into
+  `UserConfig.weatherLocation` yourself — rejected because search-and-remember
+  is the actual point.
+- **Second bug caught by testing:** a persisted (search-picked) location
+  intermittently reverted to the auto-detected one on startup. Root cause:
+  `property bool weatherEnabled: userConfig ? userConfig.weatherEnabled :
+  true` is a *binding*, not a plain default — its first evaluation counts as
+  a change from bool's zero-value (`false`) to `true`, so `onWeatherEnabledChanged`
+  fired once during construction, before the `FileView` had a chance to load
+  the persisted location. That kicked off the auto-detect chain (3 sequential
+  network round-trips) racing the persisted-location fetch (1 round-trip);
+  whichever finished last silently won. Confirmed with a standalone headless
+  harness logging the actual call order, not by staring at the code. Fixed
+  with a `_bootstrapped` flag set only once, inside the `FileView`'s
+  `onLoaded`/`onLoadFailed`, that gates `onWeatherEnabledChanged` and
+  `onLocationChanged` — they now only react to *genuine* post-startup
+  changes, never the initial binding-evaluation firing. Re-verified with the
+  same harness after the fix.
+
+**3. Control Center content swap — done.** In `ControlCenterView.qml`:
+- Removed the `brightnessCard`/`volumeCard` `ControlSliderCard`s (Display /
+  Sound sliders) and the Silent(focus)/Night-mode two-button row —
+  redundant with existing hardware/OSD controls. `ControlSliderCard.qml`
+  deleted outright (nothing else instantiated it). All slider-only plumbing
+  in `ControlCenterLayer.qml` (local/pending/displayed/lastApplied volume
+  and brightness, the intro-animation timer, the `SystemServices` brightness/
+  volume `Connections` block, both apply timers) was removed too — it only
+  ever existed to serve those two sliders. `focusEnabled`/`toggleFocus` and
+  `nightLightEnabled`/`toggleNightLight` themselves were **kept**: they sync
+  to `shellRootController` and have callers beyond the deleted card, so only
+  their Control Center buttons went away, not the underlying feature.
+- Added a new always-visible row (`actionsCard`) with three buttons:
+  **Theme** (rendered now, disabled/dimmed — no theme system exists yet,
+  wired up later without a layout change), **Wallpaper** (new
+  `wallpaperRequested()` signal on `ControlCenterLayer.qml`, wired the same
+  way `weatherRequested`/`calendarRequested` already are, opening the
+  existing `WallpaperPickerLayer.qml`), **Power** (sets `powerViewActive =
+  true` — same effect as `togglePowerMenuWindow()`, but from a click; there
+  was previously no on-screen button that reached `PowerMenuView` at all,
+  only IPC/configured-mouse-action).
+- Added **Logout** as a 5th action on `PowerActionsController.qml` /
+  `PowerMenuView.qml`, alongside Lock/Sleep/Restart/Shutdown — same pattern
+  as the existing ones (a `Process`), running `hyprctl dispatch exit`,
+  falling back to `loginctl terminate-session`.
+- **Plan correction, caught by the user after the first visual pass:** the
+  original plan reused the existing collapsible "battery drawer" slot (a
+  pull-down handle that revealed Silent/Night-mode, or the whole row when
+  TLP was off) for the new Theme/Wallpaper/Power row, since that was the
+  Silent/Night-mode row's old location. The user wanted these — and the
+  Battery/TLP mode card beside them — visible immediately, the same as the
+  Wi-Fi/Bluetooth row, not behind a pull gesture. Fixed by promoting both to
+  always-visible rows and deleting the entire drawer/handle-drag mechanism
+  (`batteryDrawerOpen`/`Dragging`/`Progress`/`Settling`/`Moving`,
+  `setBatteryDrawerOpen`/`toggleBatteryDrawer`/`stopBatteryDrawerSettle`,
+  the handle `MouseArea`'s drag math, `batteryDrawerHandleHeight`/
+  `batteryDrawerContentGap`) from `BatteryModeController.qml` and
+  `ControlCenterView.qml` — none of it had another caller once nothing was
+  left to reveal. `controlCenterExtraHeight`/`controlCenterMaximumExtraHeight`
+  (`ControlCenterLayer.qml`) collapsed from a drag-progress interpolation
+  into a static `tlpControlsEnabled ? (batteryModeCardHeight + 12) : 0`,
+  since the battery card's presence is now a fixed per-session fact, not
+  something that animates open/closed.
+- **Follow-on bug, also caught visually:** the Control Center window's
+  height is a hardcoded constant (`320` pre-Phase-7) plus
+  `controlCenterExtraHeight`, computed independently in `IslandCapsule.qml`
+  and `IslandWindow.qml` rather than measured from actual content — a
+  pre-existing fragility, not something this phase introduced. Removing the
+  sliders and adding two always-visible rows shifted the true content
+  height enough that the first working version clipped the bottom of the
+  Battery card. Recalibrated by hand to `236 + controlCenterExtraHeight`
+  (content height plus the `anchors.margins: 12` top/bottom, which the
+  original `320` estimate had also implicitly absorbed) and reverified with
+  a screenshot. If Control Center content changes again, re-check this
+  constant the same way — it is not derived, it is tuned.
+- Verified with `qmllint` (all touched files clean beyond the environment's
+  own missing-import-path noise) and an actual `quickshell -c` relaunch +
+  `quickshell ipc call tide toggleControlCenter` + `grim` screenshot, at
+  each step, per this project's usual testing discipline.
