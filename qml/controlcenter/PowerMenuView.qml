@@ -20,6 +20,7 @@ Item {
         Repeater {
             model: [
                 { glyph: "", action: "triggerLock" },
+                { glyph: "", action: "triggerLogout" },
                 { glyph: "", action: "triggerSleep" },
                 { glyph: "", action: "triggerRestart" },
                 { glyph: "", action: "triggerShutdown" }

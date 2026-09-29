@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Shapes
 import "../common"
 import "../weather"
 
@@ -7,8 +6,6 @@ import "../weather"
         id: mainContent
 
         property var controlCenter: null
-        readonly property alias brightnessCardPressed: brightnessCard.pressed
-        readonly property alias volumeCardPressed: volumeCard.pressed
 
         anchors.fill: parent
         visible: !controlCenter.powerViewActive
@@ -443,27 +440,226 @@ import "../weather"
         }
 
         Item {
-            id: batteryDrawer
-            readonly property real cardWidth: (width - connectivityCardsRow.spacing) / 2
-            readonly property real modeSlotWidth: 44
-            readonly property real openDistance: controlCenter.batteryModeCardHeight
-                + controlCenter.batteryDrawerContentGap
-
             width: parent.width
-            height: controlCenter.batteryDrawerHandleHeight
-                + controlCenter.batteryDrawerProgress * openDistance
-            clip: true
+            height: 80
+
+            Rectangle {
+                id: actionsCard
+                anchors.fill: parent
+                radius: 20
+                color: StyleTokens.clearBlack
+                clip: true
+                readonly property real toggleIconTop: 12
+                readonly property real toggleIconBoxHeight: 32
+                readonly property real toggleLabelTop: 55
+
+                MatteSurface {
+                    anchors.fill: parent
+                    radius: parent.radius
+                    hovered: wallpaperButtonMouse.containsMouse || powerButtonMouse.containsMouse
+                    pressed: wallpaperButtonMouse.pressed || powerButtonMouse.pressed
+                }
+
+                Rectangle {
+                    x: parent.width / 3
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 1
+                    height: parent.height - 34
+                    radius: 1
+                    color: "#1cffffff"
+                }
+
+                Rectangle {
+                    x: parent.width * 2 / 3
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 1
+                    height: parent.height - 34
+                    radius: 1
+                    color: "#1cffffff"
+                }
+
+                Item {
+                    id: themeButton
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: parent.width / 3
+
+                    Item {
+                        id: themeIconSlot
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: actionsCard.toggleIconTop
+                        width: parent.width
+                        height: actionsCard.toggleIconBoxHeight
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: ""
+                            color: StyleTokens.textDisabled
+                            font.pixelSize: 18
+                            font.family: controlCenter.iconFontFamily
+                        }
+                    }
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: actionsCard.toggleLabelTop
+                        width: parent.width
+                        text: "Theme"
+                        color: StyleTokens.textDisabled
+                        horizontalAlignment: Text.AlignHCenter
+                        font.pixelSize: 10
+                        font.family: controlCenter.textFontFamily
+                        font.weight: Font.Medium
+                        elide: Text.ElideRight
+                    }
+                }
+
+                Item {
+                    id: wallpaperButton
+                    x: parent.width / 3
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: parent.width / 3
+
+                    MouseArea {
+                        id: wallpaperButtonMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: controlCenter.wallpaperRequested()
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 4
+                        radius: 16
+                        color: wallpaperButtonMouse.containsMouse ? "#08ffffff" : StyleTokens.clearBlack
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: StyleTokens.durationFast
+                            }
+                        }
+                    }
+
+                    Item {
+                        id: wallpaperIconSlot
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: actionsCard.toggleIconTop
+                        width: parent.width
+                        height: actionsCard.toggleIconBoxHeight
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: ""
+                            color: StyleTokens.textPrimaryBright
+                            font.pixelSize: 18
+                            font.family: controlCenter.iconFontFamily
+                            scale: wallpaperButtonMouse.pressed ? 0.94 : 1.0
+
+                            Behavior on scale {
+                                NumberAnimation {
+                                    duration: 120
+                                    easing.type: Easing.OutCubic
+                                }
+                            }
+                        }
+                    }
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: actionsCard.toggleLabelTop
+                        width: parent.width
+                        text: "Wallpaper"
+                        color: StyleTokens.textMuted
+                        horizontalAlignment: Text.AlignHCenter
+                        font.pixelSize: 10
+                        font.family: controlCenter.textFontFamily
+                        font.weight: Font.Medium
+                        elide: Text.ElideRight
+                    }
+                }
+
+                Item {
+                    id: powerButton
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: parent.width / 3
+
+                    MouseArea {
+                        id: powerButtonMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: controlCenter.powerViewActive = true
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 4
+                        radius: 16
+                        color: powerButtonMouse.containsMouse ? "#08ffffff" : StyleTokens.clearBlack
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: StyleTokens.durationFast
+                            }
+                        }
+                    }
+
+                    Item {
+                        id: powerIconSlot
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: actionsCard.toggleIconTop
+                        width: parent.width
+                        height: actionsCard.toggleIconBoxHeight
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: ""
+                            color: StyleTokens.textPrimaryBright
+                            font.pixelSize: 18
+                            font.family: controlCenter.iconFontFamily
+                            scale: powerButtonMouse.pressed ? 0.94 : 1.0
+
+                            Behavior on scale {
+                                NumberAnimation {
+                                    duration: 120
+                                    easing.type: Easing.OutCubic
+                                }
+                            }
+                        }
+                    }
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: actionsCard.toggleLabelTop
+                        width: parent.width
+                        text: "Power"
+                        color: StyleTokens.textMuted
+                        horizontalAlignment: Text.AlignHCenter
+                        font.pixelSize: 10
+                        font.family: controlCenter.textFontFamily
+                        font.weight: Font.Medium
+                        elide: Text.ElideRight
+                    }
+                }
+            }
+        }
+
+        Item {
+            id: batteryDrawer
+            readonly property real modeSlotWidth: 44
+
+            visible: controlCenter.tlpControlsEnabled
+            width: parent.width
+            height: controlCenter.tlpControlsEnabled ? controlCenter.batteryModeCardHeight : 0
 
             Rectangle {
                 id: batteryModeCard
-                anchors.left: parent.left
-                y: -height + controlCenter.batteryDrawerProgress * height
-                width: batteryDrawer.cardWidth
-                height: controlCenter.batteryModeCardHeight
+                anchors.fill: parent
                 radius: 20
                 color: StyleTokens.clearBlack
-                visible: controlCenter.tlpControlsEnabled
-                opacity: controlCenter.tlpControlsEnabled ? Math.min(1, controlCenter.batteryDrawerProgress * 1.35) : 0
                 clip: true
 
                 MatteSurface {
@@ -655,392 +851,6 @@ import "../weather"
                     }
                 }
             }
-
-            Rectangle {
-                id: quickTogglesCard
-                x: controlCenter.tlpControlsEnabled ? batteryDrawer.cardWidth + connectivityCardsRow.spacing : 0
-                y: batteryModeCard.y
-                width: batteryDrawer.cardWidth
-                height: controlCenter.batteryModeCardHeight
-                radius: 20
-                color: StyleTokens.clearBlack
-                opacity: Math.min(1, controlCenter.batteryDrawerProgress * 1.35)
-                clip: true
-                readonly property real toggleIconTop: 12
-                readonly property real toggleIconBoxHeight: 32
-                readonly property real toggleLabelTop: 55
-
-                Behavior on x {
-                    NumberAnimation {
-                        duration: 180
-                        easing.type: Easing.OutCubic
-                    }
-                }
-
-                MatteSurface {
-                    anchors.fill: parent
-                    radius: parent.radius
-                    hovered: focusButtonMouse.containsMouse || nightLightButtonMouse.containsMouse
-                    pressed: focusButtonMouse.pressed || nightLightButtonMouse.pressed
-                }
-
-                Rectangle {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 1
-                    height: parent.height - 34
-                    radius: 1
-                    color: "#1cffffff"
-                }
-
-                Item {
-                    id: focusButton
-                    anchors.left: parent.left
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    width: parent.width / 2
-                    property real slashProgress: controlCenter.focusEnabled ? 1 : 0
-                    property color iconColor: controlCenter.focusEnabled ? StyleTokens.textPrimaryBright : "#c8cad1"
-
-                    Behavior on slashProgress {
-                        NumberAnimation {
-                            duration: 830
-                            easing.type: Easing.OutCubic
-                        }
-                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        anchors.margins: 4
-                        radius: 16
-                        color: focusButtonMouse.containsMouse ? "#08ffffff" : StyleTokens.clearBlack
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: StyleTokens.durationFast
-                            }
-                        }
-                    }
-
-                    MouseArea {
-                        id: focusButtonMouse
-                        anchors.fill: parent
-                        enabled: !controlCenter.focusBusy
-                        hoverEnabled: true
-                        onClicked: controlCenter.toggleFocus()
-                    }
-
-                    Item {
-                        id: focusIconSlot
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        y: quickTogglesCard.toggleIconTop
-                        width: parent.width
-                        height: quickTogglesCard.toggleIconBoxHeight
-
-                        Shape {
-                            id: focusIcon
-                            anchors.centerIn: parent
-                            width: 24
-                            height: 24
-                            scale: focusButtonMouse.pressed ? 0.94 : 1.0
-                            opacity: controlCenter.focusBusy ? 0.5 : 1.0
-                            preferredRendererType: Shape.CurveRenderer
-
-                            Behavior on scale {
-                                NumberAnimation {
-                                    duration: 120
-                                    easing.type: Easing.OutCubic
-                                }
-                            }
-
-                            ShapePath {
-                                fillColor: StyleTokens.transparent
-                                strokeColor: focusButton.iconColor
-                                strokeWidth: 2
-                                capStyle: ShapePath.RoundCap
-                                joinStyle: ShapePath.RoundJoin
-
-                                PathSvg {
-                                    path: "M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"
-                                }
-                            }
-
-                            ShapePath {
-                                fillColor: StyleTokens.transparent
-                                strokeColor: focusButton.iconColor
-                                strokeWidth: 2.1
-                                capStyle: ShapePath.RoundCap
-                                joinStyle: ShapePath.RoundJoin
-
-                                PathMove {
-                                    x: 1
-                                    y: 1
-                                }
-
-                                PathLine {
-                                    x: 1 + 22 * focusButton.slashProgress
-                                    y: 1 + 22 * focusButton.slashProgress
-                                }
-                            }
-                        }
-                    }
-
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        y: quickTogglesCard.toggleLabelTop
-                        width: parent.width
-                        text: "Silent"
-                        color: controlCenter.focusEnabled ? StyleTokens.textPrimaryBright : StyleTokens.textMuted
-                        horizontalAlignment: Text.AlignHCenter
-                        font.pixelSize: 10
-                        font.family: controlCenter.textFontFamily
-                        font.weight: Font.Medium
-                        elide: Text.ElideRight
-                        opacity: controlCenter.focusBusy ? 0.5 : 1.0
-                    }
-                }
-
-                Item {
-                    id: nightLightButton
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    width: parent.width / 2
-
-                    MouseArea {
-                        id: nightLightButtonMouse
-                        anchors.fill: parent
-                        enabled: !controlCenter.nightLightBusy
-                        hoverEnabled: true
-                        onClicked: controlCenter.toggleNightLight()
-                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        anchors.margins: 4
-                        radius: 16
-                        color: nightLightButtonMouse.containsMouse ? "#08ffffff" : StyleTokens.clearBlack
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: StyleTokens.durationFast
-                            }
-                        }
-                    }
-
-                    Item {
-                        id: nightLightIconSlot
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        y: quickTogglesCard.toggleIconTop
-                        width: parent.width
-                        height: quickTogglesCard.toggleIconBoxHeight
-
-                        Text {
-                            anchors.centerIn: parent
-                            anchors.verticalCenterOffset: 1
-                            text: controlCenter.nightLightGlyph
-                            color: "#45000000"
-                            font.pixelSize: 29
-                            font.family: controlCenter.iconFontFamily
-                            scale: nightLightButtonMouse.pressed ? 0.94 : 1.0
-                            opacity: controlCenter.nightLightBusy ? 0.1 : 0.22
-                        }
-
-                        Text {
-                            id: nightLightIcon
-                            anchors.centerIn: parent
-                            text: controlCenter.nightLightGlyph
-                            color: controlCenter.nightLightEnabled ? StyleTokens.textPrimaryBright : "#c8cad1"
-                            font.pixelSize: 29
-                            font.family: controlCenter.iconFontFamily
-                            scale: nightLightButtonMouse.pressed ? 0.94 : 1.0
-                            opacity: controlCenter.nightLightBusy ? 0.5 : 1.0
-
-                            Behavior on scale {
-                                NumberAnimation {
-                                    duration: 120
-                                    easing.type: Easing.OutCubic
-                                }
-                            }
-                        }
-                    }
-
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        y: quickTogglesCard.toggleLabelTop
-                        width: parent.width
-                        text: "Night mode"
-                        color: controlCenter.nightLightEnabled ? StyleTokens.textPrimaryBright : StyleTokens.textMuted
-                        horizontalAlignment: Text.AlignHCenter
-                        font.pixelSize: 10
-                        font.family: controlCenter.textFontFamily
-                        font.weight: Font.Medium
-                        elide: Text.ElideRight
-                        opacity: controlCenter.nightLightBusy ? 0.5 : 1.0
-                    }
-                }
-            }
-
-            Rectangle {
-                id: batteryDrawerTunnelShade
-                anchors.left: parent.left
-                anchors.top: parent.top
-                width: batteryDrawer.cardWidth
-                height: Math.max(1, controlCenter.batteryDrawerContentGap * 0.35)
-                z: 6
-                opacity: Math.min(0.34, controlCenter.batteryDrawerProgress * 0.45)
-                gradient: Gradient {
-                    GradientStop {
-                        position: 0
-                        color: "#9a000000"
-                    }
-                    GradientStop {
-                        position: 1
-                        color: StyleTokens.clearBlack
-                    }
-                }
-            }
-
-            Item {
-                id: batteryDrawerHandle
-                anchors.left: parent.left
-                anchors.right: parent.right
-                y: controlCenter.batteryDrawerProgress * batteryDrawer.openDistance
-                height: controlCenter.batteryDrawerHandleHeight
-                z: 10
-
-                Rectangle {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    y: 8
-                    width: 48
-                    height: 5
-                    radius: 3
-                    color: controlCenter.batteryDrawerOpen ? "#d4d6dc" : StyleTokens.textSubtle
-                    opacity: 0.88
-                }
-
-                MouseArea {
-                    id: batteryDrawerHandleArea
-                    anchors.fill: parent
-                    property real pointerGrabOffset: 0
-                    property bool moved: false
-                    property bool suppressClick: false
-
-                    function pointerY(mouse) {
-                        return batteryDrawerHandle.mapToItem(controlCenter, mouse.x, mouse.y).y;
-                    }
-
-                    function itemTop(item) {
-                        return item.mapToItem(controlCenter, 0, 0).y;
-                    }
-
-                    onPressed: function(mouse) {
-                        controlCenter.stopBatteryDrawerSettle();
-                        controlCenter.batteryDrawerSettling = false;
-                        pointerGrabOffset = pointerY(mouse) - itemTop(batteryDrawerHandle);
-                        moved = false;
-                        suppressClick = false;
-                        controlCenter.batteryDrawerDragging = true;
-                    }
-
-                    onPositionChanged: function(mouse) {
-                        const nextHandleY = pointerY(mouse) - pointerGrabOffset - itemTop(batteryDrawer);
-                        if (!moved && Math.abs(nextHandleY - batteryDrawerHandle.y) < 4)
-                            return;
-
-                        moved = true;
-                        suppressClick = true;
-                        controlCenter.batteryDrawerProgress = controlCenter.clamp01(nextHandleY / batteryDrawer.openDistance);
-                    }
-
-                    onReleased: {
-                        controlCenter.batteryDrawerDragging = false;
-                        if (moved)
-                            controlCenter.setBatteryDrawerOpen(controlCenter.batteryDrawerProgress >= 0.55);
-                    }
-
-                    onCanceled: {
-                        controlCenter.batteryDrawerDragging = false;
-                        controlCenter.setBatteryDrawerOpen(controlCenter.batteryDrawerOpen);
-                    }
-
-                    onClicked: {
-                        if (suppressClick) {
-                            suppressClick = false;
-                            return;
-                        }
-
-                        controlCenter.toggleBatteryDrawer();
-                    }
-                }
-            }
         }
 
-        ControlSliderCard {
-            id: brightnessCard
-            width: parent.width
-            height: 76
-            title: "Display"
-            iconText: controlCenter.brightnessIconGlyph
-            iconFontFamily: controlCenter.iconFontFamily
-            textFontFamily: controlCenter.textFontFamily
-            value: controlCenter.displayedBrightness
-            knobSize: controlCenter.sliderKnobSize
-            moduleColor: controlCenter.moduleColor
-            moduleHover: controlCenter.moduleHover
-            trackColor: controlCenter.trackColor
-            textPrimary: controlCenter.textPrimary
-            textSecondary: controlCenter.textSecondary
-
-            onInteractionStarted: {
-                if (controlCenter.sliderIntroPending) {
-                    sliderIntroTimer.stop();
-                    controlCenter.sliderIntroPending = false;
-                    controlCenter.displayedBrightness = controlCenter.localBrightness;
-                    controlCenter.displayedVolume = controlCenter.localVolume;
-                }
-            }
-            onValueMoved: function(value) {
-                controlCenter.queueBrightness(value);
-            }
-            onCommitRequested: {
-                brightnessApplyTimer.stop();
-                controlCenter.flushBrightness(true);
-            }
-            onCancelRequested: SystemServices.requestBrightness()
-        }
-
-        ControlSliderCard {
-            id: volumeCard
-            width: parent.width
-            height: 76
-            title: "Sound"
-            iconText: controlCenter.volumeIconGlyph
-            iconFontFamily: controlCenter.iconFontFamily
-            textFontFamily: controlCenter.textFontFamily
-            value: controlCenter.displayedVolume
-            knobSize: controlCenter.sliderKnobSize
-            moduleColor: controlCenter.moduleColor
-            moduleHover: controlCenter.moduleHover
-            trackColor: controlCenter.trackColor
-            textPrimary: controlCenter.textPrimary
-            textSecondary: controlCenter.textSecondary
-
-            onInteractionStarted: {
-                if (controlCenter.sliderIntroPending) {
-                    sliderIntroTimer.stop();
-                    controlCenter.sliderIntroPending = false;
-                    controlCenter.displayedBrightness = controlCenter.localBrightness;
-                    controlCenter.displayedVolume = controlCenter.localVolume;
-                }
-            }
-            onValueMoved: function(value) {
-                controlCenter.queueVolume(value);
-            }
-            onCommitRequested: {
-                volumeApplyTimer.stop();
-                controlCenter.flushVolume(true);
-            }
-            onCancelRequested: SystemServices.requestVolume()
-        }
     }

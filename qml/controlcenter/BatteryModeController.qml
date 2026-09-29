@@ -5,13 +5,6 @@ import "../common"
 ConnectivityController {
     id: root
 
-    property bool batteryDrawerOpen: false
-    property bool batteryDrawerDragging: false
-    property real batteryDrawerProgress: 0
-    property bool batteryDrawerSettling: false
-    readonly property bool batteryDrawerMoving: batteryDrawerDragging
-        || batteryDrawerSettling
-        || batteryDrawerProgressAnimation.running
     property bool batteryModeBusy: false
     property bool batteryModeStateRunning: false
     property bool batteryModeSetterRunning: false
@@ -27,8 +20,6 @@ ConnectivityController {
     property string batteryModeLastCommandOutput: ""
     property int batteryModeRefreshPollsRemaining: 0
     readonly property var batteryModeGlyphs: ["", "", ""]
-    readonly property real batteryDrawerHandleHeight: 20
-    readonly property real batteryDrawerContentGap: 8
     readonly property real batteryModeCardHeight: 80
     readonly property string batteryModeStatusText: buildBatteryModeStatusText()
     readonly property string powerDriver: {
@@ -63,25 +54,6 @@ ConnectivityController {
     function setBatteryModeVisualIndex(index, animate) {
         const nextIndex = Math.max(0, Math.min(2, index));
         batteryModeIndex = nextIndex;
-    }
-
-    function setBatteryDrawerOpen(open) {
-        const nextOpen = !!open;
-        batteryDrawerOpen = nextOpen;
-        batteryDrawerSettling = true;
-        batteryDrawerProgress = nextOpen ? 1 : 0;
-        batteryDrawerSettleTimer.restart();
-        if (nextOpen && tlpControlsEnabled && !batteryTlpChecked)
-            refreshBatteryModeState();
-    }
-
-    // batteryDrawerSettleTimer's id isn't visible to derived types (QML id scoping is per-document), so they call this wrapper instead.
-    function stopBatteryDrawerSettle() {
-        batteryDrawerSettleTimer.stop();
-    }
-
-    function toggleBatteryDrawer() {
-        setBatteryDrawerOpen(!batteryDrawerOpen);
     }
 
     function refreshBatteryModeState() {
@@ -255,15 +227,6 @@ ConnectivityController {
         setBatteryModeVisualIndex(batteryModeAppliedIndex, true);
         refreshBatteryModeState();
     }
-    Behavior on batteryDrawerProgress {
-        enabled: !batteryDrawerDragging
-
-        NumberAnimation {
-            id: batteryDrawerProgressAnimation
-            duration: 240
-            easing.type: Easing.OutCubic
-        }
-    }
 
     Connections {
         target: SystemServices
@@ -294,12 +257,5 @@ ConnectivityController {
             if (batteryModeRefreshPollsRemaining <= 0)
                 stop();
         }
-    }
-
-    Timer {
-        id: batteryDrawerSettleTimer
-        interval: 300
-        repeat: false
-        onTriggered: batteryDrawerSettling = false
     }
 }

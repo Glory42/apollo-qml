@@ -86,7 +86,7 @@ import "../notifications"
                 case "control_center":
                     return controlCenterLoader.item && controlCenterLoader.item.powerViewActive
                         ? 150
-                        : 320 + (controlCenterLoader.item ? controlCenterLoader.item.controlCenterExtraHeight : 32);
+                        : 236 + (controlCenterLoader.item ? controlCenterLoader.item.controlCenterExtraHeight : 0);
                 case "notification_center":
                     return notificationCenterLoader.item ? notificationCenterLoader.item.contentHeight : 200;
                 case "wallpaper_picker":
@@ -164,8 +164,6 @@ import "../notifications"
                 }
             }
             Behavior on height {
-                enabled: !(controlCenterLoader.item && controlCenterLoader.item.batteryDrawerMoving)
-
                 NumberAnimation {
                     duration: mainCapsule.morphDuration
                     easing.type: Easing.OutQuint
@@ -645,13 +643,10 @@ import "../notifications"
                         iconFontFamily: root.iconFontFamily
                         textFontFamily: root.textFontFamily
                         heroFontFamily: root.heroFontFamily
-                        sliderIntroDelay: mainCapsule.morphDuration
                         currentTime: timeObj.currentTime
                         currentDateLabel: timeObj.currentDateLabel
                         batteryCapacity: islandContainer.batteryCapacity
                         isCharging: islandContainer.isCharging
-                        volumeLevel: islandContainer.currentVolume
-                        brightnessLevel: islandContainer.currentBrightness
                         currentWorkspace: islandContainer.currentWs
                         currentTrack: islandContainer.currentTrack
                         currentArtist: islandContainer.currentArtist
@@ -676,6 +671,7 @@ import "../notifications"
                         weatherService: root.weatherService
                         onWeatherRequested: islandContainer.showWeather()
                         onCalendarRequested: islandContainer.showCalendar()
+                        onWallpaperRequested: islandContainer.showWallpaperPicker()
                     }
                 }
             }

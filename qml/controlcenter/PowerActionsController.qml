@@ -41,6 +41,10 @@ BatteryModeController {
         if (!lockProcess.running)
             lockProcess.running = true;
     }
+    function triggerLogout() {
+        if (!logoutProcess.running)
+            logoutProcess.running = true;
+    }
 
     Process {
         id: nightLightEnableProcess
@@ -148,6 +152,23 @@ BatteryModeController {
                     "Could not suspend via systemctl.");
         }
     }
+    Process {
+        id: logoutProcess
+        command: [
+            "sh",
+            "-c",
+            "if command -v hyprctl >/dev/null 2>&1 && hyprctl dispatch exit >/dev/null 2>&1; then exit 0; "
+                + "elif command -v loginctl >/dev/null 2>&1; then loginctl terminate-session \"$XDG_SESSION_ID\"; "
+                + "else exit 127; fi"
+        ]
+        running: false
+        onExited: function(exitCode) {
+            if (exitCode === 127)
+                requestNotification("Power", "Logout unavailable",
+                    "Install Hyprland or loginctl to enable logout.");
+        }
+    }
+
     Process {
         id: lockProcess
         command: [

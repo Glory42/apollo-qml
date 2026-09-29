@@ -10,6 +10,7 @@ PowerActionsController {
     signal focusModeChanged(bool enabled)
     signal weatherRequested()
     signal calendarRequested()
+    signal wallpaperRequested()
 
     readonly property var userConfig: UserConfig
 
@@ -33,24 +34,10 @@ PowerActionsController {
     property string currentDateLabel: ""
     property int batteryCapacity: 0
     property bool isCharging: false
-    property real volumeLevel: -1
-    property real brightnessLevel: -1
-    property int sliderIntroDelay: 400
     property int currentWorkspace: 1
     property string currentTrack: ""
     property string currentArtist: ""
 
-    property real localVolume: 0.5
-    property real localBrightness: 0.5
-    property real displayedVolume: 0.5
-    property real displayedBrightness: 0.5
-    property real pendingVolume: 0.5
-    property real pendingBrightness: 0.5
-    property real lastAppliedVolume: -1
-    property real lastAppliedBrightness: -1
-    property bool brightnessSetterRunning: false
-    property bool volumeSetterRunning: false
-    property bool sliderIntroPending: false
     property bool wifiPanelOpen: false
     property bool bluetoothPanelOpen: false
     property bool powerPanelOpen: false
@@ -58,7 +45,6 @@ PowerActionsController {
     property bool focusEnabled: false
     property bool focusBusy: false
 
-    readonly property real sliderKnobSize: 24
     readonly property color panelColor: StyleTokens.panel
     readonly property color moduleColor: StyleTokens.module
     readonly property color moduleHover: StyleTokens.moduleHover
@@ -73,14 +59,10 @@ PowerActionsController {
     readonly property color buttonFillHover: StyleTokens.buttonFillHover
     readonly property color buttonFillPressed: StyleTokens.buttonFillPressed
     readonly property string chargingIconGlyph: "\uf0e7"
-    readonly property string brightnessIconGlyph: "\u{F00DF}"
-    readonly property string volumeIconGlyph: "\u{F057E}"
     readonly property real roundToggleButtonSize: 58
     readonly property real roundToggleButtonGap: 18
-    readonly property real controlCenterExtraHeight: 12 + batteryDrawerHandleHeight
-        + batteryDrawerProgress * (batteryDrawerContentGap + batteryModeCardHeight)
-    readonly property real controlCenterMaximumExtraHeight: 12 + batteryDrawerHandleHeight
-        + batteryDrawerContentGap + batteryModeCardHeight
+    readonly property real controlCenterExtraHeight: tlpControlsEnabled ? (12 + batteryModeCardHeight) : 0
+    readonly property real controlCenterMaximumExtraHeight: controlCenterExtraHeight
     readonly property bool hasConnectivityPrompt: wifiPendingPasswordSsid.length > 0 || bluetoothPairingActive
     readonly property bool anyConnectivityPanelOpen: wifiPanelOpen || bluetoothPanelOpen
 
@@ -162,111 +144,23 @@ PowerActionsController {
         clearBluetoothMessages();
     }
 
-    function applyBrightnessSnapshot(value) {
-        if (value >= 0)
-            syncBrightnessFromLevel(value);
-    }
-
-    function applyVolumeSnapshot(value) {
-        if (value >= 0)
-            syncVolumeFromLevel(value);
-    }
-
-    function flushBrightness(force) {
-        const nextValue = clamp01(pendingBrightness);
-        if (!force && Math.abs(nextValue - lastAppliedBrightness) < 0.01) return;
-        if (brightnessSetterRunning) {
-            brightnessApplyTimer.restart();
-            return;
-        }
-
-        lastAppliedBrightness = nextValue;
-        brightnessSetterRunning = true;
-        SystemServices.setBrightness(nextValue);
-    }
-
-    function queueBrightness(value) {
-        localBrightness = clamp01(value);
-        if (showCondition && !sliderIntroPending) displayedBrightness = localBrightness;
-        pendingBrightness = localBrightness;
-        brightnessApplyTimer.restart();
-    }
-
-    function flushVolume(force) {
-        const nextValue = clamp01(pendingVolume);
-        if (!force && Math.abs(nextValue - lastAppliedVolume) < 0.01) return;
-        if (volumeSetterRunning) {
-            volumeApplyTimer.restart();
-            return;
-        }
-
-        lastAppliedVolume = nextValue;
-        volumeSetterRunning = true;
-        SystemServices.setVolume(nextValue);
-    }
-
-    function queueVolume(value) {
-        localVolume = clamp01(value);
-        if (showCondition && !sliderIntroPending) displayedVolume = localVolume;
-        pendingVolume = localVolume;
-        volumeApplyTimer.restart();
-    }
-
-    function syncBrightnessFromLevel(level) {
-        if (level < 0) return;
-        localBrightness = clamp01(level);
-        if (showCondition && !sliderIntroPending) displayedBrightness = localBrightness;
-        pendingBrightness = localBrightness;
-        lastAppliedBrightness = localBrightness;
-    }
-
-    function syncVolumeFromLevel(level) {
-        if (level < 0) return;
-        localVolume = clamp01(level);
-        if (showCondition && !sliderIntroPending) displayedVolume = localVolume;
-        pendingVolume = localVolume;
-        lastAppliedVolume = localVolume;
-    }
-
-    function syncLevelsFromProps() {
-        syncBrightnessFromLevel(brightnessLevel);
-        syncVolumeFromLevel(volumeLevel);
-    }
-
     anchors.fill: parent
     anchors.margins: 12
     opacity: showCondition ? 1 : 0
     visible: opacity > 0
 
-    onBrightnessLevelChanged: syncBrightnessFromLevel(brightnessLevel)
-    onVolumeLevelChanged: syncVolumeFromLevel(volumeLevel)
     onShowConditionChanged: {
         if (showCondition) {
-            syncLevelsFromProps();
-            sliderIntroPending = true;
-            displayedBrightness = localBrightness;
-            displayedVolume = localVolume;
-            sliderIntroTimer.interval = sliderIntroDelay;
-            sliderIntroTimer.restart();
             refreshBatteryModeState();
             requestWifiStateRefresh();
             if (wifiPanelOpen && wifiSupported && wifiEnabled)
                 requestWifiListRefresh(true);
         } else {
-            sliderIntroTimer.stop();
-            sliderIntroPending = false;
-            displayedBrightness = localBrightness;
-            displayedVolume = localVolume;
             closeConnectivityPanels();
         }
     }
 
     Component.onCompleted: {
-        syncLevelsFromProps();
-        displayedBrightness = localBrightness;
-        displayedVolume = localVolume;
-        SystemServices.requestBrightness();
-        SystemServices.requestVolume();
         refreshBatteryModeState();
     }
 
@@ -274,80 +168,6 @@ PowerActionsController {
         NumberAnimation {
             duration: showCondition ? 240 : 100
             easing.type: Easing.InOutQuad
-        }
-    }
-
-    Behavior on displayedBrightness {
-        enabled: controlCenter.showCondition && !controlCenter.sliderIntroPending && !controlCenterView.brightnessCardPressed
-
-        NumberAnimation {
-            duration: 130
-            easing.type: Easing.OutCubic
-        }
-    }
-
-    Behavior on displayedVolume {
-        enabled: controlCenter.showCondition && !controlCenter.sliderIntroPending && !controlCenterView.volumeCardPressed
-
-        NumberAnimation {
-            duration: 130
-            easing.type: Easing.OutCubic
-        }
-    }
-
-    Connections {
-        target: SystemServices
-
-        function onBrightnessSnapshotReady(value, errorString) {
-            if (errorString === "")
-                controlCenter.applyBrightnessSnapshot(value);
-        }
-
-        function onBrightnessSetFinished(value, success, errorString) {
-            controlCenter.brightnessSetterRunning = false;
-            if (success)
-                controlCenter.applyBrightnessSnapshot(value);
-            if (success && Math.abs(controlCenter.pendingBrightness - controlCenter.lastAppliedBrightness) >= 0.01)
-                brightnessApplyTimer.restart();
-        }
-
-        function onVolumeSnapshotReady(value, muted, errorString) {
-            if (errorString === "")
-                controlCenter.applyVolumeSnapshot(value);
-        }
-
-        function onVolumeSetFinished(value, success, errorString) {
-            controlCenter.volumeSetterRunning = false;
-            if (success)
-                controlCenter.applyVolumeSnapshot(value);
-            if (success && Math.abs(controlCenter.pendingVolume - controlCenter.lastAppliedVolume) >= 0.01)
-                volumeApplyTimer.restart();
-        }
-    }
-
-    Timer {
-        id: brightnessApplyTimer
-        interval: 55
-        repeat: false
-        onTriggered: controlCenter.flushBrightness(false)
-    }
-
-    Timer {
-        id: volumeApplyTimer
-        interval: 55
-        repeat: false
-        onTriggered: controlCenter.flushVolume(false)
-    }
-
-    Timer {
-        id: sliderIntroTimer
-        interval: controlCenter.sliderIntroDelay
-        repeat: false
-
-        onTriggered: {
-            controlCenter.sliderIntroPending = false;
-            controlCenter.displayedBrightness = controlCenter.localBrightness;
-            controlCenter.displayedVolume = controlCenter.localVolume;
         }
     }
 

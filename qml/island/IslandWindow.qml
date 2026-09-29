@@ -285,9 +285,9 @@ PanelWindow {
     readonly property real connectivityDetailHeight: 404
     readonly property real controlCenterMaximumExtraHeight: mainCapsule.controlCenterLoader.item
         ? mainCapsule.controlCenterLoader.item.controlCenterMaximumExtraHeight
-        : 120
+        : 92
     readonly property real controlCenterWindowHeight: islandContainer.controlCenterLayerVisible
-        ? userConfig.islandTopMargin + 320 + root.controlCenterMaximumExtraHeight + 12
+        ? userConfig.islandTopMargin + 236 + root.controlCenterMaximumExtraHeight + 12
         : 0
 
     readonly property real notificationCenterWindowHeight: islandContainer.notificationCenterLayerVisible
