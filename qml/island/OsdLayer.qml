@@ -78,17 +78,17 @@ Item {
         }
 
         Item {
-            width: 30
-            height: 30
+            width: 18
+            height: 18
             anchors.right: parent.right
             anchors.rightMargin: 16
             anchors.verticalCenter: parent.verticalCenter
 
             Rectangle {
                 anchors.centerIn: parent
-                width: 16
-                height: 16
-                radius: 8
+                width: 10
+                height: 10
+                radius: 5
                 color: "#111111"
                 border.color: "#1f1f1f"
                 border.width: 1
@@ -106,7 +106,7 @@ Item {
                 onPaint: {
                     var ctx = getContext("2d");
                     var size = Math.min(width, height);
-                    var lineWidth = 3.5;
+                    var lineWidth = 2.2;
                     var center = size / 2;
                     var radius = (size - lineWidth) / 2 - 0.5;
                     var startAngle = -Math.PI / 2;
