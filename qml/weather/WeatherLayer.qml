@@ -14,6 +14,7 @@ FocusScope {
     property string iconFontFamily: ""
     property string textFontFamily: ""
     property string heroFontFamily: ""
+    property bool searchActive: false
 
     focus: root.showCondition
     activeFocusOnTab: true
@@ -46,6 +47,10 @@ FocusScope {
             if (root.weatherService && !root.weatherService.hasData && root.weatherService.weatherEnabled) {
                 root.weatherService.refresh();
             }
+        } else {
+            root.searchActive = false;
+            if (root.weatherService)
+                root.weatherService.clearSuggestions();
         }
     }
 
@@ -61,17 +66,39 @@ FocusScope {
             Layout.preferredHeight: 28
             spacing: 8
 
-            // Location pin icon
-            Text {
-                text: "\uf041" // nf-fa-map_marker
-                color: StyleTokens.accent
-                font.family: root.iconFontFamily && root.iconFontFamily.length > 0 ? root.iconFontFamily : "JetBrainsMono Nerd Font"
-                font.pixelSize: 13
-                Layout.alignment: Qt.AlignVCenter
+            // Location pin icon -- also the search-mode toggle
+            Rectangle {
+                Layout.preferredWidth: 22
+                Layout.preferredHeight: 22
+                radius: 11
+                color: pinMouse.containsMouse ? StyleTokens.moduleHover : StyleTokens.transparent
+
+                Text {
+                    anchors.centerIn: parent
+                    text: root.searchActive ? "\uf00d" : "\uf041" // nf-fa-times : nf-fa-map_marker
+                    color: StyleTokens.accent
+                    font.family: root.iconFontFamily && root.iconFontFamily.length > 0 ? root.iconFontFamily : "JetBrainsMono Nerd Font"
+                    font.pixelSize: 13
+                }
+
+                MouseArea {
+                    id: pinMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        root.searchActive = !root.searchActive;
+                        if (root.searchActive)
+                            locationSearchField.forceActiveFocus();
+                        else if (root.weatherService)
+                            root.weatherService.clearSuggestions();
+                    }
+                }
             }
 
-            // Location text
+            // Location text (normal mode) -- also opens search on click
             Text {
+                visible: !root.searchActive
                 text: (root.weatherService && root.weatherService.displayLocation.length > 0)
                     ? root.weatherService.displayLocation
                     : "Weather"
@@ -82,10 +109,79 @@ FocusScope {
                 elide: Text.ElideRight
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignVCenter
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        root.searchActive = true;
+                        locationSearchField.forceActiveFocus();
+                    }
+                }
+            }
+
+            // Location search field (search mode)
+            Rectangle {
+                visible: root.searchActive
+                Layout.fillWidth: true
+                Layout.preferredHeight: 26
+                radius: 13
+                color: StyleTokens.input
+                border.color: StyleTokens.inputBorder
+                border.width: 1
+
+                Text {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "Search city..."
+                    color: StyleTokens.textTertiary
+                    font.pixelSize: 12
+                    font.family: root.textFontFamily
+                    visible: locationSearchField.text.length === 0 && !locationSearchField.activeFocus
+                }
+
+                TextInput {
+                    id: locationSearchField
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.leftMargin: 10
+                    anchors.rightMargin: 10
+                    height: Math.min(parent.height - 6, implicitHeight + 2)
+                    color: StyleTokens.textPrimary
+                    font.pixelSize: 12
+                    font.family: root.textFontFamily
+                    verticalAlignment: TextInput.AlignVCenter
+                    clip: true
+                    selectByMouse: true
+                    cursorVisible: activeFocus
+
+                    onTextChanged: {
+                        if (root.weatherService)
+                            root.weatherService.searchLocations(text);
+                    }
+                    Keys.onEscapePressed: function(event) {
+                        root.searchActive = false;
+                        text = "";
+                        if (root.weatherService)
+                            root.weatherService.clearSuggestions();
+                        event.accepted = true;
+                    }
+                    Keys.onReturnPressed: function(event) {
+                        if (root.weatherService && root.weatherService.locationSuggestions.length > 0) {
+                            root.weatherService.selectLocation(root.weatherService.locationSuggestions[0]);
+                            root.searchActive = false;
+                            text = "";
+                        }
+                        event.accepted = true;
+                    }
+                }
             }
 
             // Status / Last updated
             Text {
+                visible: !root.searchActive && text.length > 0
                 text: {
                     if (!root.weatherService) return "";
                     if (root.weatherService.loading) return "Updating...";
@@ -99,11 +195,11 @@ FocusScope {
                 font.family: root.textFontFamily
                 font.pixelSize: 11
                 Layout.alignment: Qt.AlignVCenter
-                visible: text.length > 0
             }
 
             // Refresh Button
             Rectangle {
+                visible: !root.searchActive
                 Layout.preferredWidth: 26
                 Layout.preferredHeight: 26
                 radius: 13
@@ -547,6 +643,103 @@ FocusScope {
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Location suggestions -- floats above the content below the search field.
+    Rectangle {
+        id: suggestionsOverlay
+        visible: root.searchActive && root.weatherService
+            && (root.weatherService.locationSuggestions.length > 0
+                || root.weatherService.searchingLocations
+                || root.weatherService.searchError.length > 0)
+        anchors.top: parent.top
+        anchors.topMargin: 50
+        anchors.left: parent.left
+        anchors.leftMargin: 16
+        anchors.right: parent.right
+        anchors.rightMargin: 16
+        height: 160
+        radius: 12
+        color: StyleTokens.module
+        border.color: StyleTokens.inputBorder
+        border.width: 1
+        z: 20
+
+        Text {
+            visible: root.weatherService ? root.weatherService.searchingLocations : false
+            anchors.centerIn: parent
+            text: "Searching..."
+            color: StyleTokens.textMuted
+            font.family: root.textFontFamily
+            font.pixelSize: 12
+        }
+
+        Text {
+            visible: root.weatherService
+                ? (root.weatherService.searchError.length > 0 && !root.weatherService.searchingLocations)
+                : false
+            anchors.centerIn: parent
+            text: root.weatherService ? root.weatherService.searchError : ""
+            color: StyleTokens.warning
+            font.family: root.textFontFamily
+            font.pixelSize: 12
+        }
+
+        Column {
+            id: suggestionsColumn
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.margins: 6
+            visible: root.weatherService
+                ? (!root.weatherService.searchingLocations && root.weatherService.locationSuggestions.length > 0)
+                : false
+
+            Repeater {
+                model: root.weatherService ? root.weatherService.locationSuggestions : []
+
+                delegate: Item {
+                    id: suggestionDelegate
+                    required property var modelData
+                    width: suggestionsColumn.width
+                    height: 34
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 8
+                        color: suggestionMouse.containsMouse ? StyleTokens.moduleHover : StyleTokens.transparent
+                    }
+
+                    Text {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.leftMargin: 8
+                        anchors.rightMargin: 8
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: suggestionDelegate.modelData.name
+                            + (suggestionDelegate.modelData.admin1.length > 0 ? ", " + suggestionDelegate.modelData.admin1 : "")
+                            + (suggestionDelegate.modelData.country.length > 0 ? ", " + suggestionDelegate.modelData.country : "")
+                        color: StyleTokens.textPrimary
+                        font.family: root.textFontFamily
+                        font.pixelSize: 12
+                        elide: Text.ElideRight
+                    }
+
+                    MouseArea {
+                        id: suggestionMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            if (root.weatherService)
+                                root.weatherService.selectLocation(suggestionDelegate.modelData);
+                            root.searchActive = false;
+                            locationSearchField.text = "";
                         }
                     }
                 }
