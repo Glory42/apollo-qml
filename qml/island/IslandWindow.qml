@@ -652,6 +652,30 @@ PanelWindow {
             mainCapsule.controlCenterLoader.item.powerViewActive = true;
     }
 
+    function showPowerMenuWindow() {
+        islandContainer.showControlCenter();
+        if (mainCapsule.controlCenterLoader.item)
+            mainCapsule.controlCenterLoader.item.powerViewActive = true;
+    }
+
+    // Direct-open: jump straight to Control Center pre-expanded to one connectivity
+    // detail, instead of "open Control Center, then tap the card" as two steps.
+    function showWifiWindow() {
+        islandContainer.showControlCenter();
+        if (mainCapsule.controlCenterLoader.item) {
+            mainCapsule.controlCenterLoader.item.powerViewActive = false;
+            mainCapsule.controlCenterLoader.item.setConnectivityPanelOpen("wifi", true);
+        }
+    }
+
+    function showBluetoothWindow() {
+        islandContainer.showControlCenter();
+        if (mainCapsule.controlCenterLoader.item) {
+            mainCapsule.controlCenterLoader.item.powerViewActive = false;
+            mainCapsule.controlCenterLoader.item.setConnectivityPanelOpen("bluetooth", true);
+        }
+    }
+
     function toggleNotificationCenterWindow() {
         IslandCommands.toggle(islandContainer, "notificationCenter", () => islandContainer.showNotificationCenter());
     }

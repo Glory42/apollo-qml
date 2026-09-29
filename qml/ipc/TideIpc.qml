@@ -46,6 +46,18 @@ QtObject {
             wrapper.shellRoot.forFocusedWindow((window) => window.togglePowerMenuWindow());
         }
 
+        function showWifi() {
+            wrapper.shellRoot.forFocusedWindow((window) => window.showWifiWindow());
+        }
+
+        function showBluetooth() {
+            wrapper.shellRoot.forFocusedWindow((window) => window.showBluetoothWindow());
+        }
+
+        function showPowerMenu() {
+            wrapper.shellRoot.forFocusedWindow((window) => window.showPowerMenuWindow());
+        }
+
         function toggleNotificationCenter() {
             wrapper.shellRoot.forFocusedWindow((window) => window.toggleNotificationCenterWindow());
         }
