@@ -52,14 +52,17 @@ because they aren't installed on the current dev machine.
 
 # Architecture Refactor Plan
 
-**Status: all 5 phases complete.** `DynamicIslandWindow.qml` (3090 lines) is
-now `qml/island/IslandWindow.qml`; `ControlCenterLayer.qml` went from 2483 to
-1569 lines; `shell.qml` went from ~440 to 196. Every phase was verified with
-`qmllint` plus an actual `quickshell` relaunch, and every panel's
-toggle/open/close was re-tested over real `quickshell ipc call` invocations
-after Phase 3's and Phase 5's file moves specifically (not just a clean-load
-smoke test — see Phase 4's writeup for why that distinction mattered). One
-pre-existing, unrelated bug was surfaced along the way and left alone:
+**Status: all 5 phases complete, plus a Phase 6 view/logic split.**
+`DynamicIslandWindow.qml` (3090 lines) is now `qml/island/IslandWindow.qml`
+(1918 lines) + `qml/island/IslandCapsule.qml` (769 lines); `ControlCenterLayer.qml`
+(2483 lines) is now `ControlCenterLayer.qml` (362 lines) + `ControlCenterView.qml`
+(1046 lines) + `PowerActionsController.qml`; `shell.qml` went from ~440 to 196.
+Every phase was verified with `qmllint` plus an actual `quickshell` relaunch,
+and every panel's toggle/open/close was re-tested over real `quickshell ipc
+call` invocations after every file-moving phase (not just a clean-load smoke
+test — see Phase 4's and Phase 6's writeups for why that distinction
+mattered; both caught real regressions qmllint missed). One pre-existing,
+unrelated bug was surfaced along the way and left alone:
 `WallpaperPickerLayer.qml` reads `userConfig.wallpaperPywalEnabled` and
 `userConfig.wallpaperTransitionInvertY`, neither of which exist on
 `UserConfig.qml` — both silently resolve to `undefined`/`false`. Not
@@ -457,3 +460,73 @@ acted on, ahead of the phased migration below:
    (`fileShelfOpenedManually`, `closeAutoOpenedFileShelf`, etc.) that had no
    caller even before this cleanup. Verified brace-balanced and
    `qmllint`-clean on both files afterward.
+
+## Phase 6 — view/logic split for the two remaining god files
+
+After Phase 5, `ControlCenterLayer.qml` (1393 lines, after also extracting
+`PowerActionsController.qml`) and `IslandWindow.qml` (2652 lines) were still
+genuinely large — large enough that "the refactor is done" wasn't an honest
+claim. The remaining size wasn't more hidden domains, though; in both files
+it was one thing: a huge declarative visual tree sitting next to a much
+smaller amount of real logic. That splits cleanly along a "view vs. logic"
+line in a way that further domain-splitting can't, so this phase did exactly
+that for both files.
+
+**`ControlCenterLayer.qml` → `ControlCenterLayer.qml` (362 lines) +
+`ControlCenterView.qml` (1046 lines).** The file's `Column { id: mainContent
+}` — literally everything visual, ~1035 lines — moved out wholesale.
+`ControlCenterView.qml` takes `controlCenter` as an explicit property (it
+can't inherit the controller chain the way `ControlCenterLayer` does,
+since a separate file extending the same base types would instantiate its
+*own* independent copy of the state, not share the live object). The ~150
+bare references to `controlCenter`'s members inside that tree were rewritten
+to `controlCenter.member` by a scripted pass — cross-checked against every
+locally-declared id and property inside the column first, to rule out
+collisions — rather than by hand; manually prefixing hundreds of references
+across 1035 lines was judged too error-prone to trust.
+
+**`IslandWindow.qml` → `IslandWindow.qml` (1918 lines) + `IslandCapsule.qml`
+(769 lines).** The `Rectangle { id: mainCapsule }` block — the pill's visual
+shape, clock, icons, gesture handling, and the 11 `Loader`s that mount every
+sub-panel — moved out the same way, taking `root` and `islandContainer` as
+explicit properties. Unlike the control-center split, the new instance keeps
+the *same id* (`IslandCapsule { id: mainCapsule }`) at its instantiation
+site, so the ~19 existing `mainCapsule.foo` references elsewhere in
+`IslandWindow.qml` needed no changes at all.
+
+**Two real bugs, both caught by actually exercising the app, not by
+`qmllint`:**
+
+1. The scripted prefixing pass corrupted property *assignments* where a
+   child component's own property name happened to match a state-object
+   member — e.g. `WeatherIcon`'s `iconFontFamily: controlCenter.iconFontFamily`
+   became the invalid `controlCenter.iconFontFamily: controlCenter.iconFontFamily`.
+   45 such corruptions in `ControlCenterView.qml` and another 45 in
+   `IslandCapsule.qml`, all found and fixed the same way: search for
+   `<name>.<member>:` (a qualified name sitting in property-key position,
+   which is never valid QML) and un-qualify the key while leaving the value
+   qualified.
+2. Both splits left behind bare references to ids that used to be reachable
+   for free (single file, QML's per-document id scoping) and now weren't:
+   `ControlCenterLayer.qml`'s brightness/volume-slider `Behavior`s read
+   `brightnessCard.pressed`/`volumeCard.pressed` by bare id, and
+   `IslandWindow.qml`'s root-level functions and computed properties read
+   eight different Loaders and the capsule's own `MouseArea` by bare id
+   (`controlCenterLoader`, `overviewLoader`, `capsuleMouseArea`, etc. — 44
+   call sites across the file, not a handful). Both fixed the same way as
+   the Phase 3 regression: expose the needed child as
+   `readonly property alias name: name` on the new view/capsule file, then
+   reach it through that file's own instantiation id
+   (`controlCenterView.brightnessCardPressed`, `mainCapsule.controlCenterLoader`).
+
+Every step was verified with a full `quickshell ipc call` sweep — overview,
+island show/hide, weather, calendar, notification center, wallpaper picker,
+control center, power menu, player, timer, clock/lyrics/swipe — after each
+extraction, not just a load-and-exit smoke test.
+
+**Deliberately not done, for the same reason as before:** `islandState`
+itself, and the four visual cards inside `ControlCenterView.qml`
+(quick-toggles, brightness, volume, connectivity row) are not split further.
+Both would require threading many more sibling-to-sibling bindings through
+as properties for a much smaller size win than this phase's split — not
+worth the added indirection.
