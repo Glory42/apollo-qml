@@ -192,7 +192,7 @@ PanelWindow {
         if (root.monitorFocused && root.overviewVisible)
             return WlrKeyboardFocus.Exclusive;
         if (islandContainer.expandedPlayerKeyboardFocusRequested)
-            return WlrKeyboardFocus.Exclusive;
+            return WlrKeyboardFocus.OnDemand;
         if (root.monitorFocused && root.connectivityPromptActive)
             return WlrKeyboardFocus.OnDemand;
         return WlrKeyboardFocus.None;
