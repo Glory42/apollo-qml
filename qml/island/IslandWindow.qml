@@ -1863,18 +1863,6 @@ PanelWindow {
 
         function syncLyricsCapsuleWidth() {}
 
-        onCurrentTrackChanged: {
-            if (userConfig.disableAutoExpandOnTrackChange) return;
-            if (currentTrack !== ""
-                    && islandState !== "control_center"
-                    && islandState !== "notification"
-                    && islandState !== "bluetooth_expanded") {
-                if (root.autoHideSuppressesTransientReveal) return;
-                if (islandState === "expanded" && !expandedByPlayerAutoOpen) return;
-                showExpandedPlayer(true);
-            }
-        }
-
         MouseArea {
             id: dismissBackdrop
             anchors.fill: parent
