@@ -839,7 +839,6 @@ PanelWindow {
         clockFormat: userConfig.clockFormat
     }
 
-    // --- 灵动岛主容器与全局状态 ---
     FocusScope {
         id: islandContainer
 
@@ -1861,7 +1860,6 @@ PanelWindow {
             onClicked: islandContainer.smartRestoreState()
         }
 
-        // --- UI 渲染：灵动岛主干 ---
         IslandCapsule {
             id: mainCapsule
 
