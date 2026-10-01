@@ -6,6 +6,8 @@ Rectangle {
     id: pill
 
     property var ctl: null
+    property real swipeSum: 0
+    property bool swipeLocked: false
 
     readonly property var viewUrls: ({
         "rest": "views/RestView.qml",
@@ -60,7 +62,36 @@ Rectangle {
         }
     }
 
+    function swipe(dx) {
+        swipeIdle.restart();
+        if (swipeLocked)
+            return;
+        swipeSum += dx;
+        if (Math.abs(swipeSum) < 120)
+            return;
+        swipeLocked = true;
+        // Fingers moving left give a negative delta and go to the next tab.
+        ctl.step((swipeSum < 0) !== Config.swipeReverse ? 1 : -1);
+        swipeSum = 0;
+    }
+
     Component.onCompleted: showView()
+
+    WheelHandler {
+        orientation: Qt.Horizontal
+        enabled: pill.ctl.isOpen
+        onWheel: (event) => pill.swipe(event.angleDelta.x)
+    }
+
+    Timer {
+        id: swipeIdle
+
+        interval: 250
+        onTriggered: {
+            pill.swipeSum = 0;
+            pill.swipeLocked = false;
+        }
+    }
 
     Loader {
         id: loader

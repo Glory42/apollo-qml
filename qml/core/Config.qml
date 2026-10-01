@@ -7,6 +7,7 @@ QtObject {
     readonly property string fontFamily: "JetBrainsMono Nerd Font"
     readonly property string clockFormat: "24"
     readonly property int windowGap: 0
+    readonly property bool swipeReverse: false
 
     readonly property bool weatherEnabled: true
     readonly property string weatherLocation: ""

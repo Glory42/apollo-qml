@@ -63,7 +63,7 @@ bind = SUPER CTRL, right, exec, /path/to/umbra-ctl pill next
 bind = SUPER CTRL, left, exec, /path/to/umbra-ctl pill prev
 ```
 
-`next` and `prev` move through the dock tabs and wrap around (when nothing is open they open the last view). A second press of a toggle bind closes the view, and opening a view closes it on the other monitors.
+`next` and `prev` move through the dock tabs and wrap around (when nothing is open they open the last view). Swiping two fingers left or right on the touchpad over an open pill does the same (set `swipeReverse` in `qml/core/Config.qml` if it feels backwards). A second press of a toggle bind closes the view, and opening a view closes it on the other monitors.
 Each piece of Umbra is its own IPC target, so later pieces will be called the same way
 (`umbra-ctl power open`, and so on).
 
