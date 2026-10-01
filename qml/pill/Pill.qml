@@ -1,7 +1,8 @@
 import QtQuick
+import QtQuick.Shapes
 import ".."
 
-// The one shape, hanging from the top edge. It sizes itself to the current view and morphs between sizes.
+// The one shape, flaring out of the top edge. It sizes itself to the current view and springs between sizes.
 Item {
     id: pill
 
@@ -25,22 +26,21 @@ Item {
     width: loader.item ? loader.item.implicitWidth : Theme.restWidth
     height: loader.item ? loader.item.implicitHeight : Theme.restHeight
     readonly property real cornerRadius: Math.min(height / 2, Theme.maxRadius)
-
-    clip: true
+    readonly property real fillet: Math.max(0, Math.min(Theme.fillet, height / 3))
 
     Behavior on width {
-        NumberAnimation {
-            duration: Theme.morphDuration
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: Theme.morphCurve
+        SpringAnimation {
+            spring: Theme.springStiffness
+            damping: Theme.springDamping
+            epsilon: 0.4
         }
     }
 
     Behavior on height {
-        NumberAnimation {
-            duration: Theme.morphDuration
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: Theme.morphCurve
+        SpringAnimation {
+            spring: Theme.springStiffness
+            damping: Theme.springDamping
+            epsilon: 0.4
         }
     }
 
@@ -102,24 +102,40 @@ Item {
         onTriggered: pill.swipeReset()
     }
 
-    Rectangle {
-        // Shifted up by its radius so the square top edge sits flush with the screen.
-        y: -pill.cornerRadius
-        width: parent.width
-        height: parent.height + pill.cornerRadius
-        radius: pill.cornerRadius
-        color: Theme.pill
-        border.width: 1
-        border.color: Theme.line
+    Shape {
+        width: pill.width
+        height: pill.height
+        preferredRendererType: Shape.CurveRenderer
+
+        ShapePath {
+            fillColor: Theme.pill
+            strokeColor: "transparent"
+            startX: -pill.fillet
+            startY: 0
+
+            PathLine { x: pill.width + pill.fillet; y: 0 }
+            PathArc { x: pill.width; y: pill.fillet; radiusX: pill.fillet; radiusY: pill.fillet; direction: PathArc.Counterclockwise }
+            PathLine { x: pill.width; y: pill.height - pill.cornerRadius }
+            PathArc { x: pill.width - pill.cornerRadius; y: pill.height; radiusX: pill.cornerRadius; radiusY: pill.cornerRadius }
+            PathLine { x: pill.cornerRadius; y: pill.height }
+            PathArc { x: 0; y: pill.height - pill.cornerRadius; radiusX: pill.cornerRadius; radiusY: pill.cornerRadius }
+            PathLine { x: 0; y: pill.fillet }
+            PathArc { x: -pill.fillet; y: 0; radiusX: pill.fillet; radiusY: pill.fillet; direction: PathArc.Counterclockwise }
+        }
     }
 
-    Loader {
-        id: loader
+    Item {
+        anchors.fill: parent
+        clip: true
 
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: 0
+        Loader {
+            id: loader
 
-        onLoaded: fadeIn.restart()
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: 0
+
+            onLoaded: fadeIn.restart()
+        }
     }
 
     SequentialAnimation {

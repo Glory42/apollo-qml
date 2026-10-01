@@ -4,7 +4,7 @@ import QtQuick
 import Quickshell
 import ".."
 
-// Design tokens: black pill, quiet greys, one morph curve.
+// Design tokens: black pill, quiet greys, one spring.
 QtObject {
     readonly property string fontFamily: Config.fontFamily
     readonly property string iconFont: iconLoader.name
@@ -33,12 +33,13 @@ QtObject {
     readonly property int peekOsdWidth: 230
     readonly property int peekOsdHeight: 44
     readonly property int maxRadius: 28
+    readonly property int fillet: 18
     readonly property int topMargin: 0
 
-    readonly property int windowWidth: 460
+    readonly property int windowWidth: 480
     readonly property int windowHeight: 560
 
-    readonly property int morphDuration: 460
-    readonly property var morphCurve: [0.2, 0.9, 0.25, 1, 1, 1]
+    readonly property real springStiffness: 3.4
+    readonly property real springDamping: 0.3
     readonly property int fadeDuration: 300
 }

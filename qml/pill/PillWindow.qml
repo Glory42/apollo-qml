@@ -25,9 +25,9 @@ PanelWindow {
 
     // Only the pill takes input; everything else in this window falls through to what is underneath.
     mask: Region {
-        x: Math.floor(pill.x)
+        x: Math.floor(pill.x - pill.fillet)
         y: Math.floor(pill.y)
-        width: Math.ceil(pill.width)
+        width: Math.ceil(pill.width + 2 * pill.fillet)
         height: Math.ceil(pill.height)
     }
 
