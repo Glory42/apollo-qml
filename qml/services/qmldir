@@ -1,0 +1,9 @@
+BluetoothAgent BluetoothAgent.qml
+ClockService ClockService.qml
+ConnectivityService ConnectivityService.qml
+MprisService MprisService.qml
+NotificationService NotificationService.qml
+QuickSettingsService QuickSettingsService.qml
+SystemService SystemService.qml
+TimerService TimerService.qml
+WeatherService WeatherService.qml

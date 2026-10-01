@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
-import "../common"
+import "../core"
 
 PanelWindow {
     id: win
@@ -11,14 +11,14 @@ PanelWindow {
     property bool dev: false
 
     readonly property alias controller: ctl
-    readonly property bool monitorFocused: CompositorBackend.isOutputFocused(screen ? screen.name : "")
+    readonly property bool monitorFocused: !!ctl.monitor && !!Hyprland.focusedMonitor && ctl.monitor.name === Hyprland.focusedMonitor.name
 
     color: "transparent"
     anchors.top: true
     margins.top: win.dev ? 60 : 0
-    implicitWidth: SurfaceStyle.windowWidth
-    implicitHeight: SurfaceStyle.windowHeight
-    exclusiveZone: win.dev ? 0 : UserConfig.islandExclusiveZone
+    implicitWidth: Theme.windowWidth
+    implicitHeight: Theme.windowHeight
+    exclusiveZone: win.dev ? 0 : Config.exclusiveZone
     WlrLayershell.namespace: "surface"
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.keyboardFocus: ctl.wantsKeyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
@@ -50,7 +50,7 @@ PanelWindow {
 
         ctl: ctl
         x: Math.round((win.width - width) / 2)
-        y: SurfaceStyle.topMargin
+        y: Theme.topMargin
     }
 
     // Clicking anywhere outside the open surface closes it.
@@ -72,13 +72,9 @@ PanelWindow {
     Connections {
         target: win.services ? win.services.system : null
 
-        function onTransientRequested(glyph, progress, text) {
-            const system = win.services.system;
-            let icon = "bolt";
-            if (glyph === system.statusIcon("volume")) icon = "volume";
-            else if (glyph === system.statusIcon("mute")) icon = "mute";
-            else if (progress >= 0) icon = "sun";
-            ctl.osd(icon, progress);
+        function onChanged(kind, progress) {
+            const icons = { volume: "volume", mute: "mute", brightness: "sun", charging: "bolt", discharging: "battery" };
+            ctl.osd(icons[kind], progress);
         }
     }
 }

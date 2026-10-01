@@ -1,4 +1,5 @@
 import QtQuick
+import "../core"
 
 // The one shape. It sizes itself to whatever the current view asks for and morphs between sizes.
 Rectangle {
@@ -7,44 +8,44 @@ Rectangle {
     property var ctl: null
 
     readonly property var viewUrls: ({
-        "rest": "RestView.qml",
-        "peek": "PeekView.qml",
-        "music": "MusicView.qml",
-        "quick": "QuickView.qml",
-        "timer": "TimerView.qml",
-        "weather": "WeatherView.qml",
-        "calendar": "CalendarView.qml",
-        "notifications": "NotificationsView.qml",
-        "wifi": "WifiView.qml",
-        "bt": "BluetoothView.qml"
+        "rest": "../views/RestView.qml",
+        "peek": "../views/PeekView.qml",
+        "music": "../views/MusicView.qml",
+        "quick": "../views/QuickView.qml",
+        "timer": "../views/TimerView.qml",
+        "weather": "../views/WeatherView.qml",
+        "calendar": "../views/CalendarView.qml",
+        "notifications": "../views/NotificationsView.qml",
+        "wifi": "../views/WifiView.qml",
+        "bt": "../views/BluetoothView.qml"
     })
 
-    width: loader.item ? loader.item.implicitWidth : SurfaceStyle.restWidth
-    height: loader.item ? loader.item.implicitHeight : SurfaceStyle.restHeight
-    radius: Math.min(height / 2, SurfaceStyle.maxRadius)
-    color: SurfaceStyle.pill
+    width: loader.item ? loader.item.implicitWidth : Theme.restWidth
+    height: loader.item ? loader.item.implicitHeight : Theme.restHeight
+    radius: Math.min(height / 2, Theme.maxRadius)
+    color: Theme.pill
     border.width: 1
-    border.color: SurfaceStyle.line
+    border.color: Theme.line
     clip: true
 
     Behavior on width {
         NumberAnimation {
-            duration: SurfaceStyle.morphDuration
+            duration: Theme.morphDuration
             easing.type: Easing.BezierSpline
-            easing.bezierCurve: SurfaceStyle.morphCurve
+            easing.bezierCurve: Theme.morphCurve
         }
     }
 
     Behavior on height {
         NumberAnimation {
-            duration: SurfaceStyle.morphDuration
+            duration: Theme.morphDuration
             easing.type: Easing.BezierSpline
-            easing.bezierCurve: SurfaceStyle.morphCurve
+            easing.bezierCurve: Theme.morphCurve
         }
     }
 
     function showView() {
-        const url = pill.viewUrls[pill.ctl.view] || "RestView.qml";
+        const url = pill.viewUrls[pill.ctl.view] || "../views/RestView.qml";
         loader.setSource(url, { ctl: pill.ctl });
     }
 
@@ -79,7 +80,7 @@ Rectangle {
             target: loader
             property: "opacity"
             to: 1
-            duration: SurfaceStyle.fadeDuration
+            duration: Theme.fadeDuration
         }
     }
 }

@@ -1,0 +1,11 @@
+BluetoothView BluetoothView.qml
+CalendarView CalendarView.qml
+MusicView MusicView.qml
+NotificationsView NotificationsView.qml
+PeekView PeekView.qml
+QuickView QuickView.qml
+RestView RestView.qml
+TimerView TimerView.qml
+ViewFrame ViewFrame.qml
+WeatherView WeatherView.qml
+WifiView WifiView.qml

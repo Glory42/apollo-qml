@@ -1,0 +1,8 @@
+DetailHeader DetailHeader.qml
+Dock Dock.qml
+Icon Icon.qml
+ListRow ListRow.qml
+NotificationAvatar NotificationAvatar.qml
+PillButton PillButton.qml
+QuietSlider QuietSlider.qml
+Tile Tile.qml

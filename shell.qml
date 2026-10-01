@@ -1,8 +1,7 @@
 import QtQuick
 import Quickshell
-import "qml/common"
+import "qml/core"
 import "qml/services"
-import "qml/weather"
 import "qml/surface"
 
 // Entry point. SURFACE_DEV=1 offsets the surface down for testing, SURFACE_SCREEN=<output> pins it to one monitor.
@@ -12,19 +11,19 @@ Scope {
     readonly property bool dev: Quickshell.env("SURFACE_DEV") === "1"
     readonly property string onlyScreen: Quickshell.env("SURFACE_SCREEN") || ""
 
-    IslandClock {
+    ClockService {
         id: clock
 
-        clockFormat: UserConfig.clockFormat
+        clockFormat: Config.clockFormat
     }
 
-    IslandMprisController {
+    MprisService {
         id: mpris
 
         expanded: shellRoot.anyView("music")
     }
 
-    IslandSystemState {
+    SystemService {
         id: system
     }
 
@@ -32,22 +31,22 @@ Scope {
         id: weather
     }
 
-    NotificationCenter {
+    NotificationService {
         id: center
     }
 
-    QuickSettingsState {
+    QuickSettingsService {
         id: quick
     }
 
-    ConnectivityState {
+    ConnectivityService {
         id: net
 
         wifiOpen: shellRoot.anyView("wifi")
         bluetoothOpen: shellRoot.anyView("bt")
     }
 
-    TimerState {
+    TimerService {
         id: countdown
 
         onFinished: center.post("Timer", "Timer finished", "")

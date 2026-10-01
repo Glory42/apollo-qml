@@ -61,22 +61,19 @@ A second press closes the view, and opening a view closes it on the other monito
 ```
 shell.qml                  entry point: shared services, one window per monitor
 surface-ctl                IPC helper for keybinds
-qml/surface/               the surface itself
-  SurfaceWindow.qml        layer-shell window, input mask, click-outside close
-  SurfaceController.qml    which view this monitor shows, rules for events
-  SurfacePill.qml          the one shape that morphs between sizes
-  *View.qml                rest, peek, music, quick, timer, weather, calendar,
-                           notifications, wifi, bluetooth
-  ConnectivityState.qml    Wi-Fi and Bluetooth state and connect/pair flows
-  BluetoothAgent.qml       pairing agent driven through bluetoothctl
-  NotificationCenter.qml   the notification server and unread count
-  QuickSettingsState.qml   night light and power profile
-  TimerState.qml           countdown
-qml/services/              clock, MPRIS and system (battery, volume, brightness) state
-qml/weather/               Open-Meteo weather service
-qml/calendar/              month grid math
-qml/common/                config, compositor and system helpers
+qml/core/                  Config (your settings) and Theme (colors, sizes, motion)
+qml/services/              headless state, no visuals
+  ClockService, MprisService, SystemService (battery, volume, brightness),
+  WeatherService, QuickSettingsService, TimerService,
+  ConnectivityService (Wi-Fi and Bluetooth flows), BluetoothAgent (bluetoothctl),
+  NotificationService (the notification server and unread count)
+qml/surface/               SurfaceWindow, SurfaceController, SurfacePill, SurfaceIpc
+qml/views/                 one file per view, plus ViewFrame they all sit in
+qml/widgets/               Icon, Dock, Tile, ListRow, QuietSlider, PillButton, ...
 ```
+
+Each directory has a `qmldir`. Add new components to it, because Quickshell does not
+create one for every directory on its own.
 
 ## Not included on purpose
 
