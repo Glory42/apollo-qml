@@ -33,7 +33,7 @@ QtObject {
     readonly property int peekOsdWidth: 230
     readonly property int peekOsdHeight: 44
     readonly property int maxRadius: 28
-    readonly property int topMargin: 6
+    readonly property int topMargin: 0
 
     readonly property int windowWidth: 460
     readonly property int windowHeight: 560

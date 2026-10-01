@@ -1,8 +1,8 @@
 import QtQuick
 import ".."
 
-// The one shape. It sizes itself to whatever the current view asks for and morphs between sizes.
-Rectangle {
+// The one shape, hanging from the top edge. It sizes itself to the current view and morphs between sizes.
+Item {
     id: pill
 
     property var ctl: null
@@ -24,10 +24,8 @@ Rectangle {
 
     width: loader.item ? loader.item.implicitWidth : Theme.restWidth
     height: loader.item ? loader.item.implicitHeight : Theme.restHeight
-    radius: Math.min(height / 2, Theme.maxRadius)
-    color: Theme.pill
-    border.width: 1
-    border.color: Theme.line
+    readonly property real cornerRadius: Math.min(height / 2, Theme.maxRadius)
+
     clip: true
 
     Behavior on width {
@@ -102,6 +100,17 @@ Rectangle {
 
         interval: 250
         onTriggered: pill.swipeReset()
+    }
+
+    Rectangle {
+        // Shifted up by its radius so the square top edge sits flush with the screen.
+        y: -pill.cornerRadius
+        width: parent.width
+        height: parent.height + pill.cornerRadius
+        radius: pill.cornerRadius
+        color: Theme.pill
+        border.width: 1
+        border.color: Theme.line
     }
 
     Loader {

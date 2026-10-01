@@ -5,8 +5,8 @@ A quiet shell for Hyprland, written in QML on top of Quickshell's native modules
 `Quickshell.Services.{Pipewire,UPower,Mpris,Notifications}`, `Quickshell.Hyprland`).
 There is no C++ backend.
 
-Umbra is a set of small, separate pieces. The first is **the pill**: a black pill at
-the top of the screen with three sizes (rest, peek, open) and one dock. At rest it
+Umbra is a set of small, separate pieces. The first is **the pill**: a black notch
+hanging from the top edge of the screen with three sizes (rest, peek, open) and one dock. At rest it
 shows only the workspace dots and the clock. Events (notifications, volume,
 brightness) peek out and go away, and everything else opens from the pill or from a
 keybind.
@@ -37,8 +37,8 @@ detail views for joining networks and pairing devices.
 - Icons are Material Symbols (Rounded). A small subset of the font is bundled in
   `assets/`, so nothing needs to be installed. The icons Umbra uses are listed by
   Material name in `qml/widgets/Icon.qml`.
-- The pill reserves its own height at the top of the screen, so windows start below
-  it, plus your Hyprland `gaps_out`.
+- The pill is attached to the top edge and reserves its own height, so windows start
+  below it, plus your Hyprland `gaps_out`.
 - Clicking anywhere outside an open view closes it. The pill never takes keyboard
   focus, except while a Wi-Fi password or Bluetooth passkey box is showing.
 - A two-finger horizontal swipe on the touchpad over an open pill moves between tabs.
