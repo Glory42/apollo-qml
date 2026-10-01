@@ -19,7 +19,7 @@ PanelWindow {
     implicitWidth: Theme.windowWidth
     implicitHeight: Theme.windowHeight
     exclusiveZone: win.dev ? 0 : Config.exclusiveZone
-    WlrLayershell.namespace: "surface"
+    WlrLayershell.namespace: "umbra-pill"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: ctl.wantsKeyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
@@ -31,7 +31,7 @@ PanelWindow {
         height: Math.ceil(pill.height)
     }
 
-    SurfaceController {
+    PillController {
         id: ctl
 
         screen: win.screen
@@ -45,7 +45,7 @@ PanelWindow {
         countdown: win.services ? win.services.countdown : null
     }
 
-    SurfacePill {
+    Pill {
         id: pill
 
         ctl: ctl

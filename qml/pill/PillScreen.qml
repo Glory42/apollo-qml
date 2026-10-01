@@ -13,7 +13,7 @@ Scope {
     readonly property var controller: window.controller
     readonly property bool monitorFocused: window.monitorFocused
 
-    SurfaceWindow {
+    PillWindow {
         id: window
 
         screen: root.screen

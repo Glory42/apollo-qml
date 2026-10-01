@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Shapes
 import ".."
 
-// Stroke icon drawn from a 24x24 SVG path, so the surface needs no icon font or asset files.
+// Stroke icon drawn from a 24x24 SVG path, so the pill needs no icon font or asset files.
 Item {
     id: root
 

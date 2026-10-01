@@ -1,4 +1,0 @@
-#!/bin/sh
-# Usage: surface-ctl <open|toggle|close|notify> [view]  (works from any directory)
-dir=$(dirname "$(readlink -f "$0")")
-exec quickshell -p "$dir/shell.qml" ipc call surface "$@"

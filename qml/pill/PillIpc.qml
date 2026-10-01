@@ -1,14 +1,14 @@
 import QtQuick
 import Quickshell.Io
 
-// `quickshell ipc call surface <function>`; views open on the focused monitor, notifications show everywhere.
+// `umbra-ctl pill <function>`; views open on the focused monitor, notifications show everywhere.
 QtObject {
     id: wrapper
 
     required property var shellRoot
 
     property IpcHandler handler: IpcHandler {
-        target: "surface"
+        target: "pill"
 
         function toggle(view: string) { wrapper.shellRoot.show(view, true); }
         function open(view: string) { wrapper.shellRoot.show(view, false); }

@@ -1,5 +1,5 @@
 import QtQuick
-import ".."
+import "../.."
 
 // Shared shell for every open view: padded content column with the dock underneath.
 Item {

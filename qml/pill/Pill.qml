@@ -8,16 +8,16 @@ Rectangle {
     property var ctl: null
 
     readonly property var viewUrls: ({
-        "rest": "../views/RestView.qml",
-        "peek": "../views/PeekView.qml",
-        "music": "../views/MusicView.qml",
-        "quick": "../views/QuickView.qml",
-        "timer": "../views/TimerView.qml",
-        "weather": "../views/WeatherView.qml",
-        "calendar": "../views/CalendarView.qml",
-        "notifications": "../views/NotificationsView.qml",
-        "wifi": "../views/WifiView.qml",
-        "bt": "../views/BluetoothView.qml"
+        "rest": "views/RestView.qml",
+        "peek": "views/PeekView.qml",
+        "music": "views/MusicView.qml",
+        "quick": "views/QuickView.qml",
+        "timer": "views/TimerView.qml",
+        "weather": "views/WeatherView.qml",
+        "calendar": "views/CalendarView.qml",
+        "notifications": "views/NotificationsView.qml",
+        "wifi": "views/WifiView.qml",
+        "bt": "views/BluetoothView.qml"
     })
 
     width: loader.item ? loader.item.implicitWidth : Theme.restWidth
@@ -45,7 +45,7 @@ Rectangle {
     }
 
     function showView() {
-        const url = pill.viewUrls[pill.ctl.view] || "../views/RestView.qml";
+        const url = pill.viewUrls[pill.ctl.view] || "views/RestView.qml";
         loader.setSource(url, { ctl: pill.ctl });
     }
 

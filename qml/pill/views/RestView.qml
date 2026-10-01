@@ -1,5 +1,5 @@
 import QtQuick
-import ".."
+import "../.."
 
 // Resting pill: workspace dots and the time. Nothing else.
 Item {

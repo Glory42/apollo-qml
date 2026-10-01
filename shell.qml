@@ -2,12 +2,12 @@ import QtQuick
 import Quickshell
 import "qml"
 
-// Entry point. SURFACE_DEV=1 offsets the surface down for testing, SURFACE_SCREEN=<output> pins it to one monitor.
+// Entry point. UMBRA_DEV=1 offsets the pill down for testing, UMBRA_SCREEN=<output> pins it to one monitor.
 Scope {
     id: shellRoot
 
-    readonly property bool dev: Quickshell.env("SURFACE_DEV") === "1"
-    readonly property string onlyScreen: Quickshell.env("SURFACE_SCREEN") || ""
+    readonly property bool dev: Quickshell.env("UMBRA_DEV") === "1"
+    readonly property string onlyScreen: Quickshell.env("UMBRA_SCREEN") || ""
 
     ClockService {
         id: clock
@@ -100,7 +100,7 @@ Scope {
             ctl.close();
     }
 
-    SurfaceIpc {
+    PillIpc {
         shellRoot: shellRoot
     }
 
@@ -109,7 +109,7 @@ Scope {
 
         model: Quickshell.screens.filter((screen) => shellRoot.onlyScreen === "" || screen.name === shellRoot.onlyScreen)
 
-        SurfaceScreen {
+        PillScreen {
             required property var modelData
 
             screen: modelData
