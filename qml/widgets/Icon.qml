@@ -27,12 +27,26 @@ Item {
         "timer": "timer",
         "cloud": "cloud",
         "cal": "calendar_month",
-        "battery": "battery_full",
-        "bolt": "bolt",
         "music": "music_note",
         "sliders": "tune",
         "power": "power_settings_new",
-        "chevron": "chevron_right"
+        "chevron": "chevron_right",
+        "battery_0_bar": "battery_0_bar",
+        "battery_1_bar": "battery_1_bar",
+        "battery_2_bar": "battery_2_bar",
+        "battery_3_bar": "battery_3_bar",
+        "battery_4_bar": "battery_4_bar",
+        "battery_5_bar": "battery_5_bar",
+        "battery_6_bar": "battery_6_bar",
+        "battery_full": "battery_full",
+        "battery_unknown": "battery_unknown",
+        "battery_charging_20": "battery_charging_20",
+        "battery_charging_30": "battery_charging_30",
+        "battery_charging_50": "battery_charging_50",
+        "battery_charging_60": "battery_charging_60",
+        "battery_charging_80": "battery_charging_80",
+        "battery_charging_90": "battery_charging_90",
+        "battery_charging_full": "battery_charging_full"
     })
 
     Text {

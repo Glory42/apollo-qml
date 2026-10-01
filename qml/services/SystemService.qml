@@ -28,6 +28,23 @@ Item {
     property string backlightDevice: ""
     property int backlightMax: 0
 
+    readonly property string batteryIcon: batteryIconFor(batteryCapacity, isCharging)
+
+    function batteryIconFor(percent, charging) {
+        if (percent < 0)
+            return "battery_unknown";
+        if (charging) {
+            const steps = [[25, "20"], [40, "30"], [55, "50"], [70, "60"], [85, "80"], [95, "90"]];
+            for (const step of steps) {
+                if (percent < step[0])
+                    return "battery_charging_" + step[1];
+            }
+            return "battery_charging_full";
+        }
+        const level = Math.min(7, Math.floor(percent / 12.5));
+        return level === 7 ? "battery_full" : "battery_" + level + "_bar";
+    }
+
     function clamp01(value) {
         return Math.max(0, Math.min(1, value));
     }

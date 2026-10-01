@@ -66,8 +66,8 @@ PanelWindow {
         target: win.services ? win.services.system : null
 
         function onChanged(kind, progress) {
-            const icons = { volume: "volume", mute: "mute", brightness: "sun", charging: "bolt", discharging: "battery" };
-            ctl.osd(icons[kind], progress);
+            const icons = { volume: "volume", mute: "mute", brightness: "sun" };
+            ctl.osd(icons[kind] || win.services.system.batteryIcon, progress);
         }
     }
 }

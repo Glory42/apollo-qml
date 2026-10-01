@@ -118,7 +118,7 @@ ViewFrame {
 
         Icon {
             anchors.verticalCenter: parent.verticalCenter
-            name: root.system && root.system.isCharging ? "bolt" : "battery"
+            name: root.system ? root.system.batteryIcon : "battery_unknown"
             color: Theme.dim
         }
 
