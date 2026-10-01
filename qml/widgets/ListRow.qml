@@ -1,5 +1,5 @@
 import QtQuick
-import "../core"
+import ".."
 
 // One tappable row: icon, title, subtitle, and a right-hand action with an optional secondary action on hover.
 Rectangle {

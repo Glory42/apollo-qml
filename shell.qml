@@ -1,8 +1,6 @@
 import QtQuick
 import Quickshell
-import "qml/core"
-import "qml/services"
-import "qml/surface"
+import "qml"
 
 // Entry point. SURFACE_DEV=1 offsets the surface down for testing, SURFACE_SCREEN=<output> pins it to one monitor.
 Scope {

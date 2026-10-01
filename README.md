@@ -72,8 +72,9 @@ qml/views/                 one file per view, plus ViewFrame they all sit in
 qml/widgets/               Icon, Dock, Tile, ListRow, QuietSlider, PillButton, ...
 ```
 
-Each directory has a `qmldir`. Add new components to it, because Quickshell does not
-create one for every directory on its own.
+`qml/qmldir` is the one registry for every component, and each file imports it with
+`import ".."`. Add new components to it, because Quickshell does not generate a `qmldir`
+for every directory on its own.
 
 ## Not included on purpose
 

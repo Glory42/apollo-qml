@@ -1,6 +1,5 @@
 import QtQuick
-import "../core"
-import "../widgets"
+import ".."
 
 ViewFrame {
     id: root

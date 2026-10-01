@@ -1,5 +1,5 @@
 import QtQuick
-import "../core"
+import ".."
 
 // Back arrow, title with status, an optional extra button, and an on/off switch.
 Item {

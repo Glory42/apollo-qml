@@ -1,6 +1,5 @@
 import QtQuick
-import "../core"
-import "../widgets"
+import ".."
 
 // Transient event. Two flavours share one view: a notification, or a volume/brightness change.
 Item {

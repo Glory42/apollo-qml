@@ -1,7 +1,6 @@
 import QtQuick
 import "CalendarMath.js" as CalendarMath
-import "../core"
-import "../widgets"
+import ".."
 
 ViewFrame {
     id: root

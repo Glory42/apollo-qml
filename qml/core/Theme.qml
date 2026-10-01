@@ -1,6 +1,7 @@
 pragma Singleton
 
 import QtQuick
+import ".."
 
 // Design tokens: black pill, quiet greys, one morph curve.
 QtObject {

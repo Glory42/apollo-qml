@@ -1,0 +1,34 @@
+singleton Config core/Config.qml
+singleton Theme core/Theme.qml
+BluetoothAgent services/BluetoothAgent.qml
+ClockService services/ClockService.qml
+ConnectivityService services/ConnectivityService.qml
+MprisService services/MprisService.qml
+NotificationService services/NotificationService.qml
+QuickSettingsService services/QuickSettingsService.qml
+SystemService services/SystemService.qml
+TimerService services/TimerService.qml
+WeatherService services/WeatherService.qml
+SurfaceController surface/SurfaceController.qml
+SurfaceIpc surface/SurfaceIpc.qml
+SurfacePill surface/SurfacePill.qml
+SurfaceWindow surface/SurfaceWindow.qml
+BluetoothView views/BluetoothView.qml
+CalendarView views/CalendarView.qml
+MusicView views/MusicView.qml
+NotificationsView views/NotificationsView.qml
+PeekView views/PeekView.qml
+QuickView views/QuickView.qml
+RestView views/RestView.qml
+TimerView views/TimerView.qml
+ViewFrame views/ViewFrame.qml
+WeatherView views/WeatherView.qml
+WifiView views/WifiView.qml
+DetailHeader widgets/DetailHeader.qml
+Dock widgets/Dock.qml
+Icon widgets/Icon.qml
+ListRow widgets/ListRow.qml
+NotificationAvatar widgets/NotificationAvatar.qml
+PillButton widgets/PillButton.qml
+QuietSlider widgets/QuietSlider.qml
+Tile widgets/Tile.qml

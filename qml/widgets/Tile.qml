@@ -1,5 +1,5 @@
 import QtQuick
-import "../core"
+import ".."
 
 // Toggle tile: light when on, dark when off.
 Rectangle {

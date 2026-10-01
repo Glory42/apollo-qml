@@ -1,5 +1,5 @@
 import QtQuick
-import "../core"
+import ".."
 
 // The one shape. It sizes itself to whatever the current view asks for and morphs between sizes.
 Rectangle {

@@ -1,5 +1,5 @@
 import QtQuick
-import "../core"
+import ".."
 
 // The one switcher shared by every open view.
 Item {

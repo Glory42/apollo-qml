@@ -1,7 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import "../core"
+import ".."
 
 // Current weather and a three-day forecast from Open-Meteo, for a configured or IP-detected city.
 Item {

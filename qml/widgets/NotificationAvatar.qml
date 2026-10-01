@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Effects
 import Quickshell
-import "../core"
+import ".."
 
 // Round avatar: the notification image, else the app icon, else the app's first letter.
 Item {

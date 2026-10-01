@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell.Bluetooth
 import Quickshell.Networking
 import "BluetoothFormatting.js" as BluetoothFormatting
+import ".."
 
 // Headless Wi-Fi and Bluetooth state plus the connect, password, pair and forget flows.
 Item {
