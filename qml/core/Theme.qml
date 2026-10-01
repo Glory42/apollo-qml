@@ -35,5 +35,6 @@ QtObject {
 
     readonly property real springStiffness: 3.4
     readonly property real springDamping: 0.3
+    readonly property real springDampingClose: 0.35
     readonly property int fadeDuration: 300
 }

@@ -26,12 +26,14 @@ Item {
     width: loader.item ? loader.item.implicitWidth : Theme.restWidth
     height: loader.item ? loader.item.implicitHeight : Theme.restHeight
     readonly property real cornerRadius: Math.min(height / 2, Theme.maxRadius)
+    readonly property bool shrinking: !!loader.item && (loader.item.implicitHeight < height || loader.item.implicitWidth < width)
+    readonly property real damping: shrinking ? Theme.springDampingClose : Theme.springDamping
     readonly property real fillet: Math.max(0, Math.min(Theme.fillet, height / 3))
 
     Behavior on width {
         SpringAnimation {
             spring: Theme.springStiffness
-            damping: Theme.springDamping
+            damping: pill.damping
             epsilon: 0.4
         }
     }
@@ -39,7 +41,7 @@ Item {
     Behavior on height {
         SpringAnimation {
             spring: Theme.springStiffness
-            damping: Theme.springDamping
+            damping: pill.damping
             epsilon: 0.4
         }
     }
