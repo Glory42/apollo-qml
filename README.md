@@ -33,6 +33,7 @@ Bluetooth detail views reached from the quick settings tiles.
   is open.
 - Night light uses `hyprsunset`, power profiles use `powerprofilesctl`, brightness uses
   `brightnessctl`.
+- The pill reserves its own height at the top of the screen, so windows start below it. `windowGap` in `qml/core/Config.qml` adds extra space on top of your Hyprland `gaps_out`.
 - Clicking anywhere outside an open view closes it. It never takes keyboard focus,
   except while a Wi-Fi password or Bluetooth passkey box is showing.
 
