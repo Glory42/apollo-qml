@@ -1,17 +1,16 @@
 import QtQuick
 import ".."
 
-// A label on the left and its value on the right.
-Item {
+// A dim label followed by its value, on one line.
+Row {
     id: root
 
     property string label: ""
     property string value: ""
 
-    implicitHeight: 16
+    spacing: 6
 
     Text {
-        anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
         text: root.label
         color: Theme.dim
@@ -20,7 +19,6 @@ Item {
     }
 
     Text {
-        anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
         text: root.value
         color: Theme.fg

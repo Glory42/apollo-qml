@@ -29,12 +29,10 @@ Item {
     property int backlightMax: 0
 
     readonly property string batteryIcon: batteryIconFor(batteryCapacity, isCharging)
-    readonly property string batterySizeText: batteryReady && battery.energyCapacity > 0 ? Math.round(battery.energyCapacity) + "Wh" : "-"
     readonly property string batteryTimeText: batteryReady ? formatDuration(isCharging ? battery.timeToFull : battery.timeToEmpty) : "-"
     readonly property string batteryRateText: batteryReady && battery.changeRate !== 0 ? Math.abs(battery.changeRate).toFixed(1) + "W" : "-"
     readonly property string batteryRateLabel: isCharging ? "Charging" : "Discharging"
     readonly property string batteryTimeLabel: isCharging ? "Time to full" : "Time left"
-    property int chargeCycles: -1
 
     function batteryIconFor(percent, charging) {
         if (percent < 0)
@@ -126,18 +124,6 @@ Item {
 
     Process {
         id: brightnessSet
-    }
-
-    Process {
-        running: true
-        command: ["sh", "-c", "cat /sys/class/power_supply/*/cycle_count 2>/dev/null | head -1"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const value = parseInt(text.trim());
-                if (!isNaN(value))
-                    root.chargeCycles = value;
-            }
-        }
     }
 
     Process {

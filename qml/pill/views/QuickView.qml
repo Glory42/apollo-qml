@@ -113,12 +113,12 @@ ViewFrame {
         }
     }
 
-    Column {
+    Row {
         visible: !!root.system && root.system.batteryCapacity >= 0
-        width: parent.width
-        spacing: 10
+        spacing: 16
 
         Row {
+            anchors.verticalCenter: parent.verticalCenter
             spacing: 8
 
             Icon {
@@ -129,43 +129,23 @@ ViewFrame {
 
             Text {
                 anchors.verticalCenter: parent.verticalCenter
-                text: root.system ? root.system.batteryCapacity + "%" + (root.system.isCharging ? " \u00b7 Charging" : " \u00b7 On battery") : ""
-                color: Theme.dim
+                text: root.system ? root.system.batteryCapacity + "%" : ""
+                color: Theme.fg
                 font.family: Theme.fontFamily
                 font.pixelSize: 12
             }
         }
 
-        Grid {
-            width: parent.width
-            columns: 2
-            columnSpacing: 28
-            rowSpacing: 3
+        StatPair {
+            anchors.verticalCenter: parent.verticalCenter
+            label: root.system ? root.system.batteryTimeLabel : ""
+            value: root.system ? root.system.batteryTimeText : ""
+        }
 
-            StatRow {
-                width: (parent.width - parent.columnSpacing) / 2
-                label: "Battery size"
-                value: root.system ? root.system.batterySizeText : ""
-            }
-
-            StatRow {
-                width: (parent.width - parent.columnSpacing) / 2
-                label: root.system ? root.system.batteryTimeLabel : ""
-                value: root.system ? root.system.batteryTimeText : ""
-            }
-
-            StatRow {
-                visible: !!root.system && root.system.chargeCycles >= 0
-                width: (parent.width - parent.columnSpacing) / 2
-                label: "Charge cycles"
-                value: root.system ? String(root.system.chargeCycles) : ""
-            }
-
-            StatRow {
-                width: (parent.width - parent.columnSpacing) / 2
-                label: root.system ? root.system.batteryRateLabel : ""
-                value: root.system ? root.system.batteryRateText : ""
-            }
+        StatPair {
+            anchors.verticalCenter: parent.verticalCenter
+            label: root.system ? root.system.batteryRateLabel : ""
+            value: root.system ? root.system.batteryRateText : ""
         }
     }
 
