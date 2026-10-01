@@ -67,7 +67,8 @@ qml/services/              headless state, no visuals
   WeatherService, QuickSettingsService, TimerService,
   ConnectivityService (Wi-Fi and Bluetooth flows), BluetoothAgent (bluetoothctl),
   NotificationService (the notification server and unread count)
-qml/surface/               SurfaceWindow, SurfaceController, SurfacePill, SurfaceIpc
+qml/surface/               SurfaceScreen (per monitor), SurfaceWindow, SurfaceController, SurfacePill,
+                           DismissCatcher (click outside to close), SurfaceIpc
 qml/views/                 one file per view, plus ViewFrame they all sit in
 qml/widgets/               Icon, Dock, Tile, ListRow, QuietSlider, PillButton, ...
 ```

@@ -57,9 +57,9 @@ Scope {
 
     function controllers() {
         const list = [];
-        for (const window of variants.instances) {
-            if (window)
-                list.push(window.controller);
+        for (const screen of variants.instances) {
+            if (screen)
+                list.push(screen.controller);
         }
         return list;
     }
@@ -70,13 +70,13 @@ Scope {
 
     function focusedController() {
         let fallback = null;
-        for (const window of variants.instances) {
-            if (!window)
+        for (const screen of variants.instances) {
+            if (!screen)
                 continue;
             if (!fallback)
-                fallback = window;
-            if (window.monitorFocused)
-                return window.controller;
+                fallback = screen;
+            if (screen.monitorFocused)
+                return screen.controller;
         }
         return fallback ? fallback.controller : null;
     }
@@ -109,7 +109,7 @@ Scope {
 
         model: Quickshell.screens.filter((screen) => shellRoot.onlyScreen === "" || screen.name === shellRoot.onlyScreen)
 
-        SurfaceWindow {
+        SurfaceScreen {
             required property var modelData
 
             screen: modelData

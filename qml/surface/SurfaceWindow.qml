@@ -20,7 +20,7 @@ PanelWindow {
     implicitHeight: Theme.windowHeight
     exclusiveZone: win.dev ? 0 : Config.exclusiveZone
     WlrLayershell.namespace: "surface"
-    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: ctl.wantsKeyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // Only the pill takes input; everything else in this window falls through to what is underneath.
@@ -51,13 +51,6 @@ PanelWindow {
         ctl: ctl
         x: Math.round((win.width - width) / 2)
         y: Theme.topMargin
-    }
-
-    // Clicking anywhere outside the open surface closes it.
-    HyprlandFocusGrab {
-        windows: [win]
-        active: ctl.isOpen
-        onCleared: ctl.close()
     }
 
     // Every monitor shows every event.
