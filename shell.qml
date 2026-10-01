@@ -81,6 +81,16 @@ Scope {
         return fallback ? fallback.controller : null;
     }
 
+    function step(delta) {
+        const target = focusedController();
+        for (const ctl of controllers()) {
+            if (ctl !== target)
+                ctl.close();
+        }
+        if (target)
+            target.step(delta);
+    }
+
     function show(view, toggle) {
         const target = focusedController();
         for (const ctl of controllers()) {

@@ -73,6 +73,15 @@ Item {
         view = target;
     }
 
+    function step(delta) {
+        if (!isOpen) {
+            open(lastOpened);
+            return;
+        }
+        const index = dock.findIndex((entry) => entry.id === dockCurrent);
+        open(dock[(index + delta + dock.length) % dock.length].id);
+    }
+
     function close() {
         peekTimer.stop();
         peekKind = "";

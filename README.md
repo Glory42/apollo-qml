@@ -44,6 +44,7 @@ Bluetooth detail views reached from the quick settings tiles.
 
 ```
 umbra-ctl pill open|toggle <music|quick|timer|weather|calendar|notifications|wifi|bt>
+umbra-ctl pill next|prev
 umbra-ctl pill close
 umbra-ctl pill notify <app> <summary> <body>
 ```
@@ -58,9 +59,11 @@ bind = SUPER CTRL, N, exec, /path/to/umbra-ctl pill toggle notifications
 bind = SUPER CTRL, C, exec, /path/to/umbra-ctl pill toggle calendar
 bind = SUPER CTRL, E, exec, /path/to/umbra-ctl pill toggle weather
 bind = SUPER CTRL, X, exec, /path/to/umbra-ctl pill close
+bind = SUPER CTRL, right, exec, /path/to/umbra-ctl pill next
+bind = SUPER CTRL, left, exec, /path/to/umbra-ctl pill prev
 ```
 
-A second press closes the view, and opening a view closes it on the other monitors.
+`next` and `prev` move through the dock tabs and wrap around (when nothing is open they open the last view). A second press of a toggle bind closes the view, and opening a view closes it on the other monitors.
 Each piece of Umbra is its own IPC target, so later pieces will be called the same way
 (`umbra-ctl power open`, and so on).
 
