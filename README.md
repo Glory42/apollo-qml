@@ -115,10 +115,48 @@ qml/widgets/               Icon, Tile, ListRow, QuietSlider, PillButton, ...
 `import ".."` (or `import "../.."` from `qml/pill/views/`). Add new components to it,
 because Quickshell does not generate a `qmldir` for every directory on its own.
 
-## Not included on purpose
+## Roadmap
 
-Workspace overview, lyrics, the power menu, and wallpaper or theme pickers are not part
-of the pill. They are meant to be their own pieces.
+Umbra grows as separate pieces. Each new piece gets its own window and its own IPC
+target (`umbra-ctl <piece> ...`), so the pill stays small.
+
+Done:
+
+- [x] The pill: music, quick settings, timer, weather, calendar, notifications, Wi-Fi,
+  Bluetooth, battery details and a now-playing peek
+
+Planned, each as its own piece outside the pill:
+
+- [ ] Application launcher
+- [ ] Power menu (lock, log out, suspend, restart, shut down)
+- [ ] Wallpaper changer
+- [ ] Theme changer
+- [ ] Lock screen
+- [ ] Clipboard history
+
+Ideas, not decided yet:
+
+- [ ] System tray for apps that use tray icons
+- [ ] Screenshot and screen recording controls
+- [ ] Per-app volume mixer and output device picker
+- [ ] Emoji picker
+- [ ] Polkit password prompt (authentication agent)
+- [ ] Idle handling (dim, lock and suspend after inactivity)
+- [ ] VPN, Ethernet and airplane mode toggles
+
+Not planned: workspace overview and lyrics.
+
+## Known gaps
+
+- Hyprland only.
+- Another notification daemon has to be stopped first, because only one can own
+  `org.freedesktop.Notifications`.
+- Commands sent in the first few seconds after launch are ignored, because the pill
+  window does not exist yet.
+- The Wi-Fi view cannot join hidden networks, or WEP and enterprise (802.1X) networks.
+- The swipe gesture works with a touchpad only, not a touchscreen.
+- Joining a new Wi-Fi network with a password and pairing a new Bluetooth device have not
+  been tried on real hardware, only the pieces around them.
 
 ## Credits
 
