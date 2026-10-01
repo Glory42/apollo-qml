@@ -23,6 +23,34 @@ quickshell -c ~/Projects/shitthatiamtestting/Tide-island
 `quickshell ipc call <target> <function>` — see `qml/ipc/` for the available
 targets (`overview`, `island`, `tide`).
 
+## One Surface (redesign, in progress)
+
+`surface.qml` is a from-scratch redesign that lives in `qml/surface/` and reuses the
+existing services. Run it with `quickshell -p surface.qml` (`SURFACE_DEV=1` offsets it
+from the old island, `SURFACE_SCREEN=<output>` pins it to one monitor). It runs on every
+monitor: events (notifications, volume/brightness) show on all of them, views open on
+the focused one. One pill, three sizes (rest, peek, open), one dock.
+
+- Views: music, quick settings (with Wi-Fi and Bluetooth detail), timer, weather, calendar, notifications.
+- It is the notification server (`org.freedesktop.Notifications`), so stop any other daemon first.
+- Bluetooth pairing needs `bluetoothctl` (it is used as the pairing agent while the Bluetooth view is open).
+- Control: `quickshell ipc call surface open|toggle <music|quick|timer|weather|calendar|notifications|wifi|bt>`, `close`, `notify <app> <summary> <body>`.
+- Keybinds: `./surface-ctl toggle wifi` works from any directory, so Hyprland binds can call it by absolute path. A second press closes the view, and opening one view closes it on other monitors.
+
+```
+bind = SUPER CTRL, W, exec, /path/to/surface-ctl toggle wifi
+bind = SUPER CTRL, B, exec, /path/to/surface-ctl toggle bt
+bind = SUPER CTRL, M, exec, /path/to/surface-ctl toggle music
+bind = SUPER CTRL, Q, exec, /path/to/surface-ctl toggle quick
+bind = SUPER CTRL, T, exec, /path/to/surface-ctl toggle timer
+bind = SUPER CTRL, N, exec, /path/to/surface-ctl toggle notifications
+bind = SUPER CTRL, C, exec, /path/to/surface-ctl toggle calendar
+bind = SUPER CTRL, E, exec, /path/to/surface-ctl toggle weather
+bind = SUPER CTRL, X, exec, /path/to/surface-ctl close
+```
+
+- Out of scope on purpose: workspace overview, lyrics, wallpaper and theme pickers (those live outside the island).
+
 ## Features
 
 - Persistent clock + resting pill
