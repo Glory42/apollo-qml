@@ -1,7 +1,7 @@
 import QtQuick
 import "../.."
 
-// Shared shell for every open view: padded content column with the dock underneath.
+// Shared shell for every open view: the dock on top with a padded content column underneath.
 Item {
     id: root
 
@@ -10,13 +10,13 @@ Item {
     default property alias content: body.data
 
     implicitWidth: Theme.openWidth
-    implicitHeight: 20 + body.implicitHeight + 6 + dock.implicitHeight + 6
+    implicitHeight: 4 + dock.implicitHeight + 6 + body.implicitHeight + 20
 
     Column {
         id: body
 
         x: 20
-        y: 20
+        y: dock.y + dock.implicitHeight + 6
         width: parent.width - 40
         spacing: 14
     }
@@ -24,7 +24,7 @@ Item {
     Dock {
         id: dock
 
-        y: 20 + body.implicitHeight + 6
+        y: 4
         ctl: root.ctl
     }
 }
