@@ -1,24 +1,10 @@
 pragma Singleton
 
 import QtQuick
-import Quickshell
-import Quickshell.Io
 import ".."
 
-// Design tokens: black pill, quiet greys, one spring. The values below are
-// Umbra's own original palette, kept as-is and NOT auto-overwritten — this
-// project's "quiet black pill" look may be a deliberate choice independent
-// of whatever's in palette.json (a bright tokyo-night cyan accent, say).
-//
-// `paletteBg`/`paletteFg`/`paletteAccent` below are read live from
-// ~/.config/theme/palette.json (the single source of truth shared with
-// foot/Neovim/Zed/hyprlock — see hyprland-dots' Milestone 1). They're just
-// exposed here, not wired into anything yet. Deciding which of the tokens
-// below (if any) should actually follow them is a real design call, not a
-// mechanical one — do that deliberately, don't bulk-replace.
-Singleton {
-    id: root
-
+// Design tokens: black pill, quiet greys, one spring.
+QtObject {
     readonly property string fontFamily: Config.fontFamily
 
     readonly property color pill: "#000000"
@@ -32,30 +18,6 @@ Singleton {
     readonly property color tileOn: "#e4e7ee"
     readonly property color tileOnInk: "#0b0c0e"
     readonly property color tileOnSub: Qt.rgba(0.043, 0.047, 0.055, 0.58)
-
-    // live palette.json values — read-only mirror, nothing above depends on these yet
-    property color paletteBg: "#1a1b26"
-    property color paletteFg: "#c0caf5"
-    property color paletteAccent: "#33ccff"
-
-    FileView {
-        id: paletteFile
-        path: Quickshell.env("HOME") + "/.config/theme/palette.json"
-        watchChanges: true
-        onLoaded: root.applyPalette(text())
-        onFileChanged: reload()
-    }
-
-    function applyPalette(jsonText) {
-        try {
-            const p = JSON.parse(jsonText);
-            if (p.bg) root.paletteBg = "#" + p.bg.slice(0, 6);
-            if (p.fg) root.paletteFg = "#" + p.fg.slice(0, 6);
-            if (p.accent) root.paletteAccent = "#" + p.accent.slice(0, 6);
-        } catch (e) {
-            console.warn("Theme: failed to parse palette.json, keeping fallback colors", e);
-        }
-    }
 
     readonly property int restWidth: 136
     readonly property int restHeight: 30
