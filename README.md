@@ -3,7 +3,7 @@
 A quiet shell for Hyprland, written in QML on top of Quickshell's native modules
 (`Quickshell.Bluetooth`, `Quickshell.Networking`,
 `Quickshell.Services.{Pipewire,UPower,Mpris,Notifications}`, `Quickshell.Hyprland`).
-There is no C++ backend.
+There is no C++ backend. (yeah iam a soyboy)
 
 Umbra is a set of small, separate pieces. The first is **the pill**: a black notch
 hanging from the top edge of the screen with three sizes (rest, peek, open) and one dock. At rest it
