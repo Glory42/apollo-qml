@@ -20,7 +20,7 @@ PanelWindow {
     implicitHeight: Theme.windowHeight
     exclusiveZone: win.dev ? 0 : Theme.topMargin + Theme.restHeight + Config.windowGap
     WlrLayershell.namespace: "umbra-pill"
-    WlrLayershell.layer: ctl.isOpen ? WlrLayer.Overlay : WlrLayer.Top
+    WlrLayershell.layer: ctl.view !== "rest" ? WlrLayer.Overlay : WlrLayer.Top
     WlrLayershell.keyboardFocus: ctl.wantsKeyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // Only the pill takes input; everything else in this window falls through to what is underneath.

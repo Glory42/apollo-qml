@@ -42,6 +42,8 @@ detail views for joining networks and pairing devices.
   below it, plus your Hyprland `gaps_out`.
 - Clicking anywhere outside an open view closes it. The pill never takes keyboard
   focus, except while a Wi-Fi password or Bluetooth passkey box is showing.
+- The resting pill hides under fullscreen windows like a bar, but peeks (notifications,
+  now playing, volume) and open views show above them.
 - A two-finger horizontal swipe on the touchpad over an open pill moves between tabs.
 
 ## Settings
