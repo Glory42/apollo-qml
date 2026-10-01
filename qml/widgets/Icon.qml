@@ -1,7 +1,7 @@
 import QtQuick
 import ".."
 
-// Icon drawn from a Nerd Font glyph, so it takes its color and size like text.
+// Material Symbols icon, written as its ligature name so it takes its color and size like text.
 Item {
     id: root
 
@@ -13,26 +13,26 @@ Item {
     height: size
 
     readonly property var glyphs: ({
-        "play": "\u{F040A}",
-        "pause": "\u{F03E4}",
-        "prev": "\u{F04AE}",
-        "next": "\u{F04AD}",
-        "wifi": "\u{F05A9}",
-        "bt": "\u{F00AF}",
-        "moon": "\u{F0F65}",
-        "volume": "\u{F057E}",
-        "mute": "\u{F075F}",
-        "sun": "\u{F00E0}",
-        "bell": "\u{F009A}",
-        "timer": "\u{F13AB}",
-        "cloud": "\u{F0590}",
-        "cal": "\u{F00ED}",
-        "battery": "\u{F0079}",
-        "bolt": "\u{F0241}",
-        "music": "\u{F075A}",
-        "sliders": "\u{F062E}",
-        "power": "\u{F0425}",
-        "chevron": "\u{F0142}"
+        "play": "play_arrow",
+        "pause": "pause",
+        "prev": "skip_previous",
+        "next": "skip_next",
+        "wifi": "wifi",
+        "bt": "bluetooth",
+        "moon": "bedtime",
+        "volume": "volume_up",
+        "mute": "volume_off",
+        "sun": "light_mode",
+        "bell": "notifications",
+        "timer": "timer",
+        "cloud": "cloud",
+        "cal": "calendar_month",
+        "battery": "battery_full",
+        "bolt": "bolt",
+        "music": "music_note",
+        "sliders": "tune",
+        "power": "power_settings_new",
+        "chevron": "chevron_right"
     })
 
     Text {
@@ -41,7 +41,7 @@ Item {
         verticalAlignment: Text.AlignVCenter
         text: root.glyphs[root.name] || ""
         color: root.color
-        font.family: Config.iconFont
+        font.family: Theme.iconFont
         font.pixelSize: root.size
     }
 }

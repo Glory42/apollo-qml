@@ -1,11 +1,17 @@
 pragma Singleton
 
 import QtQuick
+import Quickshell
 import ".."
 
 // Design tokens: black pill, quiet greys, one morph curve.
 QtObject {
     readonly property string fontFamily: Config.fontFamily
+    readonly property string iconFont: iconLoader.name
+
+    property FontLoader iconLoader: FontLoader {
+        source: "file://" + Quickshell.shellPath("assets/MaterialSymbolsRounded.ttf")
+    }
 
     readonly property color pill: "#000000"
     readonly property color fill: "#151517"

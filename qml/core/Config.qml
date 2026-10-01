@@ -5,7 +5,6 @@ import QtQuick
 // User settings: edit the values below.
 QtObject {
     readonly property string fontFamily: "JetBrainsMono Nerd Font"
-    readonly property string iconFont: "JetBrainsMono Nerd Font"
     readonly property string clockFormat: "24"
     readonly property int windowGap: 0
 
