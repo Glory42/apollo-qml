@@ -62,12 +62,17 @@ Rectangle {
         }
     }
 
+    function swipeReset() {
+        swipeSum = 0;
+        swipeLocked = false;
+    }
+
     function swipe(dx) {
         swipeIdle.restart();
         if (swipeLocked)
             return;
         swipeSum += dx;
-        if (Math.abs(swipeSum) < 120)
+        if (Math.abs(swipeSum) < 250)
             return;
         swipeLocked = true;
         // Fingers moving left give a negative delta and go to the next tab.
@@ -77,20 +82,26 @@ Rectangle {
 
     Component.onCompleted: showView()
 
-    WheelHandler {
-        orientation: Qt.Horizontal
+    MouseArea {
+        anchors.fill: parent
+        z: 1000
         enabled: pill.ctl.isOpen
-        onWheel: (event) => pill.swipe(event.angleDelta.x)
+        acceptedButtons: Qt.NoButton
+        onWheel: (wheel) => {
+            const horizontal = Math.abs(wheel.angleDelta.x) > Math.abs(wheel.angleDelta.y);
+            wheel.accepted = horizontal;
+            if (wheel.phase === Qt.ScrollBegin)
+                pill.swipeReset();
+            if (horizontal)
+                pill.swipe(wheel.angleDelta.x);
+        }
     }
 
     Timer {
         id: swipeIdle
 
         interval: 250
-        onTriggered: {
-            pill.swipeSum = 0;
-            pill.swipeLocked = false;
-        }
+        onTriggered: pill.swipeReset()
     }
 
     Loader {
