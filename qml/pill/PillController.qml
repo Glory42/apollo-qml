@@ -116,6 +116,17 @@ Item {
         startPeek("notify", timeout > 0 ? Math.max(3000, Math.min(timeout, 10000)) : 5000);
     }
 
+    function media(title, artist, artUrl) {
+        if (isOpen || (view === "peek" && peekKind === "notify") || (center && center.focusMode))
+            return;
+        peekApp = "\u266a";
+        peekSummary = title;
+        peekBody = artist;
+        peekAppIcon = "";
+        peekImage = artUrl;
+        startPeek("media", 4000);
+    }
+
     function osd(icon, progress) {
         if (isOpen)
             return;

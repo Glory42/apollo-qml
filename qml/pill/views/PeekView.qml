@@ -6,7 +6,7 @@ Item {
     id: root
 
     property var ctl: null
-    readonly property bool isNotify: !ctl || ctl.peekKind === "notify"
+    readonly property bool isNotify: !ctl || ctl.peekKind !== "osd"
 
     implicitWidth: isNotify ? Theme.peekNotifyWidth : Theme.peekOsdWidth
     implicitHeight: isNotify ? Theme.peekNotifyHeight : Theme.peekOsdHeight
@@ -14,7 +14,7 @@ Item {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: if (root.ctl) root.ctl.open(root.isNotify ? "notifications" : "quick")
+        onClicked: if (root.ctl) root.ctl.open(root.ctl.peekKind === "media" ? "music" : (root.isNotify ? "notifications" : "quick"))
     }
 
     Row {

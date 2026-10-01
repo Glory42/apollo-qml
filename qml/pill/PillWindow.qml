@@ -63,6 +63,15 @@ PanelWindow {
     }
 
     Connections {
+        target: win.services ? win.services.mpris : null
+
+        function onNowPlaying(title, artist, artUrl) {
+            if (Config.mediaPeek)
+                ctl.media(title, artist, artUrl);
+        }
+    }
+
+    Connections {
         target: win.services ? win.services.system : null
 
         function onChanged(kind, progress) {

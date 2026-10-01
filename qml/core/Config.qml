@@ -8,6 +8,7 @@ QtObject {
     readonly property string clockFormat: "24"
     readonly property int windowGap: 0
     readonly property bool swipeReverse: false
+    readonly property bool mediaPeek: true
 
     readonly property bool weatherEnabled: true
     readonly property string weatherLocation: ""

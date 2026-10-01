@@ -10,6 +10,8 @@ Item {
 
     property bool expanded: false
 
+    signal nowPlaying(string title, string artist, string artUrl)
+
     property string lastActivePlayerDbusName: ""
     property var playersList: Mpris.players.values !== undefined ? Mpris.players.values : Mpris.players
     property var activePlayer: resolveActivePlayer()
@@ -27,6 +29,72 @@ Item {
     property real trackProgress: 0
     property string timePlayed: "0:00"
     property string timeTotal: "0:00"
+
+    property var playerStates: ({})
+    property var announcedKeys: ({})
+    property var pendingPlayer: null
+    property bool tracking: false
+
+    function playerChanged(player) {
+        pendingPlayer = player;
+        announceTimer.restart();
+    }
+
+    function announce() {
+        const player = pendingPlayer;
+        pendingPlayer = null;
+        if (!player || !player.dbusName)
+            return;
+        const name = player.dbusName;
+        const playing = player.playbackState === MprisPlaybackState.Playing;
+        const started = playing && !playerStates[name];
+        playerStates[name] = playing;
+        const title = player.trackTitle || player.title || "";
+        if (!playing || title === "")
+            return;
+        const artist = String(player.trackArtist || "");
+        const key = title + "|" + artist;
+        if (!started && key === announcedKeys[name])
+            return;
+        announcedKeys[name] = key;
+        lastActivePlayerDbusName = name;
+        nowPlaying(title, artist, player.trackArtUrl || "");
+    }
+
+    Component.onCompleted: {
+        for (const player of (playersList || [])) {
+            playerStates[player.dbusName] = player.playbackState === MprisPlaybackState.Playing;
+            announcedKeys[player.dbusName] = (player.trackTitle || "") + "|" + String(player.trackArtist || "");
+        }
+        Qt.callLater(() => root.tracking = true);
+    }
+
+    Timer {
+        id: announceTimer
+
+        interval: 700
+        onTriggered: root.announce()
+    }
+
+    Instantiator {
+        model: Mpris.players
+
+        delegate: Connections {
+            required property var modelData
+
+            target: modelData
+            ignoreUnknownSignals: true
+
+            function onPlaybackStateChanged() { root.playerChanged(modelData); }
+            function onTrackTitleChanged() { root.playerChanged(modelData); }
+            function onTrackArtistChanged() { root.playerChanged(modelData); }
+        }
+
+        onObjectAdded: (index, object) => {
+            if (root.tracking)
+                root.playerChanged(object.modelData);
+        }
+    }
 
     onActivePlayerChanged: {
         Qt.callLater(function() {
@@ -116,6 +184,10 @@ Item {
 
     function resolveActivePlayer() {
         if (!playersList || playersList.length === 0) return null;
+
+        const latest = findPlayerByDbusName(lastActivePlayerDbusName);
+        if (latest && latest.playbackState === MprisPlaybackState.Playing)
+            return latest;
 
         for (let index = 0; index < playersList.length; index++) {
             if (playersList[index].playbackState === MprisPlaybackState.Playing)

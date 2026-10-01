@@ -7,8 +7,8 @@ There is no C++ backend.
 
 Umbra is a set of small, separate pieces. The first is **the pill**: a black notch
 hanging from the top edge of the screen with three sizes (rest, peek, open) and one dock. At rest it
-shows only the workspace dots and the clock. Events (notifications, volume,
-brightness) peek out and go away, and everything else opens from the pill or from a
+shows only the workspace dots and the clock. Events (notifications, now playing,
+volume, brightness) peek out and go away, and everything else opens from the pill or from a
 keybind.
 
 ## Running it
@@ -53,6 +53,7 @@ Edit the values in `qml/core/Config.qml`:
 | `fontFamily` | Font for all text. |
 | `clockFormat` | `"24"` or `"12"`. |
 | `windowGap` | Extra space between the pill and your windows, on top of `gaps_out`. |
+| `mediaPeek` | Show a short "now playing" peek when media starts or the track changes. |
 | `swipeReverse` | Set to `true` if the touchpad swipe goes the wrong way. |
 | `weatherEnabled`, `weatherLocation`, `weatherUnits`, `weatherRefreshInterval` | Weather. An empty location is detected from your IP, units are `"metric"` or `"imperial"`. |
 
