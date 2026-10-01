@@ -31,7 +31,7 @@ Bluetooth detail views reached from the quick settings tiles.
   notification daemon first.
 - Bluetooth pairing uses `bluetoothctl` as the pairing agent while the Bluetooth view
   is open.
-- Icons are Material Symbols (Rounded). A small subset of the font is bundled in `assets/`, so nothing needs to be installed. To add an icon, add its Material name to `qml/widgets/Icon.qml`, then rebuild the subset with `python3 scripts/subset-icons.py <full MaterialSymbolsRounded font>` (needs `fonttools`).
+- Icons are Material Symbols (Rounded). A small subset of the font is bundled in `assets/`, so nothing needs to be installed. The icons Umbra uses are listed by Material name in `qml/widgets/Icon.qml`.
 - Night light uses `hyprsunset`, power profiles use `powerprofilesctl`, brightness uses
   `brightnessctl`.
 - The pill reserves its own height at the top of the screen, so windows start below it. `windowGap` in `qml/core/Config.qml` adds extra space on top of your Hyprland `gaps_out`.
@@ -73,7 +73,6 @@ Each piece of Umbra is its own IPC target, so later pieces will be called the sa
 shell.qml                  entry point: shared services, one pill per monitor
 umbra-ctl                  IPC helper for keybinds
 assets/                    bundled icon font subset and its license
-scripts/                   subset-icons.py rebuilds the icon font
 qml/core/                  Config (your settings) and Theme (colors, sizes, motion)
 qml/services/              headless state, no visuals
   ClockService, MprisService, SystemService (battery, volume, brightness),
