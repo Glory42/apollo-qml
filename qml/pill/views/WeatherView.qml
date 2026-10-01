@@ -22,6 +22,13 @@ ViewFrame {
         width: parent.width
         spacing: 16
 
+        Icon {
+            anchors.verticalCenter: parent.verticalCenter
+            name: root.weather ? root.weather.icon : "cloud"
+            size: 40
+            color: Theme.fg
+        }
+
         Text {
             id: temp
 
@@ -35,7 +42,7 @@ ViewFrame {
 
         Column {
             anchors.verticalCenter: parent.verticalCenter
-            width: parent.width - temp.width - parent.spacing
+            width: parent.width - 40 - temp.width - 2 * parent.spacing
             spacing: 2
 
             Text {
@@ -91,7 +98,8 @@ ViewFrame {
 
                 Icon {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    name: "cloud"
+                    name: parent.modelData.icon
+                    size: 22
                     color: Theme.dim
                 }
 

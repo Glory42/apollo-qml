@@ -17,6 +17,7 @@ Item {
     property real temp: 0
     property real feelsLike: 0
     property string condition: ""
+    property string icon: "cloud"
     property string cityName: ""
     property string countryName: ""
     property string displayLocation: ""
@@ -32,6 +33,18 @@ Item {
     property bool _locationReady: false
 
     readonly property string feelsLikeString: hasData ? Math.round(feelsLike) + "\u00b0" + (units === "imperial" ? "F" : "C") : "--"
+
+    function iconFor(code, day) {
+        const c = parseInt(code, 10);
+        if (c === 0) return day ? "clear_day" : "clear_night";
+        if (c === 1 || c === 2) return day ? "partly_cloudy_day" : "partly_cloudy_night";
+        if (c === 45 || c === 48) return "foggy";
+        if (c >= 51 && c <= 57) return "rainy_light";
+        if ((c >= 61 && c <= 67) || (c >= 80 && c <= 82)) return "rainy";
+        if ((c >= 71 && c <= 77) || c === 85 || c === 86) return "weather_snowy";
+        if (c >= 95) return "thunderstorm";
+        return "cloud";
+    }
 
     function _wmoDescription(code) {
         const table = {
@@ -165,8 +178,8 @@ Item {
         const url = "https://api.open-meteo.com/v1/forecast"
             + "?latitude=" + root._latitude
             + "&longitude=" + root._longitude
-            + "&current=temperature_2m,apparent_temperature,weather_code"
-            + "&daily=temperature_2m_max,temperature_2m_min"
+            + "&current=temperature_2m,apparent_temperature,weather_code,is_day"
+            + "&daily=weather_code,temperature_2m_max,temperature_2m_min"
             + "&timezone=auto&forecast_days=3"
             + "&temperature_unit=" + (isMetric ? "celsius" : "fahrenheit");
 
@@ -193,6 +206,7 @@ Item {
                 root.temp = data.current.temperature_2m;
                 root.feelsLike = data.current.apparent_temperature;
                 root.condition = root._wmoDescription(data.current.weather_code);
+                root.icon = root.iconFor(data.current.weather_code, data.current.is_day !== 0);
 
                 const daily = data.daily;
                 if (daily && daily.time) {
@@ -200,6 +214,7 @@ Item {
                     for (let i = 0; i < Math.min(3, daily.time.length); i++) {
                         days.push({
                             dayLabel: root._dayLabel(daily.time[i], i),
+                            icon: root.iconFor(daily.weather_code[i], true),
                             maxTemp: daily.temperature_2m_max[i],
                             minTemp: daily.temperature_2m_min[i]
                         });
