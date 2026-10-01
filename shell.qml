@@ -1,195 +1,123 @@
 import QtQuick
 import Quickshell
 import "qml/common"
-import "qml/island"
+import "qml/services"
 import "qml/weather"
-import "qml/ipc"
+import "qml/surface"
 
+// Entry point. SURFACE_DEV=1 offsets the surface down for testing, SURFACE_SCREEN=<output> pins it to one monitor.
 Scope {
     id: shellRoot
 
-    readonly property bool screenRecordingActive: SystemServices.screenRecordingActive
-    property bool focusEnabled: false
-    property bool nightLightEnabled: false
-    property bool shuttingDown: false
-    property bool islandAutoHideRuntimeEnabled: true
+    readonly property bool dev: Quickshell.env("SURFACE_DEV") === "1"
+    readonly property string onlyScreen: Quickshell.env("SURFACE_SCREEN") || ""
+
+    IslandClock {
+        id: clock
+
+        clockFormat: UserConfig.clockFormat
+    }
+
+    IslandMprisController {
+        id: mpris
+
+        expanded: shellRoot.anyView("music")
+    }
+
+    IslandSystemState {
+        id: system
+    }
 
     WeatherService {
-        id: globalWeatherService
+        id: weather
     }
-    readonly property var weatherService: globalWeatherService
 
-    function forEachWindow(callback) {
-        const windows = panelVariants.instances ? panelVariants.instances : [];
-        for (let index = 0; index < windows.length; index++) {
-            const window = windows[index];
+    NotificationCenter {
+        id: center
+    }
+
+    QuickSettingsState {
+        id: quick
+    }
+
+    ConnectivityState {
+        id: net
+
+        wifiOpen: shellRoot.anyView("wifi")
+        bluetoothOpen: shellRoot.anyView("bt")
+    }
+
+    TimerState {
+        id: countdown
+
+        onFinished: center.post("Timer", "Timer finished", "")
+    }
+
+    readonly property var services: ({
+        clock: clock, mpris: mpris, system: system, weather: weather,
+        center: center, quick: quick, net: net, countdown: countdown
+    })
+
+    function controllers() {
+        const list = [];
+        for (const window of variants.instances) {
             if (window)
-                callback(window);
+                list.push(window.controller);
         }
+        return list;
     }
 
-    function showNotificationAll(appName, summary, body) {
-        if (focusEnabled)
-            return;
-
-        shellRoot.forEachWindow((window) => {
-            if (window && window.showNotification)
-                window.showNotification(appName, summary, body);
-        });
+    function anyView(name) {
+        return controllers().some((ctl) => ctl.view === name);
     }
 
-    function anyOverviewOpen() {
-        if (CompositorBackend.compositor === "niri")
-            return false;
-
-        const windows = panelVariants.instances ? panelVariants.instances : [];
-        for (let index = 0; index < windows.length; index++) {
-            const window = windows[index];
-            if (window && window.overviewPhase !== "closed")
-                return true;
+    function focusedController() {
+        let fallback = null;
+        for (const window of variants.instances) {
+            if (!window)
+                continue;
+            if (!fallback)
+                fallback = window;
+            if (window.monitorFocused)
+                return window.controller;
         }
-
-        return false;
+        return fallback ? fallback.controller : null;
     }
 
-    function prepareOverviewAll() {
-        if (CompositorBackend.compositor === "niri")
+    function show(view, toggle) {
+        const target = focusedController();
+        for (const ctl of controllers()) {
+            if (ctl !== target)
+                ctl.close();
+        }
+        if (!target)
             return;
-
-        shellRoot.forEachWindow((window) => window.prepareOverview());
-    }
-
-    function cancelPreparedOverviewAll() {
-        if (CompositorBackend.compositor === "niri")
-            return;
-
-        shellRoot.forEachWindow((window) => window.cancelPreparedOverview());
-    }
-
-    function openOverviewAll() {
-        if (CompositorBackend.compositor === "niri")
-            return;
-
-        shellRoot.forEachWindow((window) => window.openOverview());
-    }
-
-    function closeOverviewAll() {
-        if (CompositorBackend.compositor === "niri")
-            return;
-
-        shellRoot.forEachWindow((window) => window.closeOverview());
-    }
-
-    function toggleOverviewAll() {
-        if (CompositorBackend.compositor === "niri")
-            return;
-
-        if (shellRoot.anyOverviewOpen())
-            shellRoot.closeOverviewAll();
+        if (toggle)
+            target.toggle(view);
         else
-            shellRoot.openOverviewAll();
+            target.open(view);
     }
 
-    function anyIslandShown() {
-        const windows = panelVariants.instances ? panelVariants.instances : [];
-        for (let index = 0; index < windows.length; index++) {
-            const window = windows[index];
-            if (window && window.autoHideTargetVisible)
-                return true;
-        }
-
-        return false;
+    function closeAll() {
+        for (const ctl of controllers())
+            ctl.close();
     }
 
-    function showIslandAll() {
-        shellRoot.forEachWindow((window) => {
-            if (window && window.showIslandWindow)
-                window.showIslandWindow();
-        });
-    }
-
-    function hideIslandAll() {
-        shellRoot.forEachWindow((window) => {
-            if (window && window.hideIslandWindow)
-                window.hideIslandWindow();
-        });
-    }
-
-    function toggleIslandAll() {
-        if (shellRoot.anyIslandShown())
-            shellRoot.hideIslandAll();
-        else
-            shellRoot.showIslandAll();
-    }
-
-    function refreshIslandAutoHideAll() {
-        shellRoot.forEachWindow((window) => {
-            if (window && window.refreshAutoHideWindow)
-                window.refreshAutoHideWindow();
-        });
-    }
-
-    function refreshOverviewWallpaperCaches(wallpaperPath) {
-        shellRoot.forEachWindow((window) => {
-            if (window
-                    && wallpaperPath !== undefined
-                    && wallpaperPath !== null
-                    && String(wallpaperPath) !== "") {
-                window.wallpaperPickerActiveWallpaper = String(wallpaperPath);
-            }
-            if (window && window.prewarmWallpaperCache)
-                window.prewarmWallpaperCache();
-        });
-    }
-
-    function forFocusedWindow(callback) {
-        const windows = panelVariants.instances ? panelVariants.instances : [];
-        let fallbackWindow = null;
-        for (let index = 0; index < windows.length; index++) {
-            const window = windows[index];
-            if (window && !fallbackWindow)
-                fallbackWindow = window;
-            if (window && window.monitorFocused) {
-                callback(window);
-                return;
-            }
-        }
-
-        if (fallbackWindow)
-            callback(fallbackWindow);
-    }
-
-    OverviewIpc {
+    SurfaceIpc {
         shellRoot: shellRoot
-    }
-
-    IslandIpc {
-        shellRoot: shellRoot
-    }
-
-    TideIpc {
-        shellRoot: shellRoot
-    }
-
-    Component.onDestruction: {
-        shuttingDown = true;
-    }
-
-    Component.onCompleted: {
-        SystemServices.ensureUserConfigAvailable();
-        SystemServices.requestScreenRecordingSnapshot();
     }
 
     Variants {
-        id: panelVariants
+        id: variants
 
-        model: Quickshell.screens
+        model: Quickshell.screens.filter((screen) => shellRoot.onlyScreen === "" || screen.name === shellRoot.onlyScreen)
 
-        IslandWindow {
+        SurfaceWindow {
             required property var modelData
 
             screen: modelData
-            shellRootController: shellRoot
+            services: shellRoot.services
+            dev: shellRoot.dev
         }
     }
 }

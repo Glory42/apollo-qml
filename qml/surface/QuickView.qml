@@ -6,6 +6,7 @@ ViewFrame {
 
     readonly property var quick: ctl ? ctl.quick : null
     readonly property var net: ctl ? ctl.net : null
+    readonly property var center: ctl ? ctl.center : null
     readonly property var system: ctl ? ctl.system : null
 
     Grid {
@@ -19,7 +20,7 @@ ViewFrame {
             title: "Wi-Fi"
             detail: true
             subtitle: root.net ? root.net.wifiName : ""
-            on: root.net && root.net.wifiEnabled
+            on: !!root.net && root.net.wifiEnabled
             onClicked: root.net.toggleWifi()
             onDetailRequested: root.ctl.open("wifi")
         }
@@ -30,7 +31,7 @@ ViewFrame {
             title: "Bluetooth"
             detail: true
             subtitle: root.net ? root.net.bluetoothName : ""
-            on: root.net && root.net.bluetoothEnabled
+            on: !!root.net && root.net.bluetoothEnabled
             onClicked: root.net.toggleBluetooth()
             onDetailRequested: root.ctl.open("bt")
         }
@@ -40,7 +41,7 @@ ViewFrame {
             icon: "moon"
             title: "Night light"
             subtitle: root.quick && root.quick.nightLight ? "On" : "Off"
-            on: root.quick && root.quick.nightLight
+            on: !!root.quick && root.quick.nightLight
             onClicked: root.quick.toggleNightLight()
         }
 
@@ -48,9 +49,9 @@ ViewFrame {
             width: (parent.width - 8) / 2
             icon: "bell"
             title: "Focus"
-            subtitle: root.ctl && root.ctl.focusMode ? "Alerts silenced" : "Alerts on"
-            on: root.ctl && root.ctl.focusMode
-            onClicked: root.ctl.focusMode = !root.ctl.focusMode
+            subtitle: root.center && root.center.focusMode ? "Alerts silenced" : "Alerts on"
+            on: !!root.center && root.center.focusMode
+            onClicked: root.center.focusMode = !root.center.focusMode
         }
     }
 

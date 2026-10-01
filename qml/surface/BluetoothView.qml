@@ -42,7 +42,7 @@ ViewFrame {
                 anchors.leftMargin: 12
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 4
-                text: row.modelData.text
+                text: row.isHeader ? row.modelData.text : ""
                 color: SurfaceStyle.faint
                 font.family: SurfaceStyle.fontFamily
                 font.pixelSize: 11

@@ -1,5 +1,3 @@
-singleton StyleTokens StyleTokens.qml
 singleton UserConfig UserConfig.qml
 singleton CompositorBackend CompositorBackend.qml
 singleton SystemServices SystemServices.qml
-HyprlandDispatch HyprlandDispatch.qml

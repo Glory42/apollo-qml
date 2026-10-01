@@ -1,41 +1,46 @@
 # My QML's
 
-A Dynamic-Island-style widget for Hyprland, built entirely in QML on top of
+A quiet, Dynamic-Island-style shell widget for Hyprland, written in QML on top of
 Quickshell's native modules (`Quickshell.Bluetooth`, `Quickshell.Networking`,
-`Quickshell.Services.{Pipewire,UPower,Mpris,Notifications}`,
-`Quickshell.Hyprland`). There is no C++ backend — the original upstream
-project's `IslandBackend` plugin and its companion apps/tests/installer have
-been removed, and the file layout has been restructured heavily enough that
-very little of this still resembles upstream Tide Island beyond the core
-idea. See [ROADMAP.md](ROADMAP.md) for the full history of what changed and
-why, and for what's still open.
+`Quickshell.Services.{Pipewire,UPower,Mpris,Notifications}`, `Quickshell.Hyprland`).
+There is no C++ backend.
 
-This copy is meant to be generic across Hyprland setups, not tied to any one
-specific distro's desktop tooling (see "Portability" below).
+One pill, three sizes (rest, peek, open), one dock. At rest it shows only the
+workspace dots and the clock. Events (notifications, volume, brightness) peek out
+and go away; everything else opens from the pill or from a keybind.
 
 ## Running it
 
 ```bash
-quickshell -c ~/Projects/shitthatiamtestting/Tide-island
+quickshell -p /path/to/this/repo/shell.qml
 ```
 
-`shell.qml` is the entry point Quickshell loads. Control it remotely with
-`quickshell ipc call <target> <function>` — see `qml/ipc/` for the available
-targets (`overview`, `island`, `tide`).
+It runs on every monitor. Events show on all of them, views open on the focused one.
+For testing, `SURFACE_DEV=1` offsets it down the screen and `SURFACE_SCREEN=<output>`
+pins it to one monitor.
 
-## One Surface (redesign, in progress)
+## Views
 
-`surface.qml` is a from-scratch redesign that lives in `qml/surface/` and reuses the
-existing services. Run it with `quickshell -p surface.qml` (`SURFACE_DEV=1` offsets it
-from the old island, `SURFACE_SCREEN=<output>` pins it to one monitor). It runs on every
-monitor: events (notifications, volume/brightness) show on all of them, views open on
-the focused one. One pill, three sizes (rest, peek, open), one dock.
+Music, quick settings (volume, brightness, Wi-Fi, Bluetooth, night light, focus,
+power profile), timer, weather, calendar, notifications, plus Wi-Fi and Bluetooth
+detail views reached from the quick settings tiles.
 
-- Views: music, quick settings (with Wi-Fi and Bluetooth detail), timer, weather, calendar, notifications.
-- It is the notification server (`org.freedesktop.Notifications`), so stop any other daemon first.
-- Bluetooth pairing needs `bluetoothctl` (it is used as the pairing agent while the Bluetooth view is open).
-- Control: `quickshell ipc call surface open|toggle <music|quick|timer|weather|calendar|notifications|wifi|bt>`, `close`, `notify <app> <summary> <body>`.
-- Keybinds: `./surface-ctl toggle wifi` works from any directory, so Hyprland binds can call it by absolute path. A second press closes the view, and opening one view closes it on other monitors.
+- It is the notification server (`org.freedesktop.Notifications`), so stop any other
+  notification daemon first.
+- Bluetooth pairing uses `bluetoothctl` as the pairing agent while the Bluetooth view
+  is open.
+- Night light uses `hyprsunset`, power profiles use `powerprofilesctl`, brightness uses
+  `brightnessctl`.
+
+## Keybinds
+
+`surface-ctl` talks to the running shell from any directory:
+
+```
+surface-ctl open|toggle <music|quick|timer|weather|calendar|notifications|wifi|bt>
+surface-ctl close
+surface-ctl notify <app> <summary> <body>
+```
 
 ```
 bind = SUPER CTRL, W, exec, /path/to/surface-ctl toggle wifi
@@ -49,148 +54,31 @@ bind = SUPER CTRL, E, exec, /path/to/surface-ctl toggle weather
 bind = SUPER CTRL, X, exec, /path/to/surface-ctl close
 ```
 
-- Out of scope on purpose: workspace overview, lyrics, wallpaper and theme pickers (those live outside the island).
+A second press closes the view, and opening a view closes it on the other monitors.
 
-## Features
-
-- Persistent clock + resting pill
-- Music player (MPRIS) with lyrics
-- Control Center (volume, brightness, wifi, bluetooth, night light, focus/DND,
-  power profile / TLP mode, power menu)
-- Notifications (toast + history/center)
-- Timer
-- Weather & forecast
-- Calendar
-- Wallpaper switcher
-- Workspace overview (Hyprland)
-- Bluetooth pairing/connection flows, wifi connect/forget flows
-
-Upstream also had an application launcher, file shelf, and clipboard
-history — this fork never built visuals for them, and the unused
-`islandState` plumbing for all three has since been removed.
-
-## Portability
-
-This project targets whatever Hyprland "rice" it ends up living on — **not**
-specifically the Omarchy setup used for day-to-day development/testing on
-this machine. Only genuinely standard, cross-distro tools are treated as
-real integrations worth fixing when broken: `powerprofilesctl`,
-`brightnessctl`, `hyprsunset`/`gammastep`, `systemctl`, native Pipewire/
-UPower/Bluetooth/Networking via Quickshell's own modules. Tools like `awww`
-(wallpaper apply), `hyprlock`/`swaylock`/`i3lock` (lock), `wl-clipboard`/
-`cliphist` (clipboard) are upstream's intended tools for the eventual target
-system and should **not** be swapped for distro-specific alternatives just
-because they aren't installed on the current dev machine.
-
-## Project structure
+## Layout
 
 ```
-Tide-island/
-├── shell.qml                          # entry point Quickshell loads
-├── README.md
-├── ROADMAP.md                         # refactor history + what's still open
-└── qml/
-    ├── common/                        # shared singletons + generic helpers
-    │   ├── qmldir
-    │   ├── StyleTokens.qml            # colors / spacing / design tokens
-    │   ├── UserConfig.qml             # user-facing config (singleton)
-    │   ├── SystemServices.qml         # power-profile/brightness/volume actions
-    │   ├── CompositorBackend.qml      # Hyprland/niri compositor abstraction
-    │   ├── HyprlandDispatch.qml       # thin Hyprland IPC dispatch helper
-    │   └── BluetoothFormatting.js     # device name/address formatting
-    │
-    ├── ipc/                           # one file per `quickshell ipc call` target
-    │   ├── OverviewIpc.qml
-    │   ├── IslandIpc.qml
-    │   └── TideIpc.qml                # every panel command lives under `tide`
-    │
-    ├── services/                      # headless trackers, no visuals
-    │   ├── IslandClock.qml
-    │   ├── IslandSystemState.qml      # battery/volume/brightness reactive state
-    │   ├── IslandMprisController.qml
-    │   └── BluetoothConnectionTracker.qml
-    │
-    ├── workspace/                     # Hyprland/niri workspace overview
-    │   ├── WorkspaceLayer.qml
-    │   ├── CompositorWorkspaceTracker.qml
-    │   ├── HyprlandWorkspaceTracker.qml
-    │   ├── HyprlandWindowIntegration.qml
-    │   └── OverviewWallpaperCacheController.qml
-    │
-    ├── notifications/                 # toast + stored history + full panel
-    │   ├── NotificationLayer.qml
-    │   ├── NotificationHistory.qml
-    │   └── NotificationCenterLayer.qml
-    │
-    ├── island/                        # the window/capsule hub
-    │   ├── IslandWindow.qml           # root PanelWindow: layer-shell setup +
-    │   │                              # the islandState state machine
-    │   ├── IslandCapsule.qml         # the pill's shape/clock/icons/gestures;
-    │   │                              # mounts every sub-panel Loader
-    │   ├── IslandCommands.js          # shared toggle/close for panels whose
-    │   │                              # two call sites behave identically
-    │   ├── TimerBubble.qml            # floating timer-ring widget
-    │   ├── ConnectivityDetailShells.qml # groups the wifi/bluetooth/power shells
-    │   ├── SplitIconLayer.qml
-    │   ├── OsdLayer.qml
-    │   ├── IslandRootGestureArea.qml
-    │   ├── BluetoothExpandedLayer.qml
-    │   └── assets/                    # currently unreferenced leftover assets
-    │
-    ├── player/                        # expanded music/timer player
-    │   ├── ExpandedPlayerLayer.qml    # 2-page pager shell
-    │   ├── MusicPage.qml
-    │   └── TimerPage.qml
-    │
-    ├── wallpaper/
-    │   ├── WallpaperPickerLayer.qml
-    │   ├── WallpaperConfig.js         # pure validators
-    │   └── scripts/
-    │       ├── scan_wallpapers.py
-    │       └── apply_wallpaper.py
-    │
-    ├── weather/
-    │   ├── WeatherLayer.qml
-    │   ├── WeatherService.qml
-    │   └── WeatherIcon.qml
-    │
-    ├── calendar/
-    │   ├── CalendarLayer.qml
-    │   └── CalendarMath.js            # pure day-grid math
-    │
-    ├── controlcenter/                 # split into view + a chain of domain
-    │   │                              # controllers via QML component inheritance
-    │   ├── ControlCenterLayer.qml     # pure logic; extends PowerActionsController
-    │   ├── ControlCenterView.qml      # the visual tree (cards, sliders, drawer)
-    │   ├── PowerActionsController.qml # extends BatteryModeController;
-    │   │                              # night light + shutdown/restart/sleep/lock
-    │   ├── BatteryModeController.qml  # extends ConnectivityController;
-    │   │                              # TLP/power-profile state + actions
-    │   ├── ConnectivityController.qml # extends Item; wifi+bluetooth
-    │   │                              # (base of the inheritance chain)
-    │   ├── PowerMenuView.qml
-    │   ├── ControlSliderCard.qml
-    │   └── MatteSurface.qml
-    │
-    └── connectivity/                  # wifi/bluetooth/power detail popovers
-        ├── ConnectivityDetailShell.qml # picks which panel to load
-        ├── WifiDetailPanel.qml
-        ├── BluetoothDetailPanel.qml
-        ├── PowerDetailPanel.qml
-        └── BluetoothDeviceRow.qml
+shell.qml                  entry point: shared services, one window per monitor
+surface-ctl                IPC helper for keybinds
+qml/surface/               the surface itself
+  SurfaceWindow.qml        layer-shell window, input mask, click-outside close
+  SurfaceController.qml    which view this monitor shows, rules for events
+  SurfacePill.qml          the one shape that morphs between sizes
+  *View.qml                rest, peek, music, quick, timer, weather, calendar,
+                           notifications, wifi, bluetooth
+  ConnectivityState.qml    Wi-Fi and Bluetooth state and connect/pair flows
+  BluetoothAgent.qml       pairing agent driven through bluetoothctl
+  NotificationCenter.qml   the notification server and unread count
+  QuickSettingsState.qml   night light and power profile
+  TimerState.qml           countdown
+qml/services/              clock, MPRIS and system (battery, volume, brightness) state
+qml/weather/               Open-Meteo weather service
+qml/calendar/              month grid math
+qml/common/                config, compositor and system helpers
 ```
 
-**Reading order, if you're new to this codebase:** `shell.qml` →
-`qml/island/IslandWindow.qml` (the root window + state machine) →
-`qml/island/IslandCapsule.qml` (what's actually drawn) → whichever domain
-folder you're touching. `qml/controlcenter/` is the one place with a real
-inheritance chain instead of plain composition — `ControlCenterLayer.qml`'s
-root type is `PowerActionsController`, whose root type is
-`BatteryModeController`, whose root type is `ConnectivityController` — so
-`controlCenter.anyMemberFromAnyOfThose` just works, but note that QML `id:`
-scoping is *per file*, not inherited: an id declared inside one of those
-controller files is invisible by that name to the others, even though their
-properties and functions are all shared. See ROADMAP.md's Phase 3/4/6
-writeups for what that actually broke and how it was fixed, if you're adding
-a `Timer`/`MouseArea`/etc. inside any of these files and need to reach it
-from another.
+## Not included on purpose
+
+Workspace overview, lyrics, and wallpaper or theme pickers are meant to live outside
+the island.

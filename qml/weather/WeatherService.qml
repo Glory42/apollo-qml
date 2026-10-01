@@ -41,8 +41,7 @@ Item {
     property bool isStale: false
     property bool isError: errorMessage.length > 0 && !isStale
 
-    // Location search (autocomplete over Open-Meteo's geocoding API), used by
-    // the picker in WeatherLayer.qml.
+    // Location search (autocomplete over Open-Meteo's geocoding API).
     property var locationSuggestions: []
     property bool searchingLocations: false
     property string searchError: ""
@@ -58,8 +57,7 @@ Item {
     readonly property string windSpeedString: hasData ? (Math.round(windSpeed) + (units === "imperial" ? " mph" : " km/h")) : "--"
     readonly property string rangeString: hasData ? (Math.round(maxTemp) + "° / " + Math.round(minTemp) + "°") : ""
 
-    // WMO weather-interpretation codes (used by Open-Meteo) → the same
-    // type/glyph/color buckets WeatherIcon.qml already understands.
+    // WMO weather-interpretation codes (used by Open-Meteo) mapped to type/glyph/color buckets.
     function _wmoIcon(code) {
         const c = parseInt(code, 10);
         if (c === 0) return { type: "sunny", glyph: "", color: "#f4c542" };
