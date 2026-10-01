@@ -26,6 +26,7 @@ QuickSettingsService services/QuickSettingsService.qml
 QuickView pill/views/QuickView.qml
 QuietSlider widgets/QuietSlider.qml
 RestView pill/views/RestView.qml
+StatRow widgets/StatRow.qml
 SystemService services/SystemService.qml
 Tile widgets/Tile.qml
 TimerService services/TimerService.qml

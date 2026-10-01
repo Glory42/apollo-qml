@@ -25,7 +25,8 @@ For testing, `UMBRA_DEV=1` offsets the pill down the screen and
 
 The dock has six tabs, in this order: quick settings, music, timer, weather,
 calendar, notifications. Quick settings holds volume, brightness, Wi-Fi, Bluetooth,
-night light, focus and the power profile, and its Wi-Fi and Bluetooth tiles open
+night light, focus, the power profile and battery details (size, cycles, time left,
+power draw), and its Wi-Fi and Bluetooth tiles open
 detail views for joining networks and pairing devices.
 
 - It is the notification server (`org.freedesktop.Notifications`), so stop any other
