@@ -117,8 +117,9 @@ because Quickshell does not generate a `qmldir` for every directory on its own.
 
 ## Roadmap
 
-Umbra grows as separate pieces. Each new piece gets its own window and its own IPC
-target (`umbra-ctl <piece> ...`), so the pill stays small.
+Umbra grows as separate pieces. Each new piece gets its own window, its own IPC
+target (`umbra-ctl <piece> ...`) and its own folder under `qml/`, so the repo keeps one
+top-level directory and the pill stays small.
 
 Done:
 
@@ -157,7 +158,3 @@ Not planned: workspace overview and lyrics.
 - The swipe gesture works with a touchpad only, not a touchscreen.
 - Joining a new Wi-Fi network with a password and pairing a new Bluetooth device have not
   been tried on real hardware, only the pieces around them.
-
-## Credits
-
-Icons are Material Symbols by Google, under the Apache License 2.0.
