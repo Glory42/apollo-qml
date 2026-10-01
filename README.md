@@ -34,9 +34,9 @@ detail views for joining networks and pairing devices.
   is open.
 - Night light uses `hyprsunset`, power profiles use `powerprofilesctl`, and brightness
   uses `brightnessctl`.
-- Icons are Material Symbols (Rounded). A small subset of the font is bundled in
-  `assets/`, so nothing needs to be installed. The icons Umbra uses are listed by
-  Material name in `qml/widgets/Icon.qml`.
+- Icons are Material Symbols (Rounded) pasted in as SVG paths in `qml/widgets/Icon.qml`, so no
+  font or image files are needed. To add one, copy its path from the SVG on
+  fonts.google.com/icons into that file.
 - The pill is attached to the top edge and reserves its own height, so windows start
   below it, plus your Hyprland `gaps_out`.
 - Clicking anywhere outside an open view closes it. The pill never takes keyboard
@@ -96,7 +96,6 @@ bind = SUPER CTRL, left, exec, /path/to/umbra-ctl pill prev
 ```
 shell.qml                  entry point: shared services, one pill per monitor
 umbra-ctl                  IPC helper for keybinds
-assets/                    bundled icon font subset and its license
 qml/core/                  Config (your settings) and Theme (colors, sizes, motion)
 qml/services/              headless state, no visuals
   ClockService, MprisService, SystemService (battery, volume, brightness),
@@ -121,5 +120,4 @@ of the pill. They are meant to be their own pieces.
 
 ## Credits
 
-Icons are Material Symbols by Google, under the Apache License 2.0
-(`assets/LICENSE-MaterialSymbols.txt`).
+Icons are Material Symbols by Google, under the Apache License 2.0.
