@@ -8,7 +8,7 @@ Item {
     property string label: ""
     property string value: ""
 
-    implicitHeight: 20
+    implicitHeight: 16
 
     Text {
         anchors.left: parent.left
@@ -16,7 +16,7 @@ Item {
         text: root.label
         color: Theme.dim
         font.family: Theme.fontFamily
-        font.pixelSize: 12
+        font.pixelSize: 10
     }
 
     Text {
@@ -25,6 +25,6 @@ Item {
         text: root.value
         color: Theme.fg
         font.family: Theme.fontFamily
-        font.pixelSize: 12
+        font.pixelSize: 10
     }
 }

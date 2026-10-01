@@ -140,7 +140,7 @@ ViewFrame {
             width: parent.width
             columns: 2
             columnSpacing: 28
-            rowSpacing: 6
+            rowSpacing: 3
 
             StatRow {
                 width: (parent.width - parent.columnSpacing) / 2
