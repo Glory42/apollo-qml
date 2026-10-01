@@ -31,6 +31,7 @@ Bluetooth detail views reached from the quick settings tiles.
   notification daemon first.
 - Bluetooth pairing uses `bluetoothctl` as the pairing agent while the Bluetooth view
   is open.
+- Icons are Nerd Font glyphs, so a Nerd Font must be installed. Set `iconFont` in `qml/core/Config.qml` if yours has another name, and add icons by name in `qml/widgets/Icon.qml`.
 - Night light uses `hyprsunset`, power profiles use `powerprofilesctl`, brightness uses
   `brightnessctl`.
 - The pill reserves its own height at the top of the screen, so windows start below it. `windowGap` in `qml/core/Config.qml` adds extra space on top of your Hyprland `gaps_out`.
