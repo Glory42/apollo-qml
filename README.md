@@ -23,31 +23,52 @@ For testing, `UMBRA_DEV=1` offsets the pill down the screen and
 
 ## The pill
 
-Views: music, quick settings (volume, brightness, Wi-Fi, Bluetooth, night light,
-focus, power profile), timer, weather, calendar, notifications, plus Wi-Fi and
-Bluetooth detail views reached from the quick settings tiles.
+The dock has six tabs, in this order: quick settings, music, timer, weather,
+calendar, notifications. Quick settings holds volume, brightness, Wi-Fi, Bluetooth,
+night light, focus and the power profile, and its Wi-Fi and Bluetooth tiles open
+detail views for joining networks and pairing devices.
 
 - It is the notification server (`org.freedesktop.Notifications`), so stop any other
   notification daemon first.
 - Bluetooth pairing uses `bluetoothctl` as the pairing agent while the Bluetooth view
   is open.
-- Icons are Material Symbols (Rounded). A small subset of the font is bundled in `assets/`, so nothing needs to be installed. The icons Umbra uses are listed by Material name in `qml/widgets/Icon.qml`.
-- Night light uses `hyprsunset`, power profiles use `powerprofilesctl`, brightness uses
-  `brightnessctl`.
-- The pill reserves its own height at the top of the screen, so windows start below it. `windowGap` in `qml/core/Config.qml` adds extra space on top of your Hyprland `gaps_out`.
-- Clicking anywhere outside an open view closes it. It never takes keyboard focus,
-  except while a Wi-Fi password or Bluetooth passkey box is showing.
+- Night light uses `hyprsunset`, power profiles use `powerprofilesctl`, and brightness
+  uses `brightnessctl`.
+- Icons are Material Symbols (Rounded). A small subset of the font is bundled in
+  `assets/`, so nothing needs to be installed. The icons Umbra uses are listed by
+  Material name in `qml/widgets/Icon.qml`.
+- The pill reserves its own height at the top of the screen, so windows start below
+  it, plus your Hyprland `gaps_out`.
+- Clicking anywhere outside an open view closes it. The pill never takes keyboard
+  focus, except while a Wi-Fi password or Bluetooth passkey box is showing.
+- A two-finger horizontal swipe on the touchpad over an open pill moves between tabs.
+
+## Settings
+
+Edit the values in `qml/core/Config.qml`:
+
+| Setting | What it does |
+|---|---|
+| `fontFamily` | Font for all text. |
+| `clockFormat` | `"24"` or `"12"`. |
+| `windowGap` | Extra space between the pill and your windows, on top of `gaps_out`. |
+| `swipeReverse` | Set to `true` if the touchpad swipe goes the wrong way. |
+| `weatherEnabled`, `weatherLocation`, `weatherUnits`, `weatherRefreshInterval` | Weather. An empty location is detected from your IP, units are `"metric"` or `"imperial"`. |
+
+Colors, sizes and motion live in `qml/core/Theme.qml`.
 
 ## Keybinds
 
 `umbra-ctl` talks to the running shell from any directory:
 
 ```
-umbra-ctl pill open|toggle <music|quick|timer|weather|calendar|notifications|wifi|bt>
+umbra-ctl pill open|toggle <quick|music|timer|weather|calendar|notifications|wifi|bt>
 umbra-ctl pill next|prev
 umbra-ctl pill close
 umbra-ctl pill notify <app> <summary> <body>
 ```
+
+Example Hyprland binds:
 
 ```
 bind = SUPER CTRL, W, exec, /path/to/umbra-ctl pill toggle wifi
@@ -63,9 +84,12 @@ bind = SUPER CTRL, right, exec, /path/to/umbra-ctl pill next
 bind = SUPER CTRL, left, exec, /path/to/umbra-ctl pill prev
 ```
 
-`next` and `prev` move through the dock tabs and wrap around (when nothing is open they open the last view). Swiping two fingers left or right on the touchpad over an open pill does the same (set `swipeReverse` in `qml/core/Config.qml` if it feels backwards). A second press of a toggle bind closes the view, and opening a view closes it on the other monitors.
-Each piece of Umbra is its own IPC target, so later pieces will be called the same way
-(`umbra-ctl power open`, and so on).
+- A second press of a toggle bind closes the view, and opening a view closes it on the
+  other monitors.
+- `next` and `prev` move through the dock tabs and wrap around. When nothing is open
+  they open the last view you used.
+- Each piece of Umbra is its own IPC target, so later pieces will be called the same
+  way (`umbra-ctl power open`, and so on).
 
 ## Layout
 
@@ -97,4 +121,5 @@ of the pill. They are meant to be their own pieces.
 
 ## Credits
 
-Icons are Material Symbols by Google, under the Apache License 2.0 (`assets/LICENSE-MaterialSymbols.txt`).
+Icons are Material Symbols by Google, under the Apache License 2.0
+(`assets/LICENSE-MaterialSymbols.txt`).
