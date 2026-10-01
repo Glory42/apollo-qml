@@ -32,8 +32,8 @@ Item {
     property real peekProgress: -1
 
     readonly property var dock: [
-        { id: "music", label: "Music", icon: "music" },
         { id: "quick", label: "Quick settings", icon: "sliders" },
+        { id: "music", label: "Music", icon: "music" },
         { id: "timer", label: "Timer", icon: "timer" },
         { id: "weather", label: "Weather", icon: "cloud" },
         { id: "calendar", label: "Calendar", icon: "cal" },
