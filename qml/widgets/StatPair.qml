@@ -8,7 +8,7 @@ Row {
     property string label: ""
     property string value: ""
 
-    spacing: 6
+    spacing: 8
 
     Text {
         anchors.verticalCenter: parent.verticalCenter

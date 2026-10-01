@@ -115,7 +115,7 @@ ViewFrame {
 
     Row {
         visible: !!root.system && root.system.batteryCapacity >= 0
-        spacing: 16
+        spacing: 30
 
         Row {
             anchors.verticalCenter: parent.verticalCenter
