@@ -13,9 +13,9 @@ QtObject {
 
     signal received(string app, string summary, string body, string icon, string image, bool critical, int timeout)
 
-    function post(app, summary, body) {
+    function post(app, summary, body, critical) {
         unread += 1;
-        received(app, summary, body, "", "", false, 0);
+        received(app, summary, body, "", "", critical === true, 0);
     }
 
     function dismissAll() {
@@ -31,8 +31,10 @@ QtObject {
         bodySupported: true
 
         onNotification: (notification) => {
-            notification.tracked = true;
-            root.unread += 1;
+            // A transient one, such as "screenshot taken", only peeks: it is not listed or counted as unread.
+            notification.tracked = !notification.transient;
+            if (!notification.transient)
+                root.unread += 1;
             root.received(notification.appName, notification.summary, notification.body, notification.appIcon,
                 notification.image, notification.urgency === NotificationUrgency.Critical, notification.expireTimeout);
         }

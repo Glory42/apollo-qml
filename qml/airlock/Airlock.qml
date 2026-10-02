@@ -9,6 +9,8 @@ Scope {
     id: root
 
     property var services: null
+    // The picture shown blurred behind the lock; empty leaves the plain hull colour.
+    property string wallpaper: ""
     readonly property bool isLocked: lock.locked
 
     // "", "checking" or "failed"
@@ -77,6 +79,11 @@ Scope {
 
         WlSessionLockSurface {
             color: Theme.hull
+
+            AirlockBackdrop {
+                anchors.fill: parent
+                wallpaper: root.wallpaper
+            }
 
             AirlockScreen {
                 anchors.fill: parent

@@ -135,6 +135,17 @@ Item {
             return;
         peekIcon = icon;
         peekProgress = progress;
+        peekSummary = "";
+        startPeek("osd", 1600);
+    }
+
+    // The same small peek with a few words in place of a level, for a switch flipped from a keybind.
+    function status(icon, text) {
+        if (isOpen || (view === "peek" && peekKind === "notify"))
+            return;
+        peekIcon = icon;
+        peekProgress = -1;
+        peekSummary = text;
         startPeek("osd", 1600);
     }
 

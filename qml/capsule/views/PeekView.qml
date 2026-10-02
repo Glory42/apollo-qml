@@ -8,7 +8,8 @@ Item {
     property var ctl: null
     readonly property bool isNotify: !ctl || ctl.peekKind !== "osd"
 
-    implicitWidth: isNotify ? Theme.peekNotifyWidth : Theme.peekOsdWidth
+    // A status with a long name in it widens the small peek, up to the size of a notification's.
+    implicitWidth: isNotify ? Theme.peekNotifyWidth : Math.max(Theme.peekOsdWidth, status.width + 56)
     implicitHeight: isNotify ? Theme.peekNotifyHeight : Theme.peekOsdHeight
 
     MouseArea {
@@ -72,6 +73,8 @@ Item {
     }
 
     Row {
+        id: status
+
         visible: !root.isNotify
         anchors.centerIn: parent
         spacing: 12
@@ -79,6 +82,18 @@ Item {
         Icon {
             anchors.verticalCenter: parent.verticalCenter
             name: root.ctl ? root.ctl.peekIcon : ""
+        }
+
+        Text {
+            visible: !!root.ctl && root.ctl.peekProgress < 0 && root.ctl.peekSummary !== ""
+            anchors.verticalCenter: parent.verticalCenter
+            width: Math.min(implicitWidth, Theme.peekNotifyWidth - 86)
+            text: root.ctl ? root.ctl.peekSummary : ""
+            elide: Text.ElideRight
+            color: Theme.fg
+            font.family: Theme.fontFamily
+            font.pixelSize: 12
+            font.weight: Font.Medium
         }
 
         Rectangle {

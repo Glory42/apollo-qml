@@ -23,6 +23,8 @@ Scope {
 
     SystemService {
         id: system
+
+        onLow: (percent) => center.post("Battery", "Battery low", percent + "% left", true)
     }
 
     WeatherService {
@@ -31,10 +33,14 @@ Scope {
 
     NotificationService {
         id: center
+
+        onFocusModeChanged: shellRoot.announce("bell", focusMode ? "Notifications silenced" : "Notifications on")
     }
 
     QuickSettingsService {
         id: quick
+
+        onNightLightSet: (on) => shellRoot.announce("moon", on ? "Night light on" : "Night light off")
     }
 
     ConnectivityService {
@@ -42,6 +48,20 @@ Scope {
 
         wifiOpen: shellRoot.anyView("wifi")
         bluetoothOpen: shellRoot.anyView("bt")
+
+        onWifiNameChanged: shellRoot.linkChanged("wifi", "Wi-Fi", wifiName)
+        onBluetoothNameChanged: shellRoot.linkChanged("bt", "Bluetooth", bluetoothName)
+    }
+
+    // The names of what Wi-Fi and Bluetooth were last connected to, for saying what dropped.
+    property var linked: ({})
+
+    // Connectivity settles for a moment after the shell starts; what it finds then is not news.
+    Timer {
+        id: settling
+
+        interval: 5000
+        running: true
     }
 
     TimerService {
@@ -103,6 +123,29 @@ Scope {
             target.toggle(view);
         else
             target.open(view);
+    }
+
+    // A few words on every monitor's capsule, for something that changed without a view being open.
+    function announce(icon, text) {
+        for (const ctl of controllers())
+            ctl.status(icon, text);
+    }
+
+    // `state` is a network or device name while connected, otherwise "Off", "On", "Not connected" or "No adapter".
+    function linkChanged(icon, label, state) {
+        const idle = ["Off", "On", "Not connected", "No adapter"];
+        const before = shellRoot.linked[icon] || "";
+        shellRoot.linked[icon] = idle.indexOf(state) < 0 ? state : "";
+        if (settling.running)
+            return;
+        if (idle.indexOf(state) < 0)
+            announce(icon, "Connected to " + state);
+        else if (state === "Off")
+            announce(icon, label + " off");
+        else if (before !== "")
+            announce(icon, before + " disconnected");
+        else if (state === "On")
+            announce(icon, label + " on");
     }
 
     function closeAll() {
@@ -201,10 +244,26 @@ Scope {
         visor: visor
     }
 
+    IdleService {
+        id: idle
+
+        active: !shellRoot.dev
+        locked: airlock.isLocked
+        onLockRequested: airlock.lock()
+        onStayAwakeChanged: shellRoot.announce("sun", stayAwake ? "Staying awake" : "Idle on")
+    }
+
+    SwitchesIpc {
+        quick: quick
+        center: center
+        idle: idle
+    }
+
     Airlock {
         id: airlock
 
         services: shellRoot.services
+        wallpaper: themes.wallpaper !== "" ? themes.wallpaper : (themes.currentTheme ? themes.currentTheme.wallpapers[0] || "" : "")
         onOpened: shellRoot.only(airlock)
     }
 
