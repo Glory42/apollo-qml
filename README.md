@@ -36,7 +36,7 @@ detail views for joining networks and pairing devices.
   is open.
 - Night light uses `hyprsunset`, power profiles use `powerprofilesctl`, and brightness
   uses `brightnessctl`.
-- Icons are Material Symbols (Rounded) pasted in as SVG paths in `qml/widgets/Icon.qml`, so no
+- Icons are Material Symbols (Rounded) pasted in as SVG paths in `qml/widgets/IconPaths.js`, so no
   font or image files are needed (I got tired of fighting icon fonts). To add one, copy its path from the SVG on
   fonts.google.com/icons into that file.
 - The capsule is attached to the top edge and reserves its own height, so windows start
@@ -217,11 +217,11 @@ qml/earthrise/             the wallpaper picker: Earthrise, EarthriseIpc
 qml/launchpad/             the application launcher: Launchpad, LaunchpadIpc
 qml/logbook/               clipboard history: Logbook, LogbookIpc, capture.sh (run on every copy)
 qml/splashdown/            the power menu: Splashdown, SplashdownIpc
-qml/surface/               where pieces appear: SurfaceWindow (screen, keyboard, click-outside),
+qml/surface/               where pieces appear: SurfaceWindow (screen, keyboard, a window no larger than the surface),
                            LanderWindow and Lander (bottom edge), OrbiterWindow (centre, with or without a hull),
-                           DismissCatcher (click outside the capsule)
+                           DismissCatcher (the click outside the capsule or a surface)
 qml/visor/                 the theme picker: Visor, VisorIpc
-qml/widgets/               Carousel (the slanted picture cards), Icon, Tile, ListRow, QuietSlider, RoundButton, ...
+qml/widgets/               Carousel (the slanted picture cards, drawn by shaders/card.frag), Icon, Tile, ListRow, QuietSlider, RoundButton, ...
 ```
 
 `qml/qmldir` is the one registry for every component, and each file imports it with
