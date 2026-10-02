@@ -11,7 +11,10 @@ Scope {
     readonly property bool isOpen: win.open
 
     readonly property int rowHeight: 40
+    // Empty while Logbook is away, so no row or picture is held for a window nobody sees.
     readonly property var rows: {
+        if (!win.shown)
+            return [];
         const all = root.clipboard ? root.clipboard.history : [];
         const query = field.text.trim().toLowerCase();
         if (query === "")
@@ -32,8 +35,8 @@ Scope {
         if (win.open)
             return;
         field.text = "";
-        list.currentIndex = 0;
         win.show();
+        list.currentIndex = 0;
         root.opened();
     }
 
