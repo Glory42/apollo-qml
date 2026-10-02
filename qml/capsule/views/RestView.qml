@@ -1,7 +1,7 @@
 import QtQuick
 import "../.."
 
-// Resting pill: workspace dots and the time. Nothing else.
+// Resting capsule: workspace dots and the time. Nothing else.
 Item {
     id: root
 

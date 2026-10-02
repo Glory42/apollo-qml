@@ -4,7 +4,7 @@ import ".."
 
 // The one shape, flaring out of the top edge. It sizes itself to the current view and springs between sizes.
 Item {
-    id: pill
+    id: capsule
 
     property var ctl: null
     property real swipeSum: 0
@@ -33,7 +33,7 @@ Item {
     Behavior on width {
         SpringAnimation {
             spring: Theme.springStiffness
-            damping: pill.damping
+            damping: capsule.damping
             epsilon: 0.4
         }
     }
@@ -41,24 +41,24 @@ Item {
     Behavior on height {
         SpringAnimation {
             spring: Theme.springStiffness
-            damping: pill.damping
+            damping: capsule.damping
             epsilon: 0.4
         }
     }
 
     function showView() {
-        const url = pill.viewUrls[pill.ctl.view] || "views/RestView.qml";
-        loader.setSource(url, { ctl: pill.ctl });
+        const url = capsule.viewUrls[capsule.ctl.view] || "views/RestView.qml";
+        loader.setSource(url, { ctl: capsule.ctl });
     }
 
     Connections {
-        target: pill.ctl
+        target: capsule.ctl
 
-        function onViewChanged() { pill.showView(); }
+        function onViewChanged() { capsule.showView(); }
         function onPeekKindChanged() {
             // A peek replacing another peek keeps the same view, so reload to restart the fade.
-            if (pill.ctl.view === "peek")
-                pill.showView();
+            if (capsule.ctl.view === "peek")
+                capsule.showView();
         }
     }
 
@@ -85,15 +85,15 @@ Item {
     MouseArea {
         anchors.fill: parent
         z: 1000
-        enabled: pill.ctl.isOpen
+        enabled: capsule.ctl.isOpen
         acceptedButtons: Qt.NoButton
         onWheel: (wheel) => {
             const horizontal = Math.abs(wheel.angleDelta.x) > Math.abs(wheel.angleDelta.y);
             wheel.accepted = horizontal;
             if (wheel.phase === Qt.ScrollBegin)
-                pill.swipeReset();
+                capsule.swipeReset();
             if (horizontal)
-                pill.swipe(wheel.angleDelta.x);
+                capsule.swipe(wheel.angleDelta.x);
         }
     }
 
@@ -101,28 +101,28 @@ Item {
         id: swipeIdle
 
         interval: 250
-        onTriggered: pill.swipeReset()
+        onTriggered: capsule.swipeReset()
     }
 
     Shape {
-        width: pill.width
-        height: pill.height
+        width: capsule.width
+        height: capsule.height
         preferredRendererType: Shape.CurveRenderer
 
         ShapePath {
-            fillColor: Theme.pill
+            fillColor: Theme.hull
             strokeColor: "transparent"
-            startX: -pill.fillet
+            startX: -capsule.fillet
             startY: 0
 
-            PathLine { x: pill.width + pill.fillet; y: 0 }
-            PathArc { x: pill.width; y: pill.fillet; radiusX: pill.fillet; radiusY: pill.fillet; direction: PathArc.Counterclockwise }
-            PathLine { x: pill.width; y: pill.height - pill.cornerRadius }
-            PathArc { x: pill.width - pill.cornerRadius; y: pill.height; radiusX: pill.cornerRadius; radiusY: pill.cornerRadius }
-            PathLine { x: pill.cornerRadius; y: pill.height }
-            PathArc { x: 0; y: pill.height - pill.cornerRadius; radiusX: pill.cornerRadius; radiusY: pill.cornerRadius }
-            PathLine { x: 0; y: pill.fillet }
-            PathArc { x: -pill.fillet; y: 0; radiusX: pill.fillet; radiusY: pill.fillet; direction: PathArc.Counterclockwise }
+            PathLine { x: capsule.width + capsule.fillet; y: 0 }
+            PathArc { x: capsule.width; y: capsule.fillet; radiusX: capsule.fillet; radiusY: capsule.fillet; direction: PathArc.Counterclockwise }
+            PathLine { x: capsule.width; y: capsule.height - capsule.cornerRadius }
+            PathArc { x: capsule.width - capsule.cornerRadius; y: capsule.height; radiusX: capsule.cornerRadius; radiusY: capsule.cornerRadius }
+            PathLine { x: capsule.cornerRadius; y: capsule.height }
+            PathArc { x: 0; y: capsule.height - capsule.cornerRadius; radiusX: capsule.cornerRadius; radiusY: capsule.cornerRadius }
+            PathLine { x: 0; y: capsule.fillet }
+            PathArc { x: -capsule.fillet; y: 0; radiusX: capsule.fillet; radiusY: capsule.fillet; direction: PathArc.Counterclockwise }
         }
     }
 

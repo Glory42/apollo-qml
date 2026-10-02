@@ -75,7 +75,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         spacing: 10
 
-        PillButton {
+        RoundButton {
             visible: root.extra !== ""
             anchors.verticalCenter: parent.verticalCenter
             implicitHeight: 28
