@@ -12,6 +12,7 @@ Item {
     readonly property real cornerRadius: Math.min(height / 2, Theme.maxRadius)
     readonly property real fillet: Math.max(0, Math.min(Theme.fillet, height / 3))
     readonly property bool shown: open || height > 0.5
+    readonly property real contentHeight: slot.height
 
     width: slot.width
     height: open ? slot.height : 0

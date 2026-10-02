@@ -121,6 +121,7 @@ Scope {
         id: win
 
         piece: "launchpad"
+        maxContentHeight: 72 + root.maxRows * root.rowHeight
         onlyScreen: root.onlyScreen
         onDismissed: root.close()
         onOpenChanged: if (open) field.forceActiveFocus()

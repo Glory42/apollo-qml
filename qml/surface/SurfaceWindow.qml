@@ -4,7 +4,7 @@ import Quickshell.Hyprland
 import Quickshell.Wayland
 import ".."
 
-// The full-screen window a lander or orbiter appears in: it holds the keyboard, and a click outside the surface closes it.
+// The window a lander or orbiter appears in, no larger than the surface: it holds the keyboard, and a press anywhere else closes it.
 PanelWindow {
     id: win
 
@@ -29,22 +29,19 @@ PanelWindow {
         win.open = false;
     }
 
-    visible: win.shown
+    // A window cannot be shown before it has a size, and it goes on top of the catcher by appearing after it.
+    visible: win.shown && implicitWidth > 0 && implicitHeight > 0 && catcher.backingWindowVisible
     color: "transparent"
-    anchors {
-        top: true
-        bottom: true
-        left: true
-        right: true
-    }
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "apollo-" + win.piece
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: win.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
-    MouseArea {
-        anchors.fill: parent
-        acceptedButtons: Qt.AllButtons
-        onPressed: win.dismissed()
+    // Sits behind the surface and closes it when anything else on the screen is pressed.
+    property DismissCatcher catcher: DismissCatcher {
+        screen: win.screen
+        active: win.shown
+        overlay: true
+        onDismissed: win.dismissed()
     }
 }
