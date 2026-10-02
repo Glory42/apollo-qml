@@ -2,12 +2,12 @@ import QtQuick
 import Quickshell
 import "qml"
 
-// Entry point. UMBRA_DEV=1 offsets the pill down for testing, UMBRA_SCREEN=<output> pins it to one monitor.
+// Entry point. APOLLO_DEV=1 offsets the pill down for testing, APOLLO_SCREEN=<output> pins it to one monitor.
 Scope {
     id: shellRoot
 
-    readonly property bool dev: Quickshell.env("UMBRA_DEV") === "1"
-    readonly property string onlyScreen: Quickshell.env("UMBRA_SCREEN") || ""
+    readonly property bool dev: Quickshell.env("APOLLO_DEV") === "1"
+    readonly property string onlyScreen: Quickshell.env("APOLLO_SCREEN") || ""
 
     ClockService {
         id: clock

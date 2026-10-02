@@ -1,11 +1,11 @@
-# Umbra
+# Apollo
 
 A quiet shell for Hyprland, written in QML on top of Quickshell's native modules
 (`Quickshell.Bluetooth`, `Quickshell.Networking`,
 `Quickshell.Services.{Pipewire,UPower,Mpris,Notifications}`, `Quickshell.Hyprland`).
 There is no C++ backend. (yeah iam a soyboy)
 
-Umbra is a set of small, separate pieces. The first is **the pill**: a black notch
+Apollo is a set of small, separate pieces. The first is **the pill**: a black notch
 hanging from the top edge of the screen with three sizes (rest, peek, open) and one dock. At rest it
 shows only the workspace dots and the clock. Events (notifications, now playing,
 volume, brightness) peek out and go away, and everything else opens from the pill or from a
@@ -18,8 +18,8 @@ quickshell -p /path/to/this/repo/shell.qml
 ```
 
 It runs on every monitor. Events show on all of them, views open on the focused one.
-For testing, `UMBRA_DEV=1` offsets the pill down the screen and
-`UMBRA_SCREEN=<output>` pins it to one monitor.
+For testing, `APOLLO_DEV=1` offsets the pill down the screen and
+`APOLLO_SCREEN=<output>` pins it to one monitor.
 
 ## The pill
 
@@ -63,43 +63,43 @@ Colors, sizes and motion live in `qml/core/Theme.qml`.
 
 ## Keybinds
 
-`umbra-ctl` talks to the running shell from any directory:
+`apollo-ctl` talks to the running shell from any directory:
 
 ```
-umbra-ctl pill open|toggle <quick|music|timer|weather|calendar|notifications|wifi|bt>
-umbra-ctl pill next|prev
-umbra-ctl pill close
-umbra-ctl pill notify <app> <summary> <body>
+apollo-ctl pill open|toggle <quick|music|timer|weather|calendar|notifications|wifi|bt>
+apollo-ctl pill next|prev
+apollo-ctl pill close
+apollo-ctl pill notify <app> <summary> <body>
 ```
 
 Example Hyprland binds:
 
 ```
-bind = SUPER CTRL, W, exec, /path/to/umbra-ctl pill toggle wifi
-bind = SUPER CTRL, B, exec, /path/to/umbra-ctl pill toggle bt
-bind = SUPER CTRL, M, exec, /path/to/umbra-ctl pill toggle music
-bind = SUPER CTRL, Q, exec, /path/to/umbra-ctl pill toggle quick
-bind = SUPER CTRL, T, exec, /path/to/umbra-ctl pill toggle timer
-bind = SUPER CTRL, N, exec, /path/to/umbra-ctl pill toggle notifications
-bind = SUPER CTRL, C, exec, /path/to/umbra-ctl pill toggle calendar
-bind = SUPER CTRL, E, exec, /path/to/umbra-ctl pill toggle weather
-bind = SUPER CTRL, X, exec, /path/to/umbra-ctl pill close
-bind = SUPER CTRL, right, exec, /path/to/umbra-ctl pill next
-bind = SUPER CTRL, left, exec, /path/to/umbra-ctl pill prev
+bind = SUPER CTRL, W, exec, /path/to/apollo-ctl pill toggle wifi
+bind = SUPER CTRL, B, exec, /path/to/apollo-ctl pill toggle bt
+bind = SUPER CTRL, M, exec, /path/to/apollo-ctl pill toggle music
+bind = SUPER CTRL, Q, exec, /path/to/apollo-ctl pill toggle quick
+bind = SUPER CTRL, T, exec, /path/to/apollo-ctl pill toggle timer
+bind = SUPER CTRL, N, exec, /path/to/apollo-ctl pill toggle notifications
+bind = SUPER CTRL, C, exec, /path/to/apollo-ctl pill toggle calendar
+bind = SUPER CTRL, E, exec, /path/to/apollo-ctl pill toggle weather
+bind = SUPER CTRL, X, exec, /path/to/apollo-ctl pill close
+bind = SUPER CTRL, right, exec, /path/to/apollo-ctl pill next
+bind = SUPER CTRL, left, exec, /path/to/apollo-ctl pill prev
 ```
 
 - A second press of a toggle bind closes the view, and opening a view closes it on the
   other monitors.
 - `next` and `prev` move through the dock tabs and wrap around. When nothing is open
   they open the last view you used.
-- Each piece of Umbra is its own IPC target, so later pieces will be called the same
-  way (`umbra-ctl power open`, and so on).
+- Each piece of Apollo is its own IPC target, so later pieces will be called the same
+  way (`apollo-ctl power open`, and so on).
 
 ## Layout
 
 ```
 shell.qml                  entry point: shared services, one pill per monitor
-umbra-ctl                  IPC helper for keybinds
+apollo-ctl                IPC helper for keybinds
 qml/core/                  Config (your settings) and Theme (colors, sizes, motion)
 qml/services/              headless state, no visuals
   ClockService, MprisService, SystemService (battery, volume, brightness),
@@ -119,8 +119,8 @@ because Quickshell does not generate a `qmldir` for every directory on its own.
 
 ## Roadmap
 
-Umbra grows as separate pieces. Each new piece gets its own window, its own IPC
-target (`umbra-ctl <piece> ...`) and its own folder under `qml/`, so the repo keeps one
+Apollo grows as separate pieces. Each new piece gets its own window, its own IPC
+target (`apollo-ctl <piece> ...`) and its own folder under `qml/`, so the repo keeps one
 top-level directory and the pill stays small.
 
 Done:

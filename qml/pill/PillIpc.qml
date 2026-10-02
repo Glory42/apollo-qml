@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell.Io
 
-// `umbra-ctl pill <function>`; views open on the focused monitor, notifications show everywhere.
+// `apollo-ctl pill <function>`; views open on the focused monitor, notifications show everywhere.
 QtObject {
     id: wrapper
 

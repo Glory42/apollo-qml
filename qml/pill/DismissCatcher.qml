@@ -19,7 +19,7 @@ PanelWindow {
         right: true
     }
     exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "umbra-pill-dismiss"
+    WlrLayershell.namespace: "apollo-pill-dismiss"
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 

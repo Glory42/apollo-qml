@@ -1,0 +1,4 @@
+#!/bin/sh
+# Usage: apollo-ctl <target> <function> [args], e.g. apollo-ctl pill toggle wifi (works from any directory)
+dir=$(dirname "$(readlink -f "$0")")
+exec quickshell -p "$dir/shell.qml" ipc call "$@"

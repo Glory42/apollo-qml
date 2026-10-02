@@ -19,7 +19,7 @@ PanelWindow {
     implicitWidth: Theme.windowWidth
     implicitHeight: Theme.windowHeight
     exclusiveZone: win.dev ? 0 : Theme.topMargin + Theme.restHeight + Config.windowGap
-    WlrLayershell.namespace: "umbra-pill"
+    WlrLayershell.namespace: "apollo-pill"
     WlrLayershell.layer: ctl.view !== "rest" ? WlrLayer.Overlay : WlrLayer.Top
     WlrLayershell.keyboardFocus: ctl.wantsKeyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
