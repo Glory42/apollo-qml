@@ -42,6 +42,8 @@ Item {
 
         anchors.fill: parent
         source: root.source
+        sourceSize.width: 2 * root.size
+        sourceSize.height: 2 * root.size
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         visible: false

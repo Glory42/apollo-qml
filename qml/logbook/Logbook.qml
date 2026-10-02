@@ -221,6 +221,9 @@ Scope {
                     anchors.margins: 12
                     visible: !!root.current && root.current.type === "image"
                     source: root.current && root.current.type === "image" ? "file://" + root.current.path : ""
+                    // Decoded at twice the panel, not at the size of the screenshot.
+                    sourceSize.width: 2 * width
+                    sourceSize.height: 2 * height
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
                 }
