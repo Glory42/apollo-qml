@@ -75,8 +75,7 @@ Item {
         }
     }
 
-    // Entry point: re-fetch for whatever location is already resolved, or
-    // resolve one first if this is the first call.
+    // Re-fetches for the resolved location, resolving one first on the first call.
     function refresh() {
         if (!weatherEnabled)
             return;
@@ -96,9 +95,7 @@ Item {
         root._autoDetectLocation();
     }
 
-    // IP-based fallback so there's a sensible default with zero configuration
-    // (Open-Meteo has no such endpoint of its own; wttr.in's is used for this
-    // one purpose only, not for any actual weather data).
+    // IP-based fallback location from wttr.in, because Open-Meteo has no such endpoint; no weather data comes from it.
     function _autoDetectLocation() {
         root.loading = true;
         const xhr = new XMLHttpRequest();
@@ -125,8 +122,7 @@ Item {
             root._geocodeAndFetch(city.length > 0 ? city : raw);
         };
         xhr.open("GET", "https://wttr.in/?format=%l");
-        // wttr.in serves an HTML page instead of plain text unless the
-        // User-Agent looks like curl -- Qt's XHR default looks like a browser.
+        // wttr.in serves HTML instead of plain text unless the User-Agent looks like curl.
         xhr.setRequestHeader("User-Agent", "curl/8.0");
         xhr.send();
     }
