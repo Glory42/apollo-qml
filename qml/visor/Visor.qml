@@ -10,6 +10,7 @@ Scope {
     property string onlyScreen: ""
     readonly property bool isOpen: win.open
     readonly property var list: themes ? themes.themes : []
+    readonly property int start: Math.max(0, list.findIndex((entry) => entry.id === themes.current))
     readonly property var swatches: ["bg", "fg", "accent", "regular1", "regular2", "regular3", "regular4", "regular5", "regular6"]
 
     signal opened()
@@ -18,9 +19,17 @@ Scope {
         if (win.open)
             return;
         root.themes.refresh();
-        carousel.currentIndex = Math.max(0, root.list.findIndex((entry) => entry.id === root.themes.current));
         win.show();
+        aim();
         root.opened();
+    }
+
+    // Puts the current theme in the middle, and the keyboard on the carousel.
+    function aim() {
+        if (!loader.item)
+            return;
+        loader.item.currentIndex = root.start;
+        loader.item.forceActiveFocus();
     }
 
     function close() {
@@ -41,22 +50,29 @@ Scope {
         bare: true
         onlyScreen: root.onlyScreen
         onDismissed: root.close()
-        onOpenChanged: if (open) carousel.forceActiveFocus()
 
-        Carousel {
-            id: carousel
+        // The carousel and its pictures exist only while Visor is on screen.
+        Loader {
+            id: loader
 
-            emptyText: "No themes in " + Config.themeDir + "/themes"
-            model: root.list.map((entry) => ({
-                image: entry.wallpapers[0] || "",
-                title: entry.name,
-                colors: root.swatches.map((key) => Theme.toneOf(entry.palette, key, "")).filter((value) => value !== ""),
-                accent: Theme.toneOf(entry.palette, "accent", "")
-            }))
-            onDismissed: root.close()
-            onChosen: (index) => {
-                root.close();
-                root.themes.apply(root.list[index].id);
+            active: win.shown
+            onLoaded: root.aim()
+
+            sourceComponent: Carousel {
+                emptyText: "No themes in " + Config.themeDir + "/themes"
+                currentIndex: root.start
+                model: root.list.map((entry) => ({
+                    key: entry.id,
+                    image: entry.wallpapers[0] || "",
+                    title: entry.name,
+                    colors: root.swatches.map((key) => Theme.toneOf(entry.palette, key, "")).filter((value) => value !== ""),
+                    accent: Theme.toneOf(entry.palette, "accent", "")
+                }))
+                onDismissed: root.close()
+                onChosen: (index) => {
+                    root.close();
+                    root.themes.apply(root.list[index].id);
+                }
             }
         }
     }

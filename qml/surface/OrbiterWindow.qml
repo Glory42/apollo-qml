@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import ".."
 
 // An orbiter on its screen: it floats in the middle, sized to its one content item.
@@ -11,6 +12,17 @@ SurfaceWindow {
 
     piece: "orbiter"
     shown: win.open || hull.opacity > 0
+    // A little larger than the orbiter, for its spring to overshoot into.
+    implicitWidth: Math.ceil(slot.width * 1.08)
+    implicitHeight: Math.ceil(slot.height * 1.08)
+
+    // Only the orbiter takes input; the rest of this window falls through to what is underneath.
+    mask: Region {
+        x: Math.floor(hull.x)
+        y: Math.floor(hull.y)
+        width: Math.ceil(hull.width)
+        height: Math.ceil(hull.height)
+    }
 
     Rectangle {
         id: hull

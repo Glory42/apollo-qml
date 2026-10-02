@@ -7,6 +7,8 @@ PanelWindow {
     id: root
 
     property bool active: false
+    // Whether it also covers fullscreen windows and other overlays.
+    property bool overlay: false
 
     signal dismissed()
 
@@ -20,7 +22,7 @@ PanelWindow {
     }
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "apollo-dismiss"
-    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.layer: root.overlay ? WlrLayer.Overlay : WlrLayer.Top
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
     MouseArea {

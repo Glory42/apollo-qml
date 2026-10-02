@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "../.."
 
 // Resting capsule: workspace dots and the time. Nothing else.
@@ -56,7 +57,9 @@ Item {
             spacing: 4
 
             Repeater {
-                model: root.ctl ? root.ctl.workspaceIds : []
+                model: ScriptModel {
+                    values: root.ctl ? root.ctl.workspaceIds : []
+                }
 
                 Rectangle {
                     required property int modelData

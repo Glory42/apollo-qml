@@ -32,6 +32,8 @@ ViewFrame {
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
                 source: root.mpris ? root.mpris.currentArtUrl : ""
+                sourceSize.width: 2 * width
+                sourceSize.height: 2 * height
                 visible: status === Image.Ready
             }
 

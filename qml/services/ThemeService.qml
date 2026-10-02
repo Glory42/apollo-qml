@@ -13,6 +13,7 @@ Item {
     property var themes: []
     property string current: ""
     property string wallpaper: ""
+    property string listing: ""
 
     readonly property var currentTheme: themes.find((entry) => entry.id === current) || null
 
@@ -84,7 +85,13 @@ Item {
 
         command: ["sh", "-c", 'for d in "$1"/themes/*/; do [ -f "$d/theme.json" ] || continue; printf "@@theme %s\\n" "$(basename "$d")"; cat "$d/theme.json"; printf "\\n@@palette\\n"; cat "$d/palette.json" 2>/dev/null; printf "\\n"; done', "sh", Config.themeDir]
         stdout: StdioCollector {
-            onStreamFinished: root.parse(text)
+            // An unchanged listing leaves the themes alone, so nothing showing them is rebuilt.
+            onStreamFinished: {
+                if (text === root.listing)
+                    return;
+                root.listing = text;
+                root.parse(text);
+            }
         }
     }
 

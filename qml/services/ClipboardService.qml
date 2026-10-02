@@ -9,6 +9,8 @@ Item {
     visible: false
 
     readonly property int limit: 300
+    // Characters of text kept in all; past that the oldest entries go, as they do past the limit.
+    readonly property int textBudget: 4000000
     readonly property string imageDir: Quickshell.statePath("logbook-images")
     readonly property string script: Quickshell.shellPath("qml/logbook/capture.sh")
 
@@ -20,7 +22,25 @@ Item {
     }
 
     function save() {
+        saver.restart();
+    }
+
+    function write() {
+        saver.stop();
         store.setText(JSON.stringify(root.history));
+    }
+
+    // The newest entries that fit within both the limit and the text budget.
+    function fit(entries) {
+        let size = 0;
+        let count = 0;
+        while (count < entries.length && count < root.limit) {
+            size += entries[count].type === "text" ? entries[count].text.length : 0;
+            if (size > root.textBudget && count > 0)
+                break;
+            count += 1;
+        }
+        return entries.slice(0, count);
     }
 
     // Images are files, so one that leaves the history is deleted with it.
@@ -32,10 +52,10 @@ Item {
     }
 
     function add(entry) {
-        const rest = root.history.filter((other) => !root.same(other, entry));
-        const next = [entry].concat(rest);
-        root.forget(next.slice(root.limit), next.slice(0, root.limit));
-        root.history = next.slice(0, root.limit);
+        const next = [entry].concat(root.history.filter((other) => !root.same(other, entry)));
+        const kept = root.fit(next);
+        root.forget(next.slice(kept.length), kept);
+        root.history = kept;
         save();
     }
 
@@ -59,10 +79,13 @@ Item {
         const space = line.indexOf(" ");
         const kind = line.slice(0, space);
         const payload = line.slice(space + 1);
-        if (kind === "image")
+        if (kind === "image") {
             add({ type: "image", path: payload, at: Date.now() });
-        else if (kind === "text" && root.decode(payload) !== "")
-            add({ type: "text", text: root.decode(payload) });
+        } else if (kind === "text") {
+            const text = root.decode(payload);
+            if (text !== "")
+                add({ type: "text", text: text });
+        }
     }
 
     // Shift+Insert pastes everywhere once the primary selection holds the entry too, so both are set.
@@ -74,6 +97,21 @@ Item {
         Quickshell.execDetached(["sh", "-c", copy + then, "sh", entry.type === "image" ? entry.path : entry.text]);
     }
 
+    // A burst of copies is written once, and whatever is still waiting is written as the shell exits.
+    Timer {
+        id: saver
+
+        interval: 500
+        onTriggered: root.write()
+    }
+
+    Component.onDestruction: {
+        if (saver.running) {
+            root.write();
+            store.waitForJob();
+        }
+    }
+
     FileView {
         id: store
 
@@ -83,7 +121,7 @@ Item {
             try {
                 const saved = JSON.parse(store.text());
                 // Whatever was copied while this loaded is newer than the file.
-                root.history = root.history.concat(saved.filter((entry) => !root.history.some((other) => root.same(other, entry)))).slice(0, root.limit);
+                root.history = root.fit(root.history.concat(saved.filter((entry) => !root.history.some((other) => root.same(other, entry)))));
             } catch (error) {
             }
         }

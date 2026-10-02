@@ -82,9 +82,9 @@ Item {
         const titles = { connected: "Connected", paired: "Paired", available: "Available" };
         for (const key of ["connected", "paired", "available"]) {
             if (groups[key].length === 0) continue;
-            rows.push({ kind: "header", text: titles[key] });
+            rows.push({ key: key, kind: "header", text: titles[key] });
             for (const device of groups[key])
-                rows.push({ kind: "device", device: device, section: key });
+                rows.push({ key: key + " " + device.dbusPath, kind: "device", device: device, section: key });
         }
         return rows;
     }
