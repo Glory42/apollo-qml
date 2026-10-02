@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import "../.."
 
 ViewFrame {
@@ -25,7 +26,10 @@ ViewFrame {
         clip: true
         spacing: 2
         interactive: contentHeight > height
-        model: root.net ? root.net.bluetoothRows : []
+        model: ScriptModel {
+            values: root.net ? root.net.bluetoothRows : []
+            objectProp: "key"
+        }
 
         delegate: Item {
             id: row

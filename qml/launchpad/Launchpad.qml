@@ -182,7 +182,10 @@ Scope {
                 width: 396
                 height: Math.min(count, root.maxRows) * root.rowHeight
                 clip: true
-                model: root.results
+                // Keeps the rows of applications that are still listed instead of rebuilding them all.
+                model: ScriptModel {
+                    values: root.results
+                }
                 boundsBehavior: Flickable.StopAtBounds
                 highlightMoveDuration: 0
 

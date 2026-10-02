@@ -130,7 +130,9 @@ Scope {
                     width: parent.width
                     height: 9 * root.rowHeight
                     clip: true
-                    model: root.rows
+                    model: ScriptModel {
+                        values: root.rows
+                    }
                     boundsBehavior: Flickable.StopAtBounds
                     highlightMoveDuration: 0
 
