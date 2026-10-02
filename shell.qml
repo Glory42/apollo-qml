@@ -110,8 +110,106 @@ Scope {
             ctl.close();
     }
 
+    // One piece is open at a time, so whichever opens closes the rest (null is the capsule); peeks are left alone.
+    function only(piece) {
+        if (piece !== splashdown)
+            splashdown.close();
+        if (piece !== launchpad)
+            launchpad.close();
+        if (piece !== logbook)
+            logbook.close();
+        if (piece !== earthrise)
+            earthrise.close();
+        if (piece !== visor)
+            visor.close();
+        if (!piece)
+            return;
+        for (const ctl of controllers()) {
+            if (ctl.isOpen)
+                ctl.close();
+        }
+    }
+
     CapsuleIpc {
         shellRoot: shellRoot
+    }
+
+    Splashdown {
+        id: splashdown
+
+        onlyScreen: shellRoot.onlyScreen
+        onOpened: shellRoot.only(splashdown)
+        onLockRequested: airlock.lock()
+    }
+
+    SplashdownIpc {
+        splashdown: splashdown
+    }
+
+    Launchpad {
+        id: launchpad
+
+        onlyScreen: shellRoot.onlyScreen
+        onOpened: shellRoot.only(launchpad)
+    }
+
+    LaunchpadIpc {
+        launchpad: launchpad
+    }
+
+    ClipboardService {
+        id: clipboard
+    }
+
+    Logbook {
+        id: logbook
+
+        clipboard: clipboard
+        onlyScreen: shellRoot.onlyScreen
+        onOpened: shellRoot.only(logbook)
+    }
+
+    LogbookIpc {
+        logbook: logbook
+    }
+
+    ThemeService {
+        id: themes
+    }
+
+    Earthrise {
+        id: earthrise
+
+        themes: themes
+        onlyScreen: shellRoot.onlyScreen
+        onOpened: shellRoot.only(earthrise)
+    }
+
+    EarthriseIpc {
+        earthrise: earthrise
+    }
+
+    Visor {
+        id: visor
+
+        themes: themes
+        onlyScreen: shellRoot.onlyScreen
+        onOpened: shellRoot.only(visor)
+    }
+
+    VisorIpc {
+        visor: visor
+    }
+
+    Airlock {
+        id: airlock
+
+        services: shellRoot.services
+        onOpened: shellRoot.only(airlock)
+    }
+
+    AirlockIpc {
+        airlock: airlock
     }
 
     Variants {
@@ -125,6 +223,7 @@ Scope {
             screen: modelData
             services: shellRoot.services
             dev: shellRoot.dev
+            onOpened: shellRoot.only(null)
         }
     }
 }

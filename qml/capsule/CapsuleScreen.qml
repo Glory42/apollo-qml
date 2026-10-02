@@ -13,6 +13,17 @@ Scope {
     readonly property var controller: window.controller
     readonly property bool monitorFocused: window.monitorFocused
 
+    signal opened()
+
+    Connections {
+        target: window.controller
+
+        function onIsOpenChanged() {
+            if (window.controller.isOpen)
+                root.opened();
+        }
+    }
+
     CapsuleWindow {
         id: window
 
