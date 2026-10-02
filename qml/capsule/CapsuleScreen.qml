@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import ".."
 
-// Everything one monitor needs: the pill window and the click-outside catcher beneath it.
+// Everything one monitor needs: the capsule window and the click-outside catcher beneath it.
 Scope {
     id: root
 
@@ -13,7 +13,7 @@ Scope {
     readonly property var controller: window.controller
     readonly property bool monitorFocused: window.monitorFocused
 
-    PillWindow {
+    CapsuleWindow {
         id: window
 
         screen: root.screen

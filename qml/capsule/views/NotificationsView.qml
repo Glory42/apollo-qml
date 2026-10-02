@@ -20,7 +20,7 @@ ViewFrame {
             font.weight: Font.Medium
         }
 
-        PillButton {
+        RoundButton {
             visible: root.total > 0
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
@@ -127,7 +127,7 @@ ViewFrame {
 
                         model: (card.modelData.actions || []).filter((a) => a.identifier !== "default")
 
-                        PillButton {
+                        RoundButton {
                             required property var modelData
 
                             implicitHeight: 26

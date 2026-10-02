@@ -93,13 +93,13 @@ ViewFrame {
         Row {
             spacing: 8
 
-            PillButton {
+            RoundButton {
                 primary: true
                 text: "Join"
                 onClicked: root.net.submitWifiPassword(field.text)
             }
 
-            PillButton {
+            RoundButton {
                 text: "Cancel"
                 onClicked: root.net.pendingSsid = ""
             }

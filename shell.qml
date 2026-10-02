@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import "qml"
 
-// Entry point. APOLLO_DEV=1 offsets the pill down for testing, APOLLO_SCREEN=<output> pins it to one monitor.
+// Entry point. APOLLO_DEV=1 offsets the capsule down for testing, APOLLO_SCREEN=<output> pins it to one monitor.
 Scope {
     id: shellRoot
 
@@ -110,7 +110,7 @@ Scope {
             ctl.close();
     }
 
-    PillIpc {
+    CapsuleIpc {
         shellRoot: shellRoot
     }
 
@@ -119,7 +119,7 @@ Scope {
 
         model: Quickshell.screens.filter((screen) => shellRoot.onlyScreen === "" || screen.name === shellRoot.onlyScreen)
 
-        PillScreen {
+        CapsuleScreen {
             required property var modelData
 
             screen: modelData

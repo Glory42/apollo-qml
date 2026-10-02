@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 
-// Transparent full-screen layer under the pill that closes it on any click; it never takes keyboard focus.
+// Transparent full-screen layer under an open surface that closes it on any click; it never takes keyboard focus.
 PanelWindow {
     id: root
 
@@ -19,7 +19,7 @@ PanelWindow {
         right: true
     }
     exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "apollo-pill-dismiss"
+    WlrLayershell.namespace: "apollo-dismiss"
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 

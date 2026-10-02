@@ -19,19 +19,19 @@ PanelWindow {
     implicitWidth: Theme.windowWidth
     implicitHeight: Theme.windowHeight
     exclusiveZone: win.dev ? 0 : Theme.topMargin + Theme.restHeight + Config.windowGap
-    WlrLayershell.namespace: "apollo-pill"
+    WlrLayershell.namespace: "apollo-capsule"
     WlrLayershell.layer: ctl.view !== "rest" ? WlrLayer.Overlay : WlrLayer.Top
     WlrLayershell.keyboardFocus: ctl.wantsKeyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
-    // Only the pill takes input; everything else in this window falls through to what is underneath.
+    // Only the capsule takes input; everything else in this window falls through to what is underneath.
     mask: Region {
-        x: Math.floor(pill.x - pill.fillet)
-        y: Math.floor(pill.y)
-        width: Math.ceil(pill.width + 2 * pill.fillet)
-        height: Math.ceil(pill.height)
+        x: Math.floor(capsule.x - capsule.fillet)
+        y: Math.floor(capsule.y)
+        width: Math.ceil(capsule.width + 2 * capsule.fillet)
+        height: Math.ceil(capsule.height)
     }
 
-    PillController {
+    CapsuleController {
         id: ctl
 
         screen: win.screen
@@ -45,8 +45,8 @@ PanelWindow {
         countdown: win.services ? win.services.countdown : null
     }
 
-    Pill {
-        id: pill
+    Capsule {
+        id: capsule
 
         ctl: ctl
         x: Math.round((win.width - width) / 2)

@@ -132,14 +132,14 @@ ViewFrame {
         Row {
             spacing: 8
 
-            PillButton {
+            RoundButton {
                 visible: root.agent && root.agent.promptKind !== "display"
                 primary: true
                 text: root.needsInput ? "Pair" : "Confirm"
                 onClicked: root.needsInput ? root.agent.answer(field.text) : root.agent.answer("yes")
             }
 
-            PillButton {
+            RoundButton {
                 text: "Cancel"
                 onClicked: root.net.cancelPairing()
             }

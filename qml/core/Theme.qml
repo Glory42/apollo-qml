@@ -3,11 +3,11 @@ pragma Singleton
 import QtQuick
 import ".."
 
-// Design tokens: black pill, quiet greys, one spring.
+// Design tokens: black capsule, quiet greys, one spring.
 QtObject {
     readonly property string fontFamily: Config.fontFamily
 
-    readonly property color pill: "#000000"
+    readonly property color hull: "#000000"
     readonly property color fill: "#151517"
     readonly property color fill2: "#1f1f22"
     readonly property color fg: "#ecece8"

@@ -50,23 +50,23 @@ ViewFrame {
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 8
 
-        PillButton {
+        RoundButton {
             text: "− 5 min"
             onClicked: root.countdown.addMinutes(-5)
         }
 
-        PillButton {
+        RoundButton {
             primary: true
             text: !root.countdown || !root.countdown.running ? (root.countdown && root.countdown.active ? "Resume" : "Start") : "Pause"
             onClicked: root.countdown.toggle()
         }
 
-        PillButton {
+        RoundButton {
             text: "Reset"
             onClicked: root.countdown.reset()
         }
 
-        PillButton {
+        RoundButton {
             text: "+ 5 min"
             onClicked: root.countdown.addMinutes(5)
         }
