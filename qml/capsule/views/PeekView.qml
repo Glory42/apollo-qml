@@ -26,7 +26,17 @@ Item {
         anchors.rightMargin: 20
         spacing: 12
 
+        // A track that just started shows its cover as a turning record.
+        Disc {
+            visible: !!root.ctl && root.ctl.peekKind === "media"
+            anchors.verticalCenter: parent.verticalCenter
+            size: 36
+            source: visible ? root.ctl.peekImage : ""
+            spinning: true
+        }
+
         NotificationAvatar {
+            visible: !root.ctl || root.ctl.peekKind !== "media"
             anchors.verticalCenter: parent.verticalCenter
             size: 36
             image: root.ctl ? root.ctl.peekImage : ""

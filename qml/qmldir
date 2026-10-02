@@ -16,6 +16,7 @@ ClipboardService services/ClipboardService.qml
 ClockService services/ClockService.qml
 ConnectivityService services/ConnectivityService.qml
 DetailHeader widgets/DetailHeader.qml
+Disc widgets/Disc.qml
 DismissCatcher surface/DismissCatcher.qml
 Dock capsule/Dock.qml
 Earthrise earthrise/Earthrise.qml

@@ -12,37 +12,12 @@ ViewFrame {
         width: parent.width
         spacing: 14
 
-        Rectangle {
+        Disc {
             id: art
 
-            width: 64
-            height: 64
-            radius: 16
-            clip: true
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0; color: Theme.fill2 }
-                GradientStop { position: 1; color: Theme.fill }
-            }
-
-            Image {
-                id: artImage
-
-                anchors.fill: parent
-                fillMode: Image.PreserveAspectCrop
-                asynchronous: true
-                source: root.mpris ? root.mpris.currentArtUrl : ""
-                sourceSize.width: 2 * width
-                sourceSize.height: 2 * height
-                visible: status === Image.Ready
-            }
-
-            Icon {
-                anchors.centerIn: parent
-                name: "music"
-                color: Theme.faint
-                visible: artImage.status !== Image.Ready
-            }
+            size: 64
+            source: root.mpris ? root.mpris.currentArtUrl : ""
+            spinning: !!root.player && root.player.isPlaying
         }
 
         Column {
