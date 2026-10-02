@@ -99,7 +99,7 @@ bind = SUPER CTRL, left, exec, /path/to/apollo-ctl pill prev
 
 ```
 shell.qml                  entry point: shared services, one pill per monitor
-apollo-ctl                IPC helper for keybinds
+apollo-ctl                 IPC helper for keybinds
 qml/core/                  Config (your settings) and Theme (colors, sizes, motion)
 qml/services/              headless state, no visuals
   ClockService, MprisService, SystemService (battery, volume, brightness),
