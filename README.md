@@ -36,7 +36,7 @@ detail views for joining networks and pairing devices.
 - Night light uses `hyprsunset`, power profiles use `powerprofilesctl`, and brightness
   uses `brightnessctl`.
 - Icons are Material Symbols (Rounded) pasted in as SVG paths in `qml/widgets/Icon.qml`, so no
-  font or image files are needed. To add one, copy its path from the SVG on
+  font or image files are needed (I got tired of fighting icon fonts). To add one, copy its path from the SVG on
   fonts.google.com/icons into that file.
 - The pill is attached to the top edge and reserves its own height, so windows start
   below it, plus your Hyprland `gaps_out`.
@@ -147,16 +147,16 @@ Ideas, not decided yet:
 - [ ] Idle handling (dim, lock and suspend after inactivity)
 - [ ] VPN, Ethernet and airplane mode toggles
 
-Not planned: workspace overview and lyrics.
+Not planned: workspace overview and lyrics. (I'm lazy, not sorry)
 
 ## Known gaps
 
-- Hyprland only.
+- Hyprland only. (it's the only thing I use, sorry)
 - Another notification daemon has to be stopped first, because only one can own
   `org.freedesktop.Notifications`.
 - Commands sent in the first few seconds after launch are ignored, because the pill
-  window does not exist yet.
+  window does not exist yet. (be patient, it's a notch, not a miracle)
 - The Wi-Fi view cannot join hidden networks, or WEP and enterprise (802.1X) networks.
 - The swipe gesture works with a touchpad only, not a touchscreen.
 - Joining a new Wi-Fi network with a password and pairing a new Bluetooth device have not
-  been tried on real hardware, only the pieces around them.
+  been tried on real hardware, only the pieces around them. (it works on my machine, probably)
