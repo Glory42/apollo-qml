@@ -15,6 +15,8 @@ Scope {
     readonly property int maxRows: 7
 
     property var counts: ({})
+    // { entry, name, words, extra }: what a search compares against, lowercased once per application.
+    property var index: []
     property var results: []
 
     signal opened()
@@ -40,27 +42,40 @@ Scope {
     }
 
     // 0 means no match; a name that starts with the query beats a word that does, which beats the rest.
-    function score(entry, query) {
-        const name = entry.name.toLowerCase();
-        if (name.startsWith(query))
+    function score(item, query) {
+        if (item.name.startsWith(query))
             return 4;
-        if (name.split(/[\s\-_.]+/).some((word) => word.startsWith(query)))
+        if (item.words.some((word) => word.startsWith(query)))
             return 3;
-        if (name.includes(query))
+        if (item.name.includes(query))
             return 2;
-        const extra = [entry.genericName, entry.comment].concat(entry.keywords).join(" ").toLowerCase();
-        return extra.includes(query) ? 1 : 0;
+        return item.extra.includes(query) ? 1 : 0;
+    }
+
+    function reindex() {
+        const built = [];
+        for (const entry of DesktopEntries.applications.values) {
+            if (entry.noDisplay)
+                continue;
+            const name = entry.name.toLowerCase();
+            built.push({
+                entry: entry,
+                name: name,
+                words: name.split(/[\s\-_.]+/),
+                extra: [entry.genericName, entry.comment].concat(entry.keywords).join(" ").toLowerCase()
+            });
+        }
+        root.index = built;
+        refresh();
     }
 
     function refresh() {
         const query = field.text.trim().toLowerCase();
         const found = [];
-        for (const entry of DesktopEntries.applications.values) {
-            if (entry.noDisplay)
-                continue;
-            const rank = query === "" ? 1 : score(entry, query);
+        for (const item of root.index) {
+            const rank = query === "" ? 1 : score(item, query);
             if (rank > 0)
-                found.push({ entry: entry, rank: rank, count: root.counts[entry.id] || 0 });
+                found.push({ entry: item.entry, rank: rank, count: root.counts[item.entry.id] || 0 });
         }
         found.sort((a, b) => b.rank - a.rank || b.count - a.count || a.entry.name.localeCompare(b.entry.name));
         root.results = found.slice(0, 50).map((item) => item.entry);
@@ -83,8 +98,10 @@ Scope {
     Connections {
         target: DesktopEntries.applications
 
-        function onValuesChanged() { root.refresh(); }
+        function onValuesChanged() { root.reindex(); }
     }
+
+    Component.onCompleted: reindex()
 
     FileView {
         id: store
