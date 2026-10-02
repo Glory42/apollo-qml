@@ -16,6 +16,13 @@ QtObject {
     readonly property string weatherUnits: "metric"
     readonly property int weatherRefreshInterval: 1800000
 
+    // Seconds without input before each step; 0 turns that step off. None of it runs under APOLLO_DEV.
+    readonly property int idleScreenOffSeconds: 300
+    readonly property int idleLockSeconds: 330
+    readonly property int idleSleepSeconds: 0
+    readonly property var screenOffCommand: ["hyprctl", "dispatch", 'hl.dsp.dpms({ action = "disable" })']
+    readonly property var screenOnCommand: ["hyprctl", "dispatch", 'hl.dsp.dpms({ action = "enable" })']
+
     // Run through sh by Splashdown's Log out. uwsm has to end the session itself when it started it.
     readonly property string logoutCommand: "command -v uwsm >/dev/null 2>&1 && uwsm stop || hyprctl dispatch 'hl.dsp.exit()' || hyprctl dispatch exit"
 

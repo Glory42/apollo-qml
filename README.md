@@ -32,6 +32,14 @@ detail views for joining networks and pairing devices.
 
 - It is the notification server (`org.freedesktop.Notifications`), so stop any other
   notification daemon first.
+- A notification marked transient (`notify-send -e`) only peeks: it is not listed in the
+  notifications view or counted as unread. That suits "screenshot taken" and the like.
+- Apollo says a few things itself in a short peek: the charger going in or out, Wi-Fi and
+  Bluetooth connecting or dropping, and the night light, silence and stay-awake binds. A
+  battery at 20%, 10% and 5% is a real notification that shows even while silenced.
+- The weather is fetched again within seconds if a request fails, so it shows soon after a
+  login where the shell came up before the network. A restart shows the last weather at
+  once (when it is under three hours old) while the new one loads.
 - Bluetooth pairing uses `bluetoothctl` as the pairing agent while the Bluetooth view
   is open.
 - Night light uses `hyprsunset`, power profiles use `powerprofilesctl`, and brightness
@@ -110,8 +118,24 @@ count is shown, never what they say.
 - The password is your login password, checked through PAM with
   `qml/airlock/pam/password.conf`.
 - Nothing unlocks it except the password. `houston` can lock, not unlock.
+- Behind it is the current wallpaper, blurred and dimmed. That is the wallpaper last set
+  through Visor or Earthrise; before either has been used it is the plain background colour.
 - Before relying on it, lock once with a TTY you can reach (Ctrl+Alt+F3), in case it does
   not accept your password on your system.
+
+## Idle
+
+Apollo does what `hypridle` would, so that does not need to run alongside it:
+
+- After `idleScreenOffSeconds` without input the screens turn off, and come back on the
+  first key or mouse move.
+- After `idleLockSeconds` Airlock locks.
+- After `idleSleepSeconds` the machine suspends. This is off (`0`) by default.
+- Airlock also locks before any suspend, whoever asked for it: Splashdown, the lid, or
+  `systemctl suspend`. Apollo holds sleep back until the lock is drawn.
+- A video or anything else that inhibits idle keeps all of this from starting.
+- `houston awake toggle` stops the idle steps until it is toggled again or Apollo restarts.
+- None of it runs under `APOLLO_DEV=1`.
 
 ## Splashdown
 
@@ -138,7 +162,8 @@ Edit the values in `qml/core/Config.qml`:
 | `mediaPeek` | Show a short "now playing" peek when media starts or the track changes. |
 | `swipeReverse` | Set to `true` if the touchpad swipe goes the wrong way. |
 | `weatherEnabled`, `weatherLocation`, `weatherUnits`, `weatherRefreshInterval` | Weather. An empty location is detected from your IP, units are `"metric"` or `"imperial"`. |
-
+| `idleScreenOffSeconds`, `idleLockSeconds`, `idleSleepSeconds` | Seconds without input before the screens turn off, Airlock locks and the machine suspends. `0` turns a step off. |
+| `screenOffCommand`, `screenOnCommand` | Commands that turn the screens off and on; the defaults are Hyprland's `dpms` dispatcher in its Lua form. |
 | `themeDir` | Where themes live, `~/.config/theme` by default. `APOLLO_THEME_DIR` overrides it. |
 | `themeApplyCommand` | Shell command run after the palette changes: `apply-theme` (also looked for in `~/.local/bin`), then `hyprctl reload`. |
 | `logoutCommand` | Shell command behind Splashdown's Log out: `uwsm stop` when uwsm is installed, otherwise Hyprland's exit. |
@@ -156,13 +181,23 @@ houston capsule open|toggle <quick|music|timer|weather|calendar|notifications|wi
 houston capsule next|prev
 houston capsule close
 houston capsule notify <app> <summary> <body>
+houston capsule say <icon> <text>
 houston splashdown open|toggle|close
 houston launchpad open|toggle|close
 houston logbook open|toggle|close
 houston airlock lock
 houston visor open|toggle|close
 houston earthrise open|toggle|close
+houston nightlight toggle
+houston silence toggle
+houston awake toggle
 ```
+
+`say` shows a short peek of an icon and a few words that is not kept anywhere, for a script to
+say what it just did; the icon is a name from `qml/widgets/IconPaths.js`, such as `bell`,
+`sun` or `lock`. `nightlight` is the night light, `silence` stops notifications from peeking (critical ones
+still do), and `awake` holds off the idle steps. Each shows a short peek saying what it
+changed to.
 
 Example Hyprland binds:
 
@@ -184,8 +219,9 @@ bind = SUPER CTRL, V, exec, /path/to/houston logbook toggle
 bind = SUPER CTRL, L, exec, /path/to/houston airlock lock
 bind = SUPER CTRL, SPACE, exec, /path/to/houston visor toggle
 bind = SUPER ALT, SPACE, exec, /path/to/houston earthrise toggle
-houston visor open|toggle|close
-houston earthrise open|toggle|close
+bind = SUPER CTRL, D, exec, /path/to/houston silence toggle
+bind = SUPER CTRL, K, exec, /path/to/houston nightlight toggle
+bind = SUPER CTRL, I, exec, /path/to/houston awake toggle
 ```
 
 - A second press of a toggle bind closes the view, and opening a view closes it on the
@@ -206,9 +242,12 @@ qml/services/              headless state, no visuals
   ConnectivityService (Wi-Fi and Bluetooth flows), BluetoothAgent (bluetoothctl),
   NotificationService (the notification server and unread count),
   ClipboardService (records what is copied),
+  IdleService (screens off, lock and sleep when idle, lock before sleep),
+  SwitchesIpc (night light, silence and stay-awake for keybinds),
   ThemeService (the rice's themes, the current theme and wallpaper)
 qml/airlock/               the lock screen: Airlock (the lock and the password check),
-                           AirlockScreen (what one monitor shows), AirlockIpc, pam/
+                           AirlockScreen (what one monitor shows), AirlockBackdrop (the blurred wallpaper),
+                           AirlockIpc, pam/
 qml/capsule/               the capsule
   CapsuleScreen (per monitor), CapsuleWindow, CapsuleController, Capsule (the shape that morphs),
   Dock, CapsuleIpc

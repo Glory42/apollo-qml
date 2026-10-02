@@ -1,6 +1,7 @@
 singleton Config core/Config.qml
 singleton Theme core/Theme.qml
 Airlock airlock/Airlock.qml
+AirlockBackdrop airlock/AirlockBackdrop.qml
 AirlockIpc airlock/AirlockIpc.qml
 AirlockScreen airlock/AirlockScreen.qml
 BluetoothAgent services/BluetoothAgent.qml
@@ -22,6 +23,7 @@ Dock capsule/Dock.qml
 Earthrise earthrise/Earthrise.qml
 EarthriseIpc earthrise/EarthriseIpc.qml
 Icon widgets/Icon.qml
+IdleService services/IdleService.qml
 Lander surface/Lander.qml
 LanderWindow surface/LanderWindow.qml
 Launchpad launchpad/Launchpad.qml
@@ -45,6 +47,7 @@ Splashdown splashdown/Splashdown.qml
 SplashdownIpc splashdown/SplashdownIpc.qml
 StatPair widgets/StatPair.qml
 SurfaceWindow surface/SurfaceWindow.qml
+SwitchesIpc services/SwitchesIpc.qml
 SystemService services/SystemService.qml
 ThemeService services/ThemeService.qml
 Tile widgets/Tile.qml

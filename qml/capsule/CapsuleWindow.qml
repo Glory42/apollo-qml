@@ -75,8 +75,12 @@ PanelWindow {
         target: win.services ? win.services.system : null
 
         function onChanged(kind, progress) {
+            const system = win.services.system;
             const icons = { volume: "volume", mute: "mute", brightness: "sun" };
-            ctl.osd(icons[kind] || win.services.system.batteryIcon, progress);
+            if (icons[kind])
+                ctl.osd(icons[kind], progress);
+            else
+                ctl.status(system.batteryIcon, (kind === "charging" ? "Charging" : "On battery") + " · " + system.batteryCapacity + "%");
         }
     }
 }

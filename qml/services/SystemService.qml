@@ -12,6 +12,7 @@ Item {
     height: 0
 
     signal changed(string kind, real progress)
+    signal low(int percent)
 
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property var battery: UPower.displayDevice
@@ -25,6 +26,9 @@ Item {
     property real currentBrightness: -1
 
     property string lastChargeState: ""
+    // A draining battery warns once at each of these levels; charging arms them again.
+    readonly property var lowLevels: [20, 10, 5]
+    property int warnedAt: 101
     property string backlightDevice: ""
     property int backlightMax: 0
 
@@ -100,6 +104,28 @@ Item {
             changed("brightness", value);
     }
 
+    // The warning level a battery at this percent has reached and not yet warned at, or -1.
+    function lowLevelFor(percent, warnedAt) {
+        const reached = lowLevels.filter((level) => percent <= level && level < warnedAt);
+        return reached.length > 0 ? Math.min(...reached) : -1;
+    }
+
+    function checkLow() {
+        if (!batteryReady)
+            return;
+        if (isCharging) {
+            warnedAt = 101;
+            return;
+        }
+        const level = lowLevelFor(batteryCapacity, warnedAt);
+        if (level < 0)
+            return;
+        warnedAt = level;
+        low(batteryCapacity);
+    }
+
+    onBatteryCapacityChanged: checkLow()
+
     onIsChargingChanged: {
         if (!batteryReady)
             return;
@@ -107,6 +133,7 @@ Item {
         if (lastChargeState !== "" && lastChargeState !== label)
             changed(label, -1);
         lastChargeState = label;
+        checkLow();
     }
 
     Component.onCompleted: syncVolume()
