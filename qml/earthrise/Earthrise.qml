@@ -11,15 +11,25 @@ Scope {
     readonly property bool isOpen: win.open
     readonly property var wallpapers: themes && themes.currentTheme ? themes.currentTheme.wallpapers : []
 
+    readonly property int start: Math.max(0, wallpapers.indexOf(themes ? themes.wallpaper : ""))
+
     signal opened()
 
     function open() {
         if (win.open)
             return;
         root.themes.refresh();
-        carousel.currentIndex = Math.max(0, root.wallpapers.indexOf(root.themes.wallpaper));
         win.show();
+        aim();
         root.opened();
+    }
+
+    // Puts the current wallpaper in the middle, and the keyboard on the carousel.
+    function aim() {
+        if (!loader.item)
+            return;
+        loader.item.currentIndex = root.start;
+        loader.item.forceActiveFocus();
     }
 
     function close() {
@@ -40,17 +50,23 @@ Scope {
         bare: true
         onlyScreen: root.onlyScreen
         onDismissed: root.close()
-        onOpenChanged: if (open) carousel.forceActiveFocus()
 
-        Carousel {
-            id: carousel
+        // The carousel and its pictures exist only while Earthrise is on screen.
+        Loader {
+            id: loader
 
-            emptyText: "Choose a theme in Visor first"
-            model: root.wallpapers.map((path) => ({ image: path, title: path.slice(path.lastIndexOf("/") + 1), colors: [], accent: "" }))
-            onDismissed: root.close()
-            onChosen: (index) => {
-                root.close();
-                root.themes.setWallpaper(root.wallpapers[index]);
+            active: win.shown
+            onLoaded: root.aim()
+
+            sourceComponent: Carousel {
+                emptyText: "Choose a theme in Visor first"
+                currentIndex: root.start
+                model: root.wallpapers.map((path) => ({ key: path, image: path, title: path.slice(path.lastIndexOf("/") + 1), colors: [], accent: "" }))
+                onDismissed: root.close()
+                onChosen: (index) => {
+                    root.close();
+                    root.themes.setWallpaper(root.wallpapers[index]);
+                }
             }
         }
     }

@@ -1,9 +1,10 @@
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Shapes
+import QtQuick.Window
+import Quickshell
 import ".."
 
-// Slanted picture cards, the current one large and its neighbours peeking out; entries are { image, title, colors, accent }.
+// Slanted picture cards, the current one large and its neighbours peeking out; entries are { key, image, title, colors, accent }.
 Item {
     id: root
 
@@ -46,7 +47,10 @@ Item {
     }
 
     Repeater {
-        model: root.model
+        model: ScriptModel {
+            values: root.model
+            objectProp: "key"
+        }
 
         Item {
             id: card
@@ -70,81 +74,69 @@ Item {
             Behavior on width { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
             Behavior on height { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
-            Item {
-                id: mask
-
+            // Only the cards on show and the next one each way hold a picture.
+            Loader {
                 anchors.fill: parent
-                visible: false
-                layer.enabled: true
+                active: Math.abs(card.offset) <= 5
 
-                Shape {
-                    anchors.fill: parent
-                    preferredRendererType: Shape.CurveRenderer
+                sourceComponent: Item {
+                    readonly property string file: card.modelData.image ? "file://" + card.modelData.image : ""
 
-                    ShapePath {
-                        fillColor: "white"
-                        strokeColor: "transparent"
-                        startX: root.skew
-                        startY: 0
+                    // Every card has a picture as tall as a slice; only the current one also has it at full size.
+                    Image {
+                        id: small
 
-                        PathLine { x: card.width; y: 0 }
-                        PathLine { x: card.width - root.skew; y: card.height }
-                        PathLine { x: 0; y: card.height }
-                        PathLine { x: root.skew; y: 0 }
+                        visible: false
+                        source: parent.file
+                        sourceSize.height: Math.round(root.sliceHeight * Screen.devicePixelRatio)
+                        asynchronous: true
                     }
-                }
-            }
 
-            Item {
-                anchors.fill: parent
-                layer.enabled: true
-                layer.smooth: true
-                layer.effect: MultiEffect {
-                    maskEnabled: true
-                    maskSource: mask
-                    maskThresholdMin: 0.3
-                    maskSpreadAtMin: 0.3
-                }
+                    Image {
+                        id: large
 
-                Rectangle {
-                    anchors.fill: parent
-                    color: Theme.fill
-                }
+                        visible: false
+                        source: card.selected ? parent.file : ""
+                        sourceSize.width: Math.round(root.bigWidth * Screen.devicePixelRatio)
+                        asynchronous: true
+                    }
 
-                Image {
-                    anchors.fill: parent
-                    source: card.modelData.image ? "file://" + card.modelData.image : ""
-                    sourceSize.width: 1320
-                    fillMode: Image.PreserveAspectCrop
-                    asynchronous: true
-                }
+                    ShaderEffect {
+                        readonly property Image picture: large.status === Image.Ready ? large : small
+                        property var source: picture
+                        property size size: Qt.size(width, height)
+                        property real skew: root.skew
+                        property real imageAspect: picture.implicitHeight > 0 ? picture.implicitWidth / picture.implicitHeight : 1
+                        property real ready: picture.status === Image.Ready ? 1 : 0
+                        property real dim: card.selected ? 0 : 0.45
+                        property color fill: Theme.fill
+                        property color shade: Theme.hull
 
-                Rectangle {
-                    anchors.fill: parent
-                    color: Theme.hull
-                    opacity: card.selected ? 0 : 0.45
+                        anchors.fill: parent
+                        fragmentShader: Qt.resolvedUrl("shaders/card.frag.qsb")
 
-                    Behavior on opacity { NumberAnimation { duration: 220 } }
-                }
-            }
+                        Behavior on dim { NumberAnimation { duration: 220 } }
+                    }
 
-            // The current card is outlined in its own accent, so a theme's card previews the theme.
-            Shape {
-                anchors.fill: parent
-                visible: card.selected
-                preferredRendererType: Shape.CurveRenderer
+                    // The current card is outlined in its own accent, so a theme's card previews the theme.
+                    Shape {
+                        anchors.fill: parent
+                        visible: card.selected
+                        preferredRendererType: Shape.CurveRenderer
 
-                ShapePath {
-                    fillColor: "transparent"
-                    strokeColor: card.modelData.accent || Theme.accent
-                    strokeWidth: 2
-                    startX: root.skew
-                    startY: 1
+                        ShapePath {
+                            fillColor: "transparent"
+                            strokeColor: card.modelData.accent || Theme.accent
+                            strokeWidth: 2
+                            startX: root.skew
+                            startY: 1
 
-                    PathLine { x: card.width - 1; y: 1 }
-                    PathLine { x: card.width - root.skew; y: card.height - 1 }
-                    PathLine { x: 1; y: card.height - 1 }
-                    PathLine { x: root.skew; y: 1 }
+                            PathLine { x: card.width - 1; y: 1 }
+                            PathLine { x: card.width - root.skew; y: card.height - 1 }
+                            PathLine { x: 1; y: card.height - 1 }
+                            PathLine { x: root.skew; y: 1 }
+                        }
+                    }
                 }
             }
 
