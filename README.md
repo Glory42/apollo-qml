@@ -22,20 +22,63 @@ It runs on every monitor. Events show on all of them, views open on the focused 
 For testing, `APOLLO_DEV=1` offsets the capsule down the screen and
 `APOLLO_SCREEN=<output>` pins it to one monitor.
 
+## What it needs installed
+
+Apollo calls a few programs. A piece whose program is missing just does nothing; the rest
+keep working. Arch package names:
+
+| Package | Used for |
+|---|---|
+| `quickshell`, `hyprland` | Everything. |
+| `pipewire`, `wireplumber` | Volume and the Sound view. |
+| `networkmanager` | Wi-Fi, Ethernet and DNS (`nmcli`). |
+| `iputils` | `ping` on the connection page. |
+| `bluez`, `bluez-utils` | Bluetooth, and pairing through `bluetoothctl`. |
+| `upower` | Battery. |
+| `brightnessctl` | Brightness. |
+| `hyprsunset` | Night light. |
+| `power-profiles-daemon` | Power profiles (`powerprofilesctl`). |
+| `wl-clipboard`, `wtype` | Logbook: recording copies, and pasting. |
+| `awww` | Setting wallpapers, from Visor and Earthrise (`wallpaperCommand`). |
+| `uwsm` | Optional; Log out uses `uwsm stop` when it is there. |
+| `libnotify` | `notify-send`, for scripts and binds that announce something, such as a screenshot. |
+| `qrencode` | The QR code when sharing a Wi-Fi network; without it only the password shows. |
+| `grim` | Saving screenshots (Hasselblad). |
+| `satty` | Editing a screenshot (`screenshotEditCommand`). |
+| `gpu-screen-recorder` | Screen recording. |
+| `ffmpeg` | Tidying a recording after it stops (`ffprobe` comes with it). |
+| `hyprpicker` | Picking a colour. |
+| `xdg-utils` | Opening a saved recording from its notification (`openFileCommand`). |
+
+Planned, not needed yet:
+
+| Package | Will be used for |
+|---|---|
+| `mullvad-vpn` | The VPN toggle, once there is one. |
+
 ## The capsule
 
 The dock has six tabs, in this order: quick settings, music, timer, weather,
 calendar, notifications. Quick settings holds volume, brightness, Wi-Fi, Bluetooth,
 night light, focus, the power profile and battery details (time left and
 power draw), and its Wi-Fi and Bluetooth tiles open
-detail views for joining networks and pairing devices.
+detail views for joining networks and pairing devices. The arrow at the end of the volume
+slider opens the Sound view: pick the output and input device, set their levels, and give
+each app that is playing its own volume (up to 150%) and mute.
+
+In the Wi-Fi view, "Details" on the connected network (or on the wired row, on a machine
+with an Ethernet port or adapter) opens the connection page: ping and packet loss to
+1.1.1.1, current traffic, totals, IP address and gateway, all measured only while the page is
+open. It also sets that network's DNS (Automatic, Cloudflare, Google, or your own servers),
+shares a Wi-Fi network as a QR code with its password behind a show button, and holds
+Disconnect and Forget. `houston capsule open connection` opens it for the connection in use.
 
 - It is the notification server (`org.freedesktop.Notifications`), so stop any other
   notification daemon first.
 - A notification marked transient (`notify-send -e`) only peeks: it is not listed in the
   notifications view or counted as unread. That suits "screenshot taken" and the like.
 - Apollo says a few things itself in a short peek: the charger going in or out, Wi-Fi and
-  Bluetooth connecting or dropping, and the night light, silence and stay-awake binds. A
+  Bluetooth connecting or dropping, the microphone being muted or unmuted (however it was done), and the night light, silence and stay-awake binds. A
   battery at 20%, 10% and 5% is a real notification that shows even while silenced.
 - The weather is fetched again within seconds if a request fails, so it shows soon after a
   login where the shell came up before the network. A restart shows the last weather at
@@ -51,6 +94,8 @@ detail views for joining networks and pairing devices.
   below it, plus your Hyprland `gaps_out`.
 - Clicking anywhere outside an open view closes it. The capsule never takes keyboard
   focus, except while a Wi-Fi password or Bluetooth passkey box is showing.
+- Clicking a notification's peek does what clicking the notification would: its main action
+  (open the chat, edit the screenshot), or the notifications view when it has none.
 - The resting capsule hides under fullscreen windows like a bar, but peeks (notifications,
   now playing, volume) and open views show above them.
 - A two-finger horizontal swipe on the touchpad over an open capsule moves between tabs.
@@ -150,6 +195,27 @@ lander.
 - Only one piece is open at a time: opening Splashdown closes an open capsule view and the
   other way round. Peeks still show.
 
+## Hasselblad
+
+Capturing the screen. A screenshot with `houston hasselblad screenshot` (bind it to `Print`)
+goes straight to the picker; everything else starts from Hasselblad's own menu, which rises
+from the bottom edge in a lander like Splashdown: Screenshot, Record, Colour.
+
+- The picker freezes the screen for a screenshot. The window under the pointer is outlined;
+  click it or press Enter to take it, drag to take a region, Ctrl+Enter takes the whole
+  monitor, Tab and the arrows move between windows, Escape or a right click cancels.
+- A screenshot is saved to `screenshotDir` as `screenshot-<date>_<time>.png`, copied, and
+  announced with a notification showing it. Clicking that notification, or
+  `houston hasselblad edit`, opens the newest screenshot in satty (`houston capsule invoke` does the same while the screenshot
+  is the newest notification).
+- Record asks what sound to take (none, desktop, or desktop and microphone), then uses the
+  same picker without the freeze. While it runs the resting capsule shows a red dot and the
+  time; clicking the capsule, or `houston hasselblad record` again, stops it.
+- A recording goes to `recordingDir` as `recording-<date>_<time>.mp4`. On stopping, ffmpeg
+  trims the first frame and evens out the sound, as Omarchy does, and a notification opens
+  the file.
+- Colour runs hyprpicker, copies the colour as `#rrggbb`, and peeks with the colour itself.
+
 ## Settings
 
 Edit the values in `qml/core/Config.qml`:
@@ -168,6 +234,9 @@ Edit the values in `qml/core/Config.qml`:
 | `themeApplyCommand` | Shell command run after the palette changes: `apply-theme` (also looked for in `~/.local/bin`), then `hyprctl reload`. |
 | `logoutCommand` | Shell command behind Splashdown's Log out: `uwsm stop` when uwsm is installed, otherwise Hyprland's exit. |
 | `wallpaperCommand` | Command that sets a wallpaper; the file is added as the last argument. |
+| `screenshotDir`, `recordingDir` | Where Hasselblad saves screenshots and recordings: `~/Pictures/Screenshots` and `~/Videos/Recordings`. |
+| `screenshotEditCommand` | Shell command that edits a screenshot, given as `$1`: satty, saving over the file. |
+| `openFileCommand` | Shell command that opens a saved recording, given as `$1`: `xdg-open`. |
 
 Sizes and motion live in `qml/core/Theme.qml`, along with the colours used when there is no
 palette.
@@ -182,18 +251,25 @@ houston capsule next|prev
 houston capsule close
 houston capsule notify <app> <summary> <body>
 houston capsule say <icon> <text>
+houston capsule invoke
 houston splashdown open|toggle|close
 houston launchpad open|toggle|close
 houston logbook open|toggle|close
 houston airlock lock
 houston visor open|toggle|close
 houston earthrise open|toggle|close
+houston hasselblad open|toggle|close
+houston hasselblad screenshot
+houston hasselblad record
+houston hasselblad edit
+houston hasselblad colour
 houston nightlight toggle
 houston silence toggle
 houston awake toggle
 ```
 
-`say` shows a short peek of an icon and a few words that is not kept anywhere, for a script to
+`invoke` runs the newest notification's main action, such as editing the screenshot just
+taken. `say` shows a short peek of an icon and a few words that is not kept anywhere, for a script to
 say what it just did; the icon is a name from `qml/widgets/IconPaths.js`, such as `bell`,
 `sun` or `lock`. `nightlight` is the night light, `silence` stops notifications from peeking (critical ones
 still do), and `awake` holds off the idle steps. Each shows a short peek saying what it
@@ -222,7 +298,16 @@ bind = SUPER ALT, SPACE, exec, /path/to/houston earthrise toggle
 bind = SUPER CTRL, D, exec, /path/to/houston silence toggle
 bind = SUPER CTRL, K, exec, /path/to/houston nightlight toggle
 bind = SUPER CTRL, I, exec, /path/to/houston awake toggle
+bind = , Print, exec, /path/to/houston hasselblad screenshot
+bind = ALT, Print, exec, /path/to/houston hasselblad record
+bind = SUPER, Print, exec, /path/to/houston hasselblad colour
+bind = SUPER ALT, comma, exec, /path/to/houston capsule invoke
 ```
+
+These are Omarchy's keys: `Print` takes a screenshot, `Alt + Print` asks what sound to record
+or stops a recording, `Super + Print` picks a colour, and `Super + Alt + ,` runs the newest
+notification's action, which right after a screenshot opens it in satty. The full menu (`houston hasselblad
+toggle`) is there for a bind if you want one.
 
 - A second press of a toggle bind closes the view, and opening a view closes it on the
   other monitors.
@@ -244,6 +329,9 @@ qml/services/              headless state, no visuals
   ClipboardService (records what is copied),
   IdleService (screens off, lock and sleep when idle, lock before sleep),
   SwitchesIpc (night light, silence and stay-awake for keybinds),
+  SoundService (devices, apps that are playing, the microphone's mute),
+  RecorderService (gpu-screen-recorder, and ffmpeg after it),
+  ConnectionService (one connection's traffic, ping, addresses, DNS and sharing; lives with its page),
   ThemeService (the rice's themes, the current theme and wallpaper)
 qml/airlock/               the lock screen: Airlock (the lock and the password check),
                            AirlockScreen (what one monitor shows), AirlockBackdrop (the blurred wallpaper),
@@ -256,6 +344,8 @@ qml/earthrise/             the wallpaper picker: Earthrise, EarthriseIpc
 qml/launchpad/             the application launcher: Launchpad, LaunchpadIpc
 qml/logbook/               clipboard history: Logbook, LogbookIpc, capture.sh (run on every copy)
 qml/splashdown/            the power menu: Splashdown, SplashdownIpc
+qml/hasselblad/            capturing the screen: Hasselblad (the menu and what each choice does),
+                           Picker (the frozen or live window and region picker), HasselbladIpc
 qml/surface/               where pieces appear: SurfaceWindow (screen, keyboard, a window no larger than the surface),
                            LanderWindow and Lander (bottom edge), OrbiterWindow (centre, with or without a hull),
                            DismissCatcher (the click outside the capsule or a surface)
@@ -279,6 +369,10 @@ Done:
   Bluetooth, battery details and a now-playing peek
 - [x] Airlock: lock screen
 - [x] Earthrise: wallpaper picker
+- [x] Idle: screens off, lock and suspend after inactivity, and lock before sleep
+- [x] Sound view: output and input devices, per-app volume
+- [x] Connection page: traffic, ping, addresses, DNS per network, Wi-Fi sharing; Ethernet
+- [x] Hasselblad: screenshots with Apollo's own picker, screen recording, colour picker
 - [x] Launchpad: application launcher
 - [x] Logbook: clipboard history
 - [x] Splashdown: power menu (lock, log out, suspend, restart, shut down)
@@ -286,15 +380,11 @@ Done:
 
 Ideas, not decided yet:
 
-- [ ] System tray for apps that use tray icons
-- [ ] Screenshot and screen recording controls
-- [ ] Per-app volume mixer and output device picker
 - [ ] Emoji picker
 - [ ] Polkit password prompt (authentication agent)
-- [ ] Idle handling (dim, lock and suspend after inactivity)
-- [ ] VPN, Ethernet and airplane mode toggles
+- [ ] VPN toggle, through Mullvad's app, once it is installed
 
-Not planned: workspace overview and lyrics. (I'm lazy, not sorry)
+Not planned: system tray, airplane mode, workspace overview and lyrics. (I'm lazy, not sorry)
 
 ## Known gaps
 

@@ -15,6 +15,8 @@ CapsuleWindow capsule/CapsuleWindow.qml
 Carousel widgets/Carousel.qml
 ClipboardService services/ClipboardService.qml
 ClockService services/ClockService.qml
+ConnectionService services/ConnectionService.qml
+ConnectionView capsule/views/ConnectionView.qml
 ConnectivityService services/ConnectivityService.qml
 DetailHeader widgets/DetailHeader.qml
 Disc widgets/Disc.qml
@@ -22,6 +24,8 @@ DismissCatcher surface/DismissCatcher.qml
 Dock capsule/Dock.qml
 Earthrise earthrise/Earthrise.qml
 EarthriseIpc earthrise/EarthriseIpc.qml
+Hasselblad hasselblad/Hasselblad.qml
+HasselbladIpc hasselblad/HasselbladIpc.qml
 Icon widgets/Icon.qml
 IdleService services/IdleService.qml
 Lander surface/Lander.qml
@@ -38,11 +42,15 @@ NotificationService services/NotificationService.qml
 NotificationsView capsule/views/NotificationsView.qml
 OrbiterWindow surface/OrbiterWindow.qml
 PeekView capsule/views/PeekView.qml
+Picker hasselblad/Picker.qml
 QuickSettingsService services/QuickSettingsService.qml
 QuickView capsule/views/QuickView.qml
 QuietSlider widgets/QuietSlider.qml
+RecorderService services/RecorderService.qml
 RestView capsule/views/RestView.qml
 RoundButton widgets/RoundButton.qml
+SoundService services/SoundService.qml
+SoundView capsule/views/SoundView.qml
 Splashdown splashdown/Splashdown.qml
 SplashdownIpc splashdown/SplashdownIpc.qml
 StatPair widgets/StatPair.qml

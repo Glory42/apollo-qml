@@ -18,6 +18,7 @@ QtObject {
         function notify(app: string, summary: string, body: string) {
             wrapper.shellRoot.services.center.post(app, summary, body);
         }
+        function invoke() { wrapper.shellRoot.services.center.invokeLast(); }
         // A short peek of an icon and a few words that is not kept anywhere, for a script to say what it just did.
         function say(icon: string, text: string) { wrapper.shellRoot.announce(icon, text); }
     }

@@ -15,7 +15,7 @@ Item {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: if (root.ctl) root.ctl.open(root.ctl.peekKind === "media" ? "music" : (root.isNotify ? "notifications" : "quick"))
+        onClicked: if (root.ctl) root.ctl.activatePeek()
     }
 
     Row {
@@ -80,8 +80,20 @@ Item {
         spacing: 12
 
         Icon {
+            visible: !root.ctl || root.ctl.peekColor === ""
             anchors.verticalCenter: parent.verticalCenter
             name: root.ctl ? root.ctl.peekIcon : ""
+        }
+
+        Rectangle {
+            visible: !!root.ctl && root.ctl.peekColor !== ""
+            anchors.verticalCenter: parent.verticalCenter
+            width: 18
+            height: 18
+            radius: 9
+            color: root.ctl && root.ctl.peekColor !== "" ? root.ctl.peekColor : "transparent"
+            border.width: 1
+            border.color: Theme.line
         }
 
         Text {

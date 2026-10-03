@@ -8,7 +8,8 @@ Item {
 
     property var ctl: null
 
-    readonly property bool timerActive: ctl && ctl.countdown.active
+    readonly property bool recording: !!ctl && !!ctl.recorder && ctl.recorder.recording
+    readonly property bool timerActive: !recording && ctl && ctl.countdown.active
 
     implicitWidth: Math.max(Theme.restWidth, content.width + 32)
     implicitHeight: Theme.restHeight
@@ -20,6 +21,11 @@ Item {
         onClicked: (mouse) => {
             if (!root.ctl)
                 return;
+            // While recording, the capsule is the stop button.
+            if (root.recording && mouse.button === Qt.LeftButton) {
+                root.ctl.recorder.stop();
+                return;
+            }
             root.ctl.open(mouse.button === Qt.RightButton ? "quick" : root.ctl.lastOpened);
         }
     }
@@ -29,6 +35,28 @@ Item {
 
         anchors.centerIn: parent
         spacing: 12
+
+        Row {
+            visible: root.recording
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 6
+
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width: 8
+                height: 8
+                radius: 4
+                color: Theme.danger
+            }
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                text: root.ctl && root.ctl.recorder ? root.ctl.recorder.elapsedText : ""
+                color: Theme.fg
+                font.family: Theme.fontFamily
+                font.pixelSize: 12
+            }
+        }
 
         Row {
             visible: root.timerActive
@@ -52,7 +80,7 @@ Item {
         }
 
         Row {
-            visible: !root.timerActive
+            visible: !root.timerActive && !root.recording
             anchors.verticalCenter: parent.verticalCenter
             spacing: 4
 

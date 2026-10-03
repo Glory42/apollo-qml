@@ -16,7 +16,7 @@ ViewFrame {
 
         Tile {
             width: (parent.width - 8) / 2
-            icon: "wifi"
+            icon: root.net ? root.net.wifiIcon : "wifi"
             title: "Wi-Fi"
             detail: true
             subtitle: root.net ? root.net.wifiName : ""
@@ -59,7 +59,9 @@ ViewFrame {
         width: parent.width
         icon: root.system && root.system.isMuted ? "mute" : "volume"
         value: root.system && root.system.currentVolume >= 0 ? root.system.currentVolume : 0
+        detail: true
         onMoved: (v) => root.system.setVolume(v)
+        onDetailRequested: root.ctl.open("sound")
     }
 
     QuietSlider {

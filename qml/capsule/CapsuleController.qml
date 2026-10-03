@@ -18,8 +18,14 @@ Item {
     property var quick: null
     property var net: null
     property var countdown: null
+    property var sound: null
+    property var recorder: null
 
     property string view: "rest"
+    // The network device the connection page is about.
+    property var detailDevice: null
+    // Set by a view while it shows a text field, so the capsule takes the keyboard.
+    property bool typing: false
     property string lastOpened: "music"
 
     property string peekKind: ""
@@ -30,6 +36,10 @@ Item {
     property string peekImage: ""
     property string peekIcon: ""
     property real peekProgress: -1
+    // The notification behind a notify peek, while it still exists; a transient one is gone at once.
+    property var peekSource: null
+    // A colour shown in place of the icon in a status peek, such as one just picked.
+    property string peekColor: ""
 
     readonly property var dock: [
         { id: "quick", label: "Quick settings", icon: "sliders" },
@@ -39,11 +49,12 @@ Item {
         { id: "calendar", label: "Calendar", icon: "cal" },
         { id: "notifications", label: "Notifications", icon: "bell" }
     ]
-    readonly property var openViews: ["music", "quick", "timer", "weather", "calendar", "notifications", "wifi", "bt"]
+    readonly property var openViews: ["music", "quick", "timer", "weather", "calendar", "notifications", "wifi", "bt", "sound", "connection"]
     readonly property bool isOpen: openViews.indexOf(view) >= 0
-    readonly property string dockCurrent: view === "wifi" || view === "bt" ? "quick" : view
+    // The detail views belong to the quick settings tab.
+    readonly property string dockCurrent: ["wifi", "bt", "sound", "connection"].indexOf(view) >= 0 ? "quick" : view
     readonly property int unread: center && view !== "notifications" ? center.unread : 0
-    readonly property bool wantsKeyboard: !!net && ((view === "wifi" && net.pendingSsid !== "")
+    readonly property bool wantsKeyboard: typing || !!net && ((view === "wifi" && net.pendingSsid !== "")
         || (view === "bt" && (net.agent.promptKind === "passkey" || net.agent.promptKind === "pin")))
 
     readonly property var monitor: screen ? Hyprland.monitorFor(screen) : null
@@ -70,7 +81,16 @@ Item {
             lastOpened = target;
         if (target === "notifications" && center)
             center.unread = 0;
+        typing = false;
+        // Opened by name rather than from a row, the connection page shows whichever connection is in use.
+        if (target === "connection" && !detailDevice && net)
+            detailDevice = net.wiredDevice && net.wiredDevice.connected ? net.wiredDevice : net.wifiDevice;
         view = target;
+    }
+
+    function openConnection(device) {
+        detailDevice = device;
+        open("connection");
     }
 
     function step(delta) {
@@ -85,6 +105,7 @@ Item {
     function close() {
         peekTimer.stop();
         peekKind = "";
+        typing = false;
         view = "rest";
     }
 
@@ -102,7 +123,7 @@ Item {
         peekTimer.restart();
     }
 
-    function notify(app, summary, body, icon, image, critical, timeout) {
+    function notify(app, summary, body, icon, image, critical, timeout, source) {
         if (view === "notifications" && center)
             center.unread = 0;
         if (isOpen || (center && center.focusMode && !critical))
@@ -113,7 +134,26 @@ Item {
         peekBody = body !== title ? body : "";
         peekAppIcon = icon;
         peekImage = image;
+        peekSource = source || null;
         startPeek("notify", timeout > 0 ? Math.max(3000, Math.min(timeout, 10000)) : 5000);
+    }
+
+    // Clicking a notification's peek does what clicking the notification would: its main action, else the list.
+    function activatePeek() {
+        const source = peekSource;
+        const actions = source && source.actions ? source.actions : [];
+        let action = null;
+        for (let i = 0; i < actions.length; i++) {
+            if (actions[i].identifier === "default")
+                action = actions[i];
+        }
+        if (peekKind === "notify" && action) {
+            action.invoke();
+            source.dismiss();
+            close();
+        } else {
+            open(peekKind === "media" ? "music" : (peekKind === "osd" ? "quick" : "notifications"));
+        }
     }
 
     function media(title, artist, artUrl) {
@@ -136,13 +176,15 @@ Item {
         peekIcon = icon;
         peekProgress = progress;
         peekSummary = "";
+        peekColor = "";
         startPeek("osd", 1600);
     }
 
     // The same small peek with a few words in place of a level, for a switch flipped from a keybind.
-    function status(icon, text) {
+    function status(icon, text, color) {
         if (isOpen || (view === "peek" && peekKind === "notify"))
             return;
+        peekColor = color || "";
         peekIcon = icon;
         peekProgress = -1;
         peekSummary = text;

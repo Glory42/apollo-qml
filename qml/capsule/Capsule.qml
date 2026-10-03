@@ -20,7 +20,9 @@ Item {
         "calendar": "views/CalendarView.qml",
         "notifications": "views/NotificationsView.qml",
         "wifi": "views/WifiView.qml",
-        "bt": "views/BluetoothView.qml"
+        "bt": "views/BluetoothView.qml",
+        "sound": "views/SoundView.qml",
+        "connection": "views/ConnectionView.qml"
     })
 
     width: loader.item ? loader.item.implicitWidth : Theme.restWidth

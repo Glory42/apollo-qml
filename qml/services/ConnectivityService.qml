@@ -34,7 +34,29 @@ Item {
             if (devs[i].type === DeviceType.Wifi) return devs[i];
         return null;
     }
+    // The first wired port NetworkManager looks after, built in or on an adapter; null on a machine without one.
+    readonly property var wiredDevice: {
+        const devs = Networking.devices.values;
+        for (let i = 0; i < devs.length; i++)
+            if (devs[i].type === DeviceType.Wired && devs[i].nmManaged) return devs[i];
+        return null;
+    }
+    readonly property string wiredName: {
+        if (!wiredDevice) return "";
+        if (!wiredDevice.hasLink) return "Cable unplugged";
+        if (!wiredDevice.connected) return "Not connected";
+        return wiredDevice.linkSpeed > 0 ? "Connected · " + speedText(wiredDevice.linkSpeed) : "Connected";
+    }
     readonly property bool wifiEnabled: Networking.wifiEnabled
+    readonly property var wifiNetwork: {
+        if (!wifiDevice || !wifiEnabled) return null;
+        const nets = wifiDevice.networks.values;
+        for (let i = 0; i < nets.length; i++)
+            if (nets[i].connected) return nets[i];
+        return null;
+    }
+    // The icon for the Wi-Fi tile: bars while connected, the plain symbol otherwise.
+    readonly property string wifiIcon: wifiNetwork ? signalIcon(wifiNetwork.signalStrength) : "wifi"
     readonly property string wifiName: {
         if (!wifiDevice) return "No adapter";
         if (!wifiEnabled) return "Off";
@@ -87,6 +109,21 @@ Item {
                 rows.push({ key: key + " " + device.dbusPath, kind: "device", device: device, section: key });
         }
         return rows;
+    }
+
+    // Bars for a signal strength from 0 to 1.
+    function signalIcon(strength) {
+        const value = Number(strength) || 0;
+        return "wifi_" + (value >= 0.8 ? 4 : value >= 0.6 ? 3 : value >= 0.4 ? 2 : value >= 0.2 ? 1 : 0);
+    }
+
+    function speedText(megabits) {
+        return megabits >= 1000 ? (megabits / 1000) + " Gb/s" : megabits + " Mb/s";
+    }
+
+    function connectWired() {
+        if (wiredDevice && wiredDevice.network)
+            wiredDevice.network.connect();
     }
 
     function isSecure(network) {
