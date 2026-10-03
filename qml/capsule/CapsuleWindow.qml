@@ -43,6 +43,8 @@ PanelWindow {
         quick: win.services ? win.services.quick : null
         net: win.services ? win.services.net : null
         countdown: win.services ? win.services.countdown : null
+        sound: win.services ? win.services.sound : null
+        recorder: win.services ? win.services.recorder : null
     }
 
     Capsule {
@@ -57,8 +59,8 @@ PanelWindow {
     Connections {
         target: win.services ? win.services.center : null
 
-        function onReceived(app, summary, body, icon, image, critical, timeout) {
-            ctl.notify(app, summary, body, icon, image, critical, timeout);
+        function onReceived(app, summary, body, icon, image, critical, timeout, source) {
+            ctl.notify(app, summary, body, icon, image, critical, timeout, source);
         }
     }
 

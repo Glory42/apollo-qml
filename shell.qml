@@ -64,6 +64,13 @@ Scope {
         running: true
     }
 
+    SoundService {
+        id: sound
+
+        watching: shellRoot.anyView("sound")
+        onMicMuted: (muted) => shellRoot.announce(muted ? "mic_off" : "mic", muted ? "Microphone muted" : "Microphone on")
+    }
+
     TimerService {
         id: countdown
 
@@ -72,7 +79,7 @@ Scope {
 
     readonly property var services: ({
         clock: clock, mpris: mpris, system: system, weather: weather,
-        center: center, quick: quick, net: net, countdown: countdown
+        center: center, quick: quick, net: net, countdown: countdown, sound: sound, recorder: recorder
     })
 
     function controllers() {
@@ -126,9 +133,9 @@ Scope {
     }
 
     // A few words on every monitor's capsule, for something that changed without a view being open.
-    function announce(icon, text) {
+    function announce(icon, text, color) {
         for (const ctl of controllers())
-            ctl.status(icon, text);
+            ctl.status(icon, text, color);
     }
 
     // `state` is a network or device name while connected, otherwise "Off", "On", "Not connected" or "No adapter".
@@ -165,6 +172,8 @@ Scope {
             earthrise.close();
         if (piece !== visor)
             visor.close();
+        if (piece !== hasselblad)
+            hasselblad.close();
         if (!piece)
             return;
         for (const ctl of controllers()) {
@@ -242,6 +251,27 @@ Scope {
 
     VisorIpc {
         visor: visor
+    }
+
+    RecorderService {
+        id: recorder
+
+        onSaved: (file) => hasselblad.recordingSaved(file)
+        onFailed: (message) => center.post("Hasselblad", "Recording failed", message)
+    }
+
+    Hasselblad {
+        id: hasselblad
+
+        recorder: recorder
+        onlyScreen: shellRoot.onlyScreen
+        onOpened: shellRoot.only(hasselblad)
+        onAnnounce: (icon, text, color) => shellRoot.announce(icon, text, color)
+        onFailed: (message) => center.post("Hasselblad", message, "")
+    }
+
+    HasselbladIpc {
+        hasselblad: hasselblad
     }
 
     IdleService {

@@ -10,6 +10,9 @@ Item {
     property string subtitle: ""
     property bool checked: false
     property string extra: ""
+    // The view the back arrow returns to.
+    property string backTo: "quick"
+    property bool switchVisible: true
 
     signal toggled()
     signal extraClicked()
@@ -38,7 +41,7 @@ Item {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: root.ctl.open("quick")
+            onClicked: root.ctl.open(root.backTo)
         }
     }
 
@@ -84,6 +87,7 @@ Item {
         }
 
         Rectangle {
+            visible: root.switchVisible
             width: 44
             height: 26
             radius: 13

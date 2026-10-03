@@ -23,6 +23,12 @@ QtObject {
     readonly property var screenOffCommand: ["hyprctl", "dispatch", 'hl.dsp.dpms({ action = "disable" })']
     readonly property var screenOnCommand: ["hyprctl", "dispatch", 'hl.dsp.dpms({ action = "enable" })']
 
+    // Hasselblad: where captures go, and the commands run on them through sh with the file as $1.
+    readonly property string screenshotDir: Quickshell.env("HOME") + "/Pictures/Screenshots"
+    readonly property string recordingDir: Quickshell.env("HOME") + "/Videos/Recordings"
+    readonly property string screenshotEditCommand: 'satty --filename "$1" --output-filename "$1"'
+    readonly property string openFileCommand: 'xdg-open "$1"'
+
     // Run through sh by Splashdown's Log out. uwsm has to end the session itself when it started it.
     readonly property string logoutCommand: "command -v uwsm >/dev/null 2>&1 && uwsm stop || hyprctl dispatch 'hl.dsp.exit()' || hyprctl dispatch exit"
 

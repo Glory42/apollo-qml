@@ -17,6 +17,18 @@ ViewFrame {
         onToggled: root.net.toggleWifi()
     }
 
+    // The wired port, on a machine that has one; once connected it leads to the connection page like a network does.
+    ListRow {
+        visible: !!root.net && !!root.net.wiredDevice && !root.prompting
+        width: parent.width
+        icon: "lan"
+        title: "Wired"
+        subtitle: root.net ? root.net.wiredName : ""
+        highlighted: !!root.net && !!root.net.wiredDevice && root.net.wiredDevice.connected
+        action: highlighted ? "Details" : (root.net && root.net.wiredDevice && root.net.wiredDevice.hasLink ? "Connect" : "")
+        onActivated: highlighted ? root.ctl.openConnection(root.net.wiredDevice) : root.net.connectWired()
+    }
+
     ListView {
         width: parent.width
         height: Math.min(contentHeight, 260)
@@ -32,15 +44,15 @@ ViewFrame {
             required property var modelData
 
             width: ListView.view.width
-            icon: "wifi"
-            iconOpacity: 0.35 + 0.65 * (modelData.signalStrength || 0)
+            icon: root.net.signalIcon(modelData.signalStrength)
             title: modelData.name
-            subtitle: root.net.wifiConnecting(modelData) ? "Connecting" : (modelData.connected ? "Connected" : (modelData.known ? "Saved" : (root.net.isSecure(modelData) ? "Secured" : "Open")))
+            subtitle: (root.net.wifiConnecting(modelData) ? "Connecting" : (modelData.connected ? "Connected" : (modelData.known ? "Saved" : (root.net.isSecure(modelData) ? "Secured" : "Open"))))
+                + " · " + Math.round((modelData.signalStrength || 0) * 100) + "%"
             highlighted: modelData.connected
             busy: root.net.wifiConnecting(modelData)
-            action: modelData.connected ? "Disconnect" : ""
+            action: modelData.connected ? "Details" : ""
             secondary: modelData.known && !modelData.connected ? "Forget" : ""
-            onActivated: modelData.connected ? root.net.disconnectWifi(modelData) : root.net.connectWifi(modelData)
+            onActivated: modelData.connected ? root.ctl.openConnection(root.net.wifiDevice) : root.net.connectWifi(modelData)
             onSecondaryActivated: root.net.forgetWifi(modelData)
         }
     }
