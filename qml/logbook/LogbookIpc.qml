@@ -1,7 +1,9 @@
 import QtQuick
 import Quickshell.Io
+import ".."
 
 // `houston logbook <function>`; it opens on the focused monitor.
+// For a keybind, also `apollo:logbook-toggle`.
 QtObject {
     id: wrapper
 
@@ -13,5 +15,10 @@ QtObject {
         function toggle() { wrapper.logbook.toggle(); }
         function open() { wrapper.logbook.open(); }
         function close() { wrapper.logbook.close(); }
+    }
+
+    property Keybind toggle: Keybind {
+        name: "logbook-toggle"
+        onPressed: wrapper.logbook.toggle()
     }
 }

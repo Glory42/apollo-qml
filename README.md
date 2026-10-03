@@ -315,6 +315,36 @@ toggle`) is there for a bind if you want one.
   they open the last view you used.
 - Each piece of Apollo is its own IPC target, so later pieces will be called the same way.
 
+### Global shortcuts
+
+Every `houston` call starts a Quickshell process, which takes about 60 ms before Apollo
+hears of it. For keybinds Apollo also registers Hyprland global shortcuts under the app id
+`apollo`, which reach it with no process at all. Bind them with Hyprland's `global`
+dispatcher instead of `exec`:
+
+```
+bind = SUPER CTRL, W, global, apollo:capsule-toggle-wifi
+```
+
+or, in a Lua config:
+
+```lua
+hl.bind("SUPER + CTRL + W", hl.dsp.global("apollo:capsule-toggle-wifi"))
+```
+
+| Shortcut | Same as |
+|---|---|
+| `capsule-toggle-<view>` | `houston capsule toggle <view>`, for `quick`, `music`, `timer`, `weather`, `calendar`, `notifications`, `wifi`, `bt`, `sound` and `connection` |
+| `capsule-next`, `capsule-prev`, `capsule-close`, `capsule-invoke` | `houston capsule next`, `prev`, `close`, `invoke` |
+| `launchpad-toggle`, `splashdown-toggle`, `logbook-toggle`, `visor-toggle`, `earthrise-toggle` | `houston <piece> toggle` |
+| `airlock-lock` | `houston airlock lock` |
+| `hasselblad-toggle`, `hasselblad-screenshot`, `hasselblad-record`, `hasselblad-edit`, `hasselblad-colour` | `houston hasselblad <function>` |
+| `nightlight-toggle`, `silence-toggle`, `awake-toggle` | `houston <switch> toggle` |
+
+`houston` stays for scripts and anything that needs arguments, such as `notify` and `say`.
+The binds in the rice's own Hyprland config are changed over by hand; until then they keep
+working through `houston`.
+
 ## Layout
 
 ```
