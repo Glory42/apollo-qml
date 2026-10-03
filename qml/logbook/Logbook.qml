@@ -11,15 +11,23 @@ Scope {
     readonly property bool isOpen: win.open
 
     readonly property int rowHeight: 40
+    readonly property int maxRows: 100
     // Empty while Logbook is away, so no row or picture is held for a window nobody sees.
+    // A search makes no lowercased copy of the history and stops at the last row it can show; the history can hold megabytes.
     readonly property var rows: {
         if (!win.shown)
             return [];
         const all = root.clipboard ? root.clipboard.history : [];
-        const query = field.text.trim().toLowerCase();
+        const query = field.text.trim();
         if (query === "")
-            return all.slice(0, 100);
-        return all.filter((entry) => root.label(entry).toLowerCase().includes(query)).slice(0, 100);
+            return all.slice(0, root.maxRows);
+        const pattern = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+        const found = [];
+        for (let i = 0; i < all.length && found.length < root.maxRows; i++) {
+            if (pattern.test(root.label(all[i])))
+                found.push(all[i]);
+        }
+        return found;
     }
     readonly property var current: rows[list.currentIndex] || null
 

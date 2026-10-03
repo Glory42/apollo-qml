@@ -2,13 +2,20 @@
 # Usage: houston <target> <function> [args], e.g. houston capsule toggle wifi (works from any directory)
 #
 # Quickshell matches an instance by its exact launch path, so try the path as invoked, the resolved one, then the default.
+# Each try is the call itself, and only "No running instances" moves on to the next, so the usual case starts one process.
 logical=$(cd "$(dirname "$0")" && pwd)
 resolved=$(dirname "$(readlink -f "$0")")
 
 for dir in "$logical" "$resolved"; do
-    if quickshell list -j -p "$dir/shell.qml" 2>/dev/null | grep -q '"id"'; then
-        exec quickshell -p "$dir/shell.qml" ipc call "$@"
-    fi
+    [ -f "$dir/shell.qml" ] || continue
+    # Stdout goes straight through; stderr is kept to tell a missing instance from a failed call.
+    errors=$({ quickshell -p "$dir/shell.qml" ipc call "$@" 2>&1 1>&3 3>&-; } 3>&1)
+    status=$?
+    case $errors in
+        "No running instances"*) continue ;;
+    esac
+    [ -n "$errors" ] && printf '%s\n' "$errors" >&2
+    exit "$status"
 done
 
 exec quickshell ipc call "$@"

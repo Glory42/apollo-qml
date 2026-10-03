@@ -35,7 +35,20 @@ Item {
     property var pendingPlayer: null
     property bool tracking: false
 
+    // What a player is playing, noted without being announced.
+    function remember(player) {
+        if (!player || !player.dbusName)
+            return;
+        playerStates[player.dbusName] = player.playbackState === MprisPlaybackState.Playing;
+        announcedKeys[player.dbusName] = (player.trackTitle || player.title || "") + "|" + String(player.trackArtist || "");
+    }
+
+    // What plays as the shell starts is not news, including a player that only turns up a moment later.
     function playerChanged(player) {
+        if (!tracking) {
+            remember(player);
+            return;
+        }
         pendingPlayer = player;
         announceTimer.restart();
     }
@@ -62,11 +75,8 @@ Item {
     }
 
     Component.onCompleted: {
-        for (const player of (playersList || [])) {
-            playerStates[player.dbusName] = player.playbackState === MprisPlaybackState.Playing;
-            announcedKeys[player.dbusName] = (player.trackTitle || "") + "|" + String(player.trackArtist || "");
-        }
-        Qt.callLater(() => root.tracking = true);
+        for (const player of (playersList || []))
+            remember(player);
     }
 
     Timer {
@@ -74,6 +84,12 @@ Item {
 
         interval: 700
         onTriggered: root.announce()
+    }
+
+    Timer {
+        interval: 3000
+        running: true
+        onTriggered: root.tracking = true
     }
 
     Instantiator {
@@ -90,10 +106,7 @@ Item {
             function onTrackArtistChanged() { root.playerChanged(modelData); }
         }
 
-        onObjectAdded: (index, object) => {
-            if (root.tracking)
-                root.playerChanged(object.modelData);
-        }
+        onObjectAdded: (index, object) => root.playerChanged(object.modelData)
     }
 
     onActivePlayerChanged: {

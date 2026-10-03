@@ -1,5 +1,6 @@
 singleton Config core/Config.qml
 singleton Theme core/Theme.qml
+Keybind core/Keybind.qml
 Airlock airlock/Airlock.qml
 AirlockBackdrop airlock/AirlockBackdrop.qml
 AirlockIpc airlock/AirlockIpc.qml

@@ -11,6 +11,8 @@ Item {
     property bool spinning: false
 
     readonly property bool ready: pic.status === Image.Ready
+    readonly property int turnSeconds: 9
+    readonly property int stepsPerSecond: 12
 
     width: size
     height: size
@@ -30,6 +32,8 @@ Item {
     }
 
     Item {
+        id: spinner
+
         anchors.fill: parent
         visible: root.ready
 
@@ -64,14 +68,13 @@ Item {
             maskSpreadAtMin: 1
         }
 
-        // Pausing keeps the angle, so the record carries on from where it stopped.
-        RotationAnimator on rotation {
-            from: 0
-            to: 360
-            duration: 9000
-            loops: Animation.Infinite
-            running: root.ready
-            paused: running && !root.spinning
+        // Turned in small steps a dozen times a second rather than every frame, which keeps the capsule
+        // from being redrawn nonstop while music plays. Stopping keeps the angle, so it carries on from there.
+        Timer {
+            interval: 1000 / root.stepsPerSecond
+            running: root.ready && root.spinning
+            repeat: true
+            onTriggered: spinner.rotation = (spinner.rotation + 360 / (root.turnSeconds * root.stepsPerSecond)) % 360
         }
     }
 
