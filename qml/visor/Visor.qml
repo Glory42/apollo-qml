@@ -63,7 +63,8 @@ Scope {
                 currentIndex: root.start
                 model: root.list.map((entry) => ({
                     key: entry.id,
-                    image: entry.wallpapers[0] || "",
+                    image: entry.wallpapers[0] ? root.themes.preview(entry.wallpapers[0]) : "",
+                    fill: Theme.toneOf(entry.palette, "bg", ""),
                     title: entry.name,
                     colors: root.swatches.map((key) => Theme.toneOf(entry.palette, key, "")).filter((value) => value !== ""),
                     accent: Theme.toneOf(entry.palette, "accent", "")

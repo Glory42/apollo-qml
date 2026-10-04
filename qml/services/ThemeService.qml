@@ -14,11 +14,39 @@ Item {
     property string current: ""
     property string wallpaper: ""
     property string listing: ""
+    // { original path: preview path }, for the wallpapers whose preview has been made.
+    property var previews: ({})
 
     readonly property var currentTheme: themes.find((entry) => entry.id === current) || null
 
     function refresh() {
         lister.running = true;
+    }
+
+    // A small picture to show in place of a wallpaper; the original until its preview exists.
+    function preview(path) {
+        return root.previews[path] || path;
+    }
+
+    // Makes the missing previews in the background; a wallpaper that changed gets a new one.
+    function makePreviews() {
+        if (previewer.running) {
+            previewer.again = true;
+            return;
+        }
+        const paths = [];
+        for (const entry of root.themes)
+            paths.push(...entry.wallpapers);
+        if (paths.length === 0)
+            return;
+        previewer.found = {};
+        previewer.command = ["sh", "-c", previewer.script, "sh", Quickshell.cachePath("previews")].concat(paths);
+        previewer.running = true;
+    }
+
+    function publishPreviews() {
+        if (JSON.stringify(previewer.found) !== JSON.stringify(root.previews))
+            root.previews = Object.assign({}, previewer.found);
     }
 
     function parse(text) {
@@ -87,12 +115,54 @@ Item {
         stdout: StdioCollector {
             // An unchanged listing leaves the themes alone, so nothing showing them is rebuilt.
             onStreamFinished: {
-                if (text === root.listing)
-                    return;
-                root.listing = text;
-                root.parse(text);
+                if (text !== root.listing) {
+                    root.listing = text;
+                    root.parse(text);
+                }
+                root.makePreviews();
             }
         }
+    }
+
+    // Prints "original<TAB>preview" for each wallpaper, the ones already made first.
+    Process {
+        id: previewer
+
+        property var found: ({})
+        property bool again: false
+        readonly property string script: 'dir="$1"; shift; mkdir -p "$dir" || exit 0; missing=""; '
+            + 'name() { printf "%s/%s-%s.jpg" "$dir" "$(printf "%s" "$1" | sha1sum | cut -c1-16)" "$(stat -c "%Y-%s" "$1")"; }; '
+            + 'for f; do [ -f "$f" ] || continue; out=$(name "$f"); if [ -f "$out" ]; then printf "%s\\t%s\\n" "$f" "$out"; else missing=1; fi; done; '
+            + '[ -n "$missing" ] || exit 0; '
+            + 'for f; do [ -f "$f" ] || continue; out=$(name "$f"); [ -f "$out" ] && continue; tmp="$dir/.tmp-$$.jpg"; '
+            + 'nice -n 19 vipsthumbnail "$f" --size 1320x1320 -o "$tmp[Q=85]" 2>/dev/null || nice -n 19 magick "$f" -thumbnail 1320x -quality 85 "$tmp" 2>/dev/null; '
+            + '[ -s "$tmp" ] && mv "$tmp" "$out" && printf "%s\\t%s\\n" "$f" "$out"; rm -f "$tmp"; done'
+
+        stdout: SplitParser {
+            onRead: (line) => {
+                const tab = line.indexOf("\t");
+                if (tab <= 0)
+                    return;
+                previewer.found[line.slice(0, tab)] = line.slice(tab + 1);
+                publish.restart();
+            }
+        }
+        onExited: {
+            publish.stop();
+            root.publishPreviews();
+            if (again) {
+                again = false;
+                root.makePreviews();
+            }
+        }
+    }
+
+    // Previews that are already made arrive together, so they are shown in one go.
+    Timer {
+        id: publish
+
+        interval: 100
+        onTriggered: root.publishPreviews()
     }
 
     FileView {
