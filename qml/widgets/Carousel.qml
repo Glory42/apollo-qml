@@ -4,7 +4,7 @@ import QtQuick.Window
 import Quickshell
 import ".."
 
-// Slanted picture cards, the current one large and its neighbours peeking out; entries are { key, image, title, colors, accent }.
+// Slanted picture cards, the current one large and its neighbours peeking out; entries are { key, image, fill, title, colors, accent }.
 Item {
     id: root
 
@@ -109,13 +109,15 @@ Item {
                         property real imageAspect: picture.implicitHeight > 0 ? picture.implicitWidth / picture.implicitHeight : 1
                         property real ready: picture.status === Image.Ready ? 1 : 0
                         property real dim: card.selected ? 0 : 0.45
-                        property color fill: Theme.fill
+                        // Until the picture is ready the card shows its theme's background, then fades the picture in.
+                        property color fill: card.modelData.fill || Theme.fill
                         property color shade: Theme.hull
 
                         anchors.fill: parent
                         fragmentShader: Qt.resolvedUrl("shaders/card.frag.qsb")
 
                         Behavior on dim { NumberAnimation { duration: 220 } }
+                        Behavior on ready { NumberAnimation { duration: 120 } }
                     }
 
                     // The current card is outlined in its own accent, so a theme's card previews the theme.

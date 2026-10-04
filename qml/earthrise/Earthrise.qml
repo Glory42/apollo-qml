@@ -11,6 +11,7 @@ Scope {
     readonly property bool isOpen: win.open
     readonly property var wallpapers: themes && themes.currentTheme ? themes.currentTheme.wallpapers : []
 
+    readonly property string fill: themes && themes.currentTheme ? Theme.toneOf(themes.currentTheme.palette, "bg", "") : ""
     readonly property int start: Math.max(0, wallpapers.indexOf(themes ? themes.wallpaper : ""))
 
     signal opened()
@@ -61,7 +62,7 @@ Scope {
             sourceComponent: Carousel {
                 emptyText: "Choose a theme in Visor first"
                 currentIndex: root.start
-                model: root.wallpapers.map((path) => ({ key: path, image: path, title: path.slice(path.lastIndexOf("/") + 1), colors: [], accent: "" }))
+                model: root.wallpapers.map((path) => ({ key: path, image: root.themes.preview(path), fill: root.fill, title: path.slice(path.lastIndexOf("/") + 1), colors: [], accent: "" }))
                 onDismissed: root.close()
                 onChosen: (index) => {
                     root.close();

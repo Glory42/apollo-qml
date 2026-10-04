@@ -40,6 +40,7 @@ keep working. Arch package names:
 | `power-profiles-daemon` | Power profiles (`powerprofilesctl`). |
 | `wl-clipboard`, `wtype` | Logbook: recording copies, and pasting. |
 | `awww` | Setting wallpapers, from Visor and Earthrise (`wallpaperCommand`). |
+| `libvips` | Small previews of the wallpapers for the Visor and Earthrise cards (`vipsthumbnail`); ImageMagick's `magick` works too. Without either the cards show the full pictures, which appear later. |
 | `uwsm` | Optional; Log out uses `uwsm stop` when it is there. |
 | `libnotify` | `notify-send`, for scripts and binds that announce something, such as a screenshot. |
 | `qrencode` | The QR code when sharing a Wi-Fi network; without it only the password shows. |
@@ -129,6 +130,12 @@ and its neighbours peek out on each side. Left, Right and Tab move, Enter choose
 or a click outside closes. A Visor card is the theme's main wallpaper with its name and
 colours under it, outlined in the theme's accent.
 
+- The cards show small JPEG previews, made in the background when Apollo starts and
+  whenever a wallpaper is added or changed, so the pictures are there as soon as the
+  carousel opens. They live in `previews/` in Quickshell's cache directory
+  (`~/.cache/quickshell/by-shell/<id>/previews`) and can be deleted at any time; the cards
+  then show the full pictures until the previews are made again. Setting a wallpaper always
+  uses the original file.
 - Choosing a theme copies its `palette.json` over `~/.config/theme/palette.json`, runs
   `themeApplyCommand` to recolour the rest of the rice, and sets the main wallpaper.
 - Apollo takes its own colours from `~/.config/theme/palette.json` (`bg`, `fg`, `accent`,
