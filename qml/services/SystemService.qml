@@ -3,7 +3,7 @@ import Quickshell.Io
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
 
-// Battery, volume and brightness state, setters for the last two, and a `changed` signal for the OSD.
+// Battery, volume, screen and keyboard brightness state, setters for the last three, and a `changed` signal for the OSD.
 Item {
     id: root
 
@@ -24,6 +24,8 @@ Item {
     property real currentVolume: -1
     property bool isMuted: false
     property real currentBrightness: -1
+    // -1 when there is no keyboard backlight.
+    property real currentKeyboard: -1
 
     property string lastChargeState: ""
     // A draining battery warns once at each of these levels; charging arms them again.
@@ -31,6 +33,8 @@ Item {
     property int warnedAt: 101
     property string backlightDevice: ""
     property int backlightMax: 0
+    property string keyboardDevice: ""
+    property int keyboardMax: 0
 
     readonly property string batteryIcon: batteryIconFor(batteryCapacity, isCharging)
     readonly property string batteryTimeText: batteryReady ? formatDuration(isCharging ? battery.timeToFull : battery.timeToEmpty) : "-"
@@ -75,6 +79,22 @@ Item {
         brightnessSet.running = true;
     }
 
+    // Keyboard backlights have only a few steps, so this goes to the nearest one.
+    function setKeyboardBrightness(value) {
+        if (!keyboardDevice || keyboardMax <= 0)
+            return;
+        keyboardSet.command = ["brightnessctl", "-d", keyboardDevice, "s", String(Math.round(clamp01(value) * keyboardMax))];
+        keyboardSet.running = true;
+    }
+
+    // Reads both backlights again; a change made by the hardware keys is not always seen.
+    function refreshBacklights() {
+        if (backlightDevice)
+            backlightFile.reload();
+        if (keyboardDevice)
+            keyboardFile.reload();
+    }
+
     function syncVolume() {
         if (!sink || !sink.audio) {
             currentVolume = -1;
@@ -102,6 +122,14 @@ Item {
         currentBrightness = value;
         if (!first && !unchanged)
             changed("brightness", value);
+    }
+
+    function syncKeyboard() {
+        if (!keyboardFile.loaded || keyboardMax <= 0)
+            return;
+        const raw = parseInt(keyboardFile.text().trim());
+        if (!isNaN(raw))
+            currentKeyboard = clamp01(raw / keyboardMax);
     }
 
     // The warning level a battery at this percent has reached and not yet warned at, or -1.
@@ -181,5 +209,41 @@ Item {
         watchChanges: true
         onFileChanged: reload()
         onTextChanged: root.syncBrightness()
+    }
+
+    Process {
+        id: keyboardSet
+
+        onExited: keyboardFile.reload()
+    }
+
+    Process {
+        running: true
+        command: ["sh", "-c", "ls /sys/class/leds 2>/dev/null | grep -m1 kbd_backlight"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const name = text.trim();
+                if (name.length > 0)
+                    root.keyboardDevice = name;
+            }
+        }
+    }
+
+    FileView {
+        path: root.keyboardDevice ? "/sys/class/leds/" + root.keyboardDevice + "/max_brightness" : ""
+        onTextChanged: {
+            const value = parseInt(text().trim());
+            root.keyboardMax = isNaN(value) ? 0 : value;
+            root.syncKeyboard();
+        }
+    }
+
+    FileView {
+        id: keyboardFile
+
+        path: root.keyboardDevice ? "/sys/class/leds/" + root.keyboardDevice + "/brightness" : ""
+        watchChanges: true
+        onFileChanged: reload()
+        onTextChanged: root.syncKeyboard()
     }
 }

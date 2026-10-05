@@ -86,35 +86,11 @@ Item {
             onClicked: root.extraClicked()
         }
 
-        Rectangle {
+        Toggle {
             visible: root.switchVisible
-            width: 44
-            height: 26
-            radius: 13
             anchors.verticalCenter: parent.verticalCenter
-            color: root.checked ? Theme.tileOn : Theme.fill2
-
-            Rectangle {
-                x: root.checked ? parent.width - width - 3 : 3
-                anchors.verticalCenter: parent.verticalCenter
-                width: 20
-                height: 20
-                radius: 10
-                color: root.checked ? Theme.tileOnInk : Theme.dim
-
-                Behavior on x {
-                    NumberAnimation {
-                        duration: 160
-                        easing.type: Easing.OutCubic
-                    }
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: root.toggled()
-            }
+            checked: root.checked
+            onToggled: root.toggled()
         }
     }
 }

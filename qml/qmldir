@@ -22,6 +22,7 @@ ConnectivityService services/ConnectivityService.qml
 DetailHeader widgets/DetailHeader.qml
 Disc widgets/Disc.qml
 DismissCatcher surface/DismissCatcher.qml
+DisplayView capsule/views/DisplayView.qml
 Dock capsule/Dock.qml
 Earthrise earthrise/Earthrise.qml
 EarthriseIpc earthrise/EarthriseIpc.qml
@@ -62,6 +63,7 @@ ThemeService services/ThemeService.qml
 Tile widgets/Tile.qml
 TimerService services/TimerService.qml
 TimerView capsule/views/TimerView.qml
+Toggle widgets/Toggle.qml
 ViewFrame capsule/views/ViewFrame.qml
 Visor visor/Visor.qml
 VisorIpc visor/VisorIpc.qml

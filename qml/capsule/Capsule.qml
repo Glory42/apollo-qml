@@ -22,6 +22,7 @@ Item {
         "wifi": "views/WifiView.qml",
         "bt": "views/BluetoothView.qml",
         "sound": "views/SoundView.qml",
+        "display": "views/DisplayView.qml",
         "connection": "views/ConnectionView.qml"
     })
 
