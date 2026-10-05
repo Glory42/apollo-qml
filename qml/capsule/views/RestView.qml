@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import "../.."
 
-// Resting capsule: workspace dots and the time. Nothing else.
+// Resting capsule: workspace dots, the time, and icons for the connection and the battery.
 Item {
     id: root
 
@@ -10,6 +10,19 @@ Item {
 
     readonly property bool recording: !!ctl && !!ctl.recorder && ctl.recorder.recording
     readonly property bool timerActive: !recording && ctl && ctl.countdown.active
+    readonly property var net: ctl ? ctl.net : null
+    readonly property var system: ctl ? ctl.system : null
+    // A cable in use wins over Wi-Fi; with neither, the crossed-out symbol, or nothing on a machine without Wi-Fi.
+    readonly property string linkIcon: {
+        if (!net)
+            return "";
+        if (net.wiredDevice && net.wiredDevice.connected)
+            return "lan";
+        if (net.wifiNetwork)
+            return net.wifiIcon;
+        return net.wifiDevice ? "wifi_off" : "";
+    }
+    readonly property bool batteryLow: !!system && system.batteryCapacity >= 0 && system.batteryCapacity <= 20 && !system.isCharging
 
     implicitWidth: Math.max(Theme.restWidth, content.width + 32)
     implicitHeight: Theme.restHeight
@@ -116,6 +129,27 @@ Item {
             font.family: Theme.fontFamily
             font.pixelSize: 13
             font.weight: Font.Medium
+        }
+
+        Row {
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 8
+
+            Icon {
+                visible: root.linkIcon !== ""
+                anchors.verticalCenter: parent.verticalCenter
+                size: 14
+                name: root.linkIcon
+                color: root.linkIcon === "wifi_off" ? Theme.faint : Theme.dim
+            }
+
+            Icon {
+                visible: !!root.system && root.system.batteryCapacity >= 0
+                anchors.verticalCenter: parent.verticalCenter
+                size: 14
+                name: root.system ? root.system.batteryIcon : "battery_unknown"
+                color: root.batteryLow ? Theme.danger : Theme.dim
+            }
         }
     }
 }

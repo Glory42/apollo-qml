@@ -8,7 +8,8 @@ There is no C++ backend. (yeah iam a soyboy)
 Apollo is a set of small, separate pieces, named after the space programme. The first is
 **the capsule**: a black notch
 hanging from the top edge of the screen with three sizes (rest, peek, open) and one dock. At rest it
-shows only the workspace dots and the clock. Events (notifications, now playing,
+shows the workspace dots, the clock, and icons for the connection (Wi-Fi bars, a cable, or
+crossed out) and the battery level. Events (notifications, now playing,
 volume, brightness) peek out and go away, and everything else opens from the capsule or from a
 keybind.
 
