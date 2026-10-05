@@ -26,7 +26,7 @@ QtObject {
     }
 
     property Instantiator views: Instantiator {
-        model: ["quick", "music", "timer", "weather", "calendar", "notifications", "wifi", "bt", "sound", "connection"]
+        model: ["quick", "music", "timer", "weather", "calendar", "notifications", "wifi", "bt", "sound", "display", "connection"]
 
         delegate: Keybind {
             required property string modelData

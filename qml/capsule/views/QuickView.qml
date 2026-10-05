@@ -40,9 +40,11 @@ ViewFrame {
             width: (parent.width - 8) / 2
             icon: "moon"
             title: "Night light"
+            detail: true
             subtitle: root.quick && root.quick.nightLight ? "On" : "Off"
             on: !!root.quick && root.quick.nightLight
             onClicked: root.quick.toggleNightLight()
+            onDetailRequested: root.ctl.open("display")
         }
 
         Tile {
@@ -68,7 +70,9 @@ ViewFrame {
         width: parent.width
         icon: "sun"
         value: root.system && root.system.currentBrightness >= 0 ? root.system.currentBrightness : 0
+        detail: true
         onMoved: (v) => root.system.setBrightness(v)
+        onDetailRequested: root.ctl.open("display")
     }
 
     Rectangle {

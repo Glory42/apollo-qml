@@ -35,8 +35,8 @@ keep working. Arch package names:
 | `iputils` | `ping` on the connection page. |
 | `bluez`, `bluez-utils` | Bluetooth, and pairing through `bluetoothctl`. |
 | `upower` | Battery. |
-| `brightnessctl` | Brightness. |
-| `hyprsunset` | Night light. |
+| `brightnessctl` | Screen and keyboard brightness. |
+| `hyprsunset` | Night light, and dimming every screen. |
 | `power-profiles-daemon` | Power profiles (`powerprofilesctl`). |
 | `wl-clipboard`, `wtype` | Logbook: recording copies, and pasting. |
 | `awww` | Setting wallpapers, from Visor and Earthrise (`wallpaperCommand`). |
@@ -65,7 +65,12 @@ night light, focus, the power profile and battery details (time left and
 power draw), and its Wi-Fi and Bluetooth tiles open
 detail views for joining networks and pairing devices. The arrow at the end of the volume
 slider opens the Sound view: pick the output and input device, set their levels, and give
-each app that is playing its own volume (up to 150%) and mute.
+each app that is playing its own volume (up to 150%) and mute. The arrow on the brightness
+slider, or on the night light tile, opens the Display view: screen and keyboard brightness, a
+dim slider that darkens every screen through hyprsunset (external monitors too, never below
+25%), how warm the night light is (dragging it turns the night light on), and a schedule that turns
+it on and off at `nightLightFrom` and `nightLightTo` in `Config.qml`. The dimming, the warmth and whether
+the schedule is on are remembered between sessions.
 
 In the Wi-Fi view, "Details" on the connected network (or on the wired row, on a machine
 with an Ethernet port or adapter) opens the connection page: ping and packet loss to
