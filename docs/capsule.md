@@ -1,7 +1,7 @@
 # The capsule
 
 The black notch hanging from the top edge of every monitor. It has three sizes: at **rest**
-it shows the workspace dots, the clock, and icons for the connection and the battery; a
+it shows only the workspace dots and the clock; a
 **peek** briefly shows an event (a notification, now playing, volume, brightness); and
 **open** shows a view, with a dock of tabs to move between them.
 

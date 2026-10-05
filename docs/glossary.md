@@ -106,7 +106,7 @@ The piece that hangs from the top edge of the screen and is always present. It i
 _Avoid_: Pill, notch, bar
 
 **Rest**, **Peek**, **Open**:
-The three sizes of the Capsule: rest is its idle form (the workspaces, the clock, and the connection and battery icons), a peek is a brief unprompted showing of an event, and open is the full form showing a view.
+The three sizes of the Capsule: rest is its idle form (the workspaces and the clock), a peek is a brief unprompted showing of an event, and open is the full form showing a view.
 
 **Say**:
 A peek that Apollo or a script shows to tell the owner what just happened, an icon and a few words that are kept nowhere afterwards. A notification that peeks is not a say.
