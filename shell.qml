@@ -192,6 +192,7 @@ Scope {
         onlyScreen: shellRoot.onlyScreen
         onOpened: shellRoot.only(splashdown)
         onLockRequested: airlock.lock()
+        onSuspendRequested: idle.suspend()
     }
 
     SplashdownIpc {

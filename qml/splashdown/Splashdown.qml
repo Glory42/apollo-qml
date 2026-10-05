@@ -11,11 +11,12 @@ Scope {
 
     signal opened()
     signal lockRequested()
+    signal suspendRequested()
 
     readonly property var actions: [
         { label: "Lock", icon: "lock", command: null },
         { label: "Log out", icon: "logout", command: ["sh", "-c", Config.logoutCommand] },
-        { label: "Suspend", icon: "moon", command: ["systemctl", "suspend"] },
+        { label: "Suspend", icon: "moon", command: null },
         { label: "Restart", icon: "restart", command: ["systemctl", "reboot"] },
         { label: "Shut down", icon: "power", command: ["systemctl", "poweroff"] }
     ]
@@ -41,9 +42,11 @@ Scope {
 
     function run(index) {
         close();
-        // Lock has no command: Airlock does it.
+        // Lock and Suspend have no command: Airlock locks, and IdleService suspends once the lock is up.
         if (root.actions[index].command)
             Quickshell.execDetached(root.actions[index].command);
+        else if (root.actions[index].label === "Suspend")
+            root.suspendRequested();
         else
             root.lockRequested();
     }
