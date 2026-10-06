@@ -13,48 +13,75 @@ Item {
     // False under APOLLO_DEV, so a test shell never locks or sleeps the desktop it is run from.
     property bool active: true
     property bool locked: false
+    // The compositor has confirmed the lock covers every screen; only then is sleep let through.
+    property bool secure: false
     property bool stayAwake: false
     property bool sleeping: false
     // A suspend asked for here waits for the lock, so it does not depend on the sleep signal arriving in time.
     property bool suspendWanted: false
     // This session's logind object, which carries the Lock signal (`loginctl lock-session`).
     property string sessionPath: ""
+    // How long sleep is held for the lock before it is let through anyway; read from logind below.
+    property int budgetMs: 4000
 
     readonly property bool watching: active && !stayAwake
 
     signal lockRequested()
+    // Sleep went ahead before the lock was confirmed, so the session may have slept exposed.
+    signal sleptUnsecured()
 
     function suspend() {
         root.suspendWanted = true;
         root.lockRequested();
-        if (root.locked)
+        if (root.secure)
             suspendNow();
+        else
+            suspendDeadline.restart();
     }
 
     function suspendNow() {
         root.suspendWanted = false;
+        suspendDeadline.stop();
         Quickshell.execDetached(["systemctl", "suspend"]);
     }
 
     function goingToSleep() {
+        console.info("IdleService: sleep is starting, secure=" + root.secure);
         root.sleeping = true;
-        Quickshell.execDetached(Config.screenOffCommand);
         root.lockRequested();
-        if (root.locked)
-            letGo.restart();
+        if (root.secure) {
+            letGo();
+            return;
+        }
+        // Screens that are already off (idle, or something turned them off as the lid closed) draw no frames, so the lock could not be confirmed on them.
+        Quickshell.execDetached(Config.screenOnCommand);
+        sleepDeadline.restart();
+    }
+
+    function letGo() {
+        sleepDeadline.stop();
+        if (!hold.running)
+            return;
+        console.info("IdleService: letting sleep through");
+        // Blanked only now: an output that is off draws no frames, so the lock could never be confirmed on it.
+        Quickshell.execDetached(Config.screenOffCommand);
+        hold.running = false;
     }
 
     function wokeUp() {
+        console.info("IdleService: woke up");
         root.sleeping = false;
-        letGo.stop();
+        sleepDeadline.stop();
         hold.running = root.active;
         Quickshell.execDetached(Config.screenOnCommand);
     }
 
-    onLockedChanged: {
-        if (locked && sleeping)
-            letGo.restart();
-        if (locked && suspendWanted)
+    onSecureChanged: {
+        if (!secure)
+            return;
+        if (sleeping)
+            letGo();
+        if (suspendWanted)
             suspendNow();
     }
 
@@ -88,12 +115,41 @@ Item {
         command: ["systemd-inhibit", "--what=sleep", "--mode=delay", "--who=Apollo", "--why=Lock before sleep", "cat"]
     }
 
-    // A moment for the lock to be drawn before sleep is let through.
+    // logind sleeps anyway once its window runs out, so let go a little earlier and say so, rather than be overrun.
     Timer {
-        id: letGo
+        id: sleepDeadline
 
-        interval: 250
-        onTriggered: hold.running = false
+        interval: root.budgetMs
+        onTriggered: {
+            if (!root.sleeping || !hold.running)
+                return;
+            console.warn("IdleService: the lock was not confirmed within " + root.budgetMs + " ms, sleeping anyway");
+            root.sleptUnsecured();
+            root.letGo();
+        }
+    }
+
+    // A lock that never confirms should not swallow the suspend; the sleep path above still waits for it.
+    Timer {
+        id: suspendDeadline
+
+        interval: 3000
+        onTriggered: if (root.suspendWanted) root.suspendNow()
+    }
+
+    // The budget is logind's window less a fifth of it (at least a second), so logind has time to act on the release.
+    Process {
+        running: root.active
+        command: ["gdbus", "call", "--system", "--dest", "org.freedesktop.login1", "--object-path", "/org/freedesktop/login1", "--method", "org.freedesktop.DBus.Properties.Get", "org.freedesktop.login1.Manager", "InhibitDelayMaxUSec"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const found = text.match(/uint64 (\d+)/);
+                if (!found)
+                    return;
+                const windowMs = Math.floor(Number(found[1]) / 1000);
+                root.budgetMs = Math.max(500, Math.min(12000, windowMs - Math.max(Math.floor(windowMs / 5), 1000)));
+            }
+        }
     }
 
     Process {

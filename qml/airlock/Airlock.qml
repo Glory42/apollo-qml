@@ -12,6 +12,8 @@ Scope {
     // The picture shown blurred behind the lock; empty leaves the plain hull colour.
     property string wallpaper: ""
     readonly property bool isLocked: lock.locked
+    // The compositor has confirmed the lock covers every screen, not just that one was asked for.
+    readonly property bool isSecure: lock.secure
 
     // "", "checking" or "failed"
     property string status: ""

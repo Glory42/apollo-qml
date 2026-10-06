@@ -280,7 +280,9 @@ Scope {
 
         active: !shellRoot.dev
         locked: airlock.isLocked
+        secure: airlock.isSecure
         onLockRequested: airlock.lock()
+        onSleptUnsecured: center.post("Airlock", "Screen did not lock before suspend", "The session may have slept unlocked.", true)
         onStayAwakeChanged: shellRoot.announce("sun", stayAwake ? "Staying awake" : "Idle on")
     }
 
