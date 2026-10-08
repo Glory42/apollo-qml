@@ -54,7 +54,7 @@ Item {
         }
     }
 
-    // The content hangs from the bottom edge, so it stays put while the shape catches up with its size.
+    // The content hangs from the bottom edge while open, and rides the top edge down while closing so it is not cut off.
     Item {
         anchors.fill: parent
         clip: true
@@ -62,7 +62,7 @@ Item {
         Item {
             id: slot
 
-            anchors.bottom: parent.bottom
+            y: lander.open ? parent.height - height : 0
             width: children.length > 0 ? children[0].width : 0
             height: children.length > 0 ? children[0].height : 0
             opacity: lander.open ? 1 : 0
