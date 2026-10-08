@@ -17,7 +17,7 @@ QtObject {
     readonly property int weatherRefreshInterval: 1800000
 
     // When a scheduled night light turns on and off, as "HH:MM"; the schedule itself is switched on in the Display view.
-    readonly property string nightLightFrom: "20:00"
+    readonly property string nightLightFrom: "23:00"
     readonly property string nightLightTo: "07:00"
 
     // Seconds without input before each step; 0 turns that step off. None of it runs under APOLLO_DEV.
