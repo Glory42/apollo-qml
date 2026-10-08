@@ -15,6 +15,8 @@ Scope {
     readonly property int maxRows: 7
 
     property var counts: ({})
+    // The application list is read on first open, not at startup.
+    property bool loaded: false
     // { entry, name, words, extra }: what a search compares against, lowercased once per application.
     property var index: []
     property var results: []
@@ -25,7 +27,12 @@ Scope {
         if (win.open)
             return;
         field.text = "";
-        refresh();
+        if (root.loaded) {
+            refresh();
+        } else {
+            root.loaded = true;
+            reindex();
+        }
         win.show();
         root.opened();
     }
@@ -94,14 +101,12 @@ Scope {
         entry.execute();
     }
 
-    // The application list is read on first use and again when something is installed or removed.
+    // Once read, the application list is read again when something is installed or removed.
     Connections {
-        target: DesktopEntries.applications
+        target: root.loaded ? DesktopEntries.applications : null
 
         function onValuesChanged() { root.reindex(); }
     }
-
-    Component.onCompleted: reindex()
 
     FileView {
         id: store
@@ -183,9 +188,9 @@ Scope {
                 width: 396
                 height: Math.min(count, root.maxRows) * root.rowHeight
                 clip: true
-                // Keeps the rows of applications that are still listed instead of rebuilding them all.
+                // Keeps the rows of applications that are still listed instead of rebuilding them all; none while away.
                 model: ScriptModel {
-                    values: root.results
+                    values: win.shown ? root.results : []
                 }
                 boundsBehavior: Flickable.StopAtBounds
                 highlightMoveDuration: 0

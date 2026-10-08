@@ -118,8 +118,45 @@ Item {
                 if (text !== root.listing) {
                     root.listing = text;
                     root.parse(text);
+                    root.makePreviews();
+                    return;
                 }
-                root.makePreviews();
+                const originals = [];
+                for (const entry of root.themes)
+                    originals.push(...entry.wallpapers);
+                const made = originals.map((path) => root.previews[path]);
+                if (originals.length === 0 || made.some((path) => !path)) {
+                    root.makePreviews();
+                    return;
+                }
+                checker.originals = originals;
+                checker.command = ["stat", "-c", "%n\t%Y-%s"].concat(originals, made);
+                checker.running = true;
+            }
+        }
+    }
+
+    // With every preview made, one stat checks they all still exist and each wallpaper's time and size match its preview's name.
+    Process {
+        id: checker
+
+        property var originals: []
+
+        stdout: StdioCollector {
+            // A missing file prints no line, so its stamp is undefined and it counts as stale.
+            onStreamFinished: {
+                const stamps = {};
+                for (const line of text.split("\n")) {
+                    const tab = line.lastIndexOf("\t");
+                    if (tab > 0)
+                        stamps[line.slice(0, tab)] = line.slice(tab + 1);
+                }
+                const stale = checker.originals.some((path) => {
+                    const made = root.previews[path];
+                    return !stamps[made] || !made.endsWith("-" + stamps[path] + ".jpg");
+                });
+                if (stale)
+                    root.makePreviews();
             }
         }
     }
