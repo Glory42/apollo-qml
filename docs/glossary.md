@@ -117,7 +117,7 @@ One screen of content shown inside the open Capsule, such as music or the calend
 _Avoid_: Page, panel, tab
 
 **Dock**:
-The row of tabs in the open Capsule used to move between views: quick settings, music, timer, weather, calendar and notifications.
+The row of tabs in the open Capsule used to move between views: quick settings, music, weather, calendar and notifications.
 
 **Detail view**:
 A view that is not on the dock and is reached from another view, usually through the arrow on a slider or tile in quick settings: Wi-Fi, Bluetooth, Sound and Display. The connection page is reached in turn from the Wi-Fi view. Each can also be opened directly with Houston.

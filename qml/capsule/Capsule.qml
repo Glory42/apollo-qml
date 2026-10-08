@@ -15,7 +15,6 @@ Item {
         "peek": "views/PeekView.qml",
         "music": "views/MusicView.qml",
         "quick": "views/QuickView.qml",
-        "timer": "views/TimerView.qml",
         "weather": "views/WeatherView.qml",
         "calendar": "views/CalendarView.qml",
         "notifications": "views/NotificationsView.qml",

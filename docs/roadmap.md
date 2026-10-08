@@ -6,7 +6,7 @@ top-level directory and the capsule stays small.
 
 Done:
 
-- [x] The capsule: music, quick settings, timer, weather, calendar, notifications, Wi-Fi,
+- [x] The capsule: music, quick settings, weather, calendar, notifications, Wi-Fi,
   Bluetooth, battery details and a now-playing peek
 - [x] Airlock: lock screen
 - [x] Earthrise: wallpaper picker

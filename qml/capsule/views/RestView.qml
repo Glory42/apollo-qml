@@ -9,7 +9,6 @@ Item {
     property var ctl: null
 
     readonly property bool recording: !!ctl && !!ctl.recorder && ctl.recorder.recording
-    readonly property bool timerActive: !recording && ctl && ctl.countdown.active
 
     implicitWidth: Math.max(Theme.restWidth, content.width + 32)
     implicitHeight: Theme.restHeight
@@ -59,28 +58,7 @@ Item {
         }
 
         Row {
-            visible: root.timerActive
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 6
-
-            Icon {
-                anchors.verticalCenter: parent.verticalCenter
-                size: 14
-                name: "timer"
-                color: Theme.dim
-            }
-
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: root.ctl ? root.ctl.countdown.text : ""
-                color: Theme.fg
-                font.family: Theme.fontFamily
-                font.pixelSize: 12
-            }
-        }
-
-        Row {
-            visible: !root.timerActive && !root.recording
+            visible: !root.recording
             anchors.verticalCenter: parent.verticalCenter
             spacing: 4
 

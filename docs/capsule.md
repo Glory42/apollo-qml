@@ -5,7 +5,7 @@ it shows only the workspace dots and the clock; a
 **peek** briefly shows an event (a notification, now playing, volume, brightness); and
 **open** shows a view, with a dock of tabs to move between them.
 
-The dock has six tabs, in this order: quick settings, music, timer, weather,
+The dock has five tabs, in this order: quick settings, music, weather,
 calendar, notifications. Quick settings holds volume, brightness, Wi-Fi, Bluetooth,
 night light, focus, the power profile and battery details (time left and
 power draw), and its Wi-Fi and Bluetooth tiles open

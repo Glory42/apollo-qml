@@ -71,15 +71,9 @@ Scope {
         onMicMuted: (muted) => shellRoot.announce(muted ? "mic_off" : "mic", muted ? "Microphone muted" : "Microphone on")
     }
 
-    TimerService {
-        id: countdown
-
-        onFinished: center.post("Timer", "Timer finished", "")
-    }
-
     readonly property var services: ({
         clock: clock, mpris: mpris, system: system, weather: weather,
-        center: center, quick: quick, net: net, countdown: countdown, sound: sound, recorder: recorder
+        center: center, quick: quick, net: net, sound: sound, recorder: recorder
     })
 
     function controllers() {

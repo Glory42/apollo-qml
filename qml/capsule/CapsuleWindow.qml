@@ -42,7 +42,6 @@ PanelWindow {
         center: win.services ? win.services.center : null
         quick: win.services ? win.services.quick : null
         net: win.services ? win.services.net : null
-        countdown: win.services ? win.services.countdown : null
         sound: win.services ? win.services.sound : null
         recorder: win.services ? win.services.recorder : null
     }

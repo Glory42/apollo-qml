@@ -7,7 +7,7 @@ docs/                      these pages
 qml/core/                  Config (your settings) and Theme (colors, sizes, motion)
 qml/services/              headless state, no visuals
   ClockService, MprisService, SystemService (battery, volume, brightness),
-  WeatherService, QuickSettingsService, TimerService,
+  WeatherService, QuickSettingsService,
   ConnectivityService (Wi-Fi and Bluetooth flows), BluetoothAgent (bluetoothctl),
   NotificationService (the notification server and unread count),
   ClipboardService (records what is copied),

@@ -61,7 +61,7 @@ Planned, not needed yet:
 
 | Piece | What it is |
 |---|---|
-| [The capsule](docs/capsule.md) | The notch at the top: workspaces, clock, peeks, and views for quick settings, music, timer, weather, calendar, notifications, Wi-Fi, Bluetooth, sound and display. |
+| [The capsule](docs/capsule.md) | The notch at the top: workspaces, clock, peeks, and views for quick settings, music, weather, calendar, notifications, Wi-Fi, Bluetooth, sound and display. |
 | [Launchpad](docs/launchpad.md) | Application launcher. |
 | [Visor and Earthrise](docs/themes.md) | Theme picker and wallpaper picker, and how themes are laid out. |
 | [Logbook](docs/logbook.md) | Clipboard history. |

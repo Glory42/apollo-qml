@@ -61,8 +61,6 @@ SwitchesIpc services/SwitchesIpc.qml
 SystemService services/SystemService.qml
 ThemeService services/ThemeService.qml
 Tile widgets/Tile.qml
-TimerService services/TimerService.qml
-TimerView capsule/views/TimerView.qml
 Toggle widgets/Toggle.qml
 ViewFrame capsule/views/ViewFrame.qml
 Visor visor/Visor.qml

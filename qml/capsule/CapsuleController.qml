@@ -17,7 +17,6 @@ Item {
     property var center: null
     property var quick: null
     property var net: null
-    property var countdown: null
     property var sound: null
     property var recorder: null
 
@@ -44,12 +43,11 @@ Item {
     readonly property var dock: [
         { id: "quick", label: "Quick settings", icon: "sliders" },
         { id: "music", label: "Music", icon: "music" },
-        { id: "timer", label: "Timer", icon: "timer" },
         { id: "weather", label: "Weather", icon: "cloud" },
         { id: "calendar", label: "Calendar", icon: "cal" },
         { id: "notifications", label: "Notifications", icon: "bell" }
     ]
-    readonly property var openViews: ["music", "quick", "timer", "weather", "calendar", "notifications", "wifi", "bt", "sound", "display", "connection"]
+    readonly property var openViews: ["music", "quick", "weather", "calendar", "notifications", "wifi", "bt", "sound", "display", "connection"]
     readonly property bool isOpen: openViews.indexOf(view) >= 0
     // The detail views belong to the quick settings tab.
     readonly property string dockCurrent: ["wifi", "bt", "sound", "display", "connection"].indexOf(view) >= 0 ? "quick" : view
