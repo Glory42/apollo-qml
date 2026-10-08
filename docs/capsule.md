@@ -29,11 +29,13 @@ Disconnect and Forget. `houston capsule open connection` opens it for the connec
   notification daemon first.
 - A notification marked transient (`notify-send -e`) only peeks: it is not listed in the
   notifications view or counted as unread. That suits "screenshot taken" and the like.
+- The notifications view keeps the newest 50; past that the oldest is dismissed.
 - Apollo says a few things itself in a short peek: the charger going in or out, Wi-Fi and
   Bluetooth connecting or dropping, the microphone being muted or unmuted (however it was done), and the night light, silence and stay-awake binds. A
   battery at 20%, 10% and 5% is a real notification that shows even while silenced.
-- The weather is fetched again within seconds if a request fails, so it shows soon after a
-  login where the shell came up before the network. A restart shows the last weather at
+- The weather is fetched again within seconds if a request fails, and as soon as Wi-Fi or a
+  cable connects when there was no connection, so it shows soon after a login where the shell
+  came up before the network. A restart shows the last weather at
   once (when it is under three hours old) while the new one loads.
 - Bluetooth pairing uses `bluetoothctl` as the pairing agent while the Bluetooth view
   is open.

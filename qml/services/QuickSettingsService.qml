@@ -161,13 +161,6 @@ Item {
         }
     }
 
-    Timer {
-        running: root.scheduled
-        repeat: true
-        interval: 30000
-        onTriggered: root.checkSchedule()
-    }
-
     FileView {
         id: store
 

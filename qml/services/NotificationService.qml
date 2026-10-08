@@ -6,6 +6,8 @@ QtObject {
     id: root
 
     property int unread: 0
+    // Past this many listed, the oldest is dismissed, so a long session does not keep every one and its image.
+    readonly property int limit: 50
     property bool focusMode: false
 
     readonly property var tracked: server.trackedNotifications
@@ -49,6 +51,9 @@ QtObject {
         onNotification: (notification) => {
             // A transient one, such as "screenshot taken", only peeks: it is not listed or counted as unread.
             notification.tracked = !notification.transient;
+            const list = root.tracked.values;
+            for (let i = 0; i < list.length - root.limit; i++)
+                list[i].dismiss();
             if (!notification.transient)
                 root.unread += 1;
             root.received(notification.appName, notification.summary, notification.body, notification.appIcon,

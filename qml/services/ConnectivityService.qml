@@ -65,8 +65,9 @@ Item {
             if (nets[i].connected) return nets[i].name;
         return "Not connected";
     }
+    // Built only while the Wi-Fi view is open, as bluetoothRows is while the Bluetooth view is.
     readonly property var wifiNetworks: {
-        if (!wifiDevice || !wifiEnabled) return [];
+        if (!wifiOpen || !wifiDevice || !wifiEnabled) return [];
         const seen = {};
         const list = [];
         const nets = wifiDevice.networks.values;
@@ -92,7 +93,7 @@ Item {
         return "On";
     }
     readonly property var bluetoothRows: {
-        if (!bluetoothAdapter || !bluetoothEnabled) return [];
+        if (!bluetoothOpen || !bluetoothAdapter || !bluetoothEnabled) return [];
         const devs = bluetoothAdapter.devices.values;
         const groups = { connected: [], paired: [], available: [] };
         for (let i = 0; i < devs.length; i++) {

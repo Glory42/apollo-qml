@@ -10,7 +10,7 @@ Item {
 
     readonly property int limit: 300
     // Characters of text kept in all; past that the oldest entries go, as they do past the limit.
-    readonly property int textBudget: 4000000
+    readonly property int textBudget: 1000000
     readonly property string imageDir: Quickshell.statePath("logbook-images")
     readonly property string script: Quickshell.shellPath("qml/logbook/capture.sh")
 
@@ -113,7 +113,7 @@ Item {
     Timer {
         id: saver
 
-        interval: 500
+        interval: 5000
         onTriggered: root.write()
     }
 

@@ -182,16 +182,25 @@ Item {
         onExited: (exitCode) => {
             if (!root.active)
                 return;
-            console.warn("IdleService: the logind monitor exited with " + exitCode + ", restarting it");
+            // A monitor that ran for a minute starts over at 1 s; one that keeps failing waits up to a minute.
+            restartMonitor.failures = (Date.now() - restartMonitor.startedAt > 60000 ? 0 : restartMonitor.failures) + 1;
+            restartMonitor.interval = Math.min(60000, 1000 * Math.pow(2, restartMonitor.failures - 1));
+            console.warn("IdleService: the logind monitor exited with " + exitCode + ", restarting it in " + restartMonitor.interval / 1000 + " s");
             restartMonitor.restart();
         }
     }
 
-    // A dead monitor would mean an unlocked suspend again, so it comes back instead of failing silently.
+    // A dead monitor would mean an unlocked suspend again, so it always comes back instead of failing silently.
     Timer {
         id: restartMonitor
 
+        property int failures: 0
+        property real startedAt: Date.now()
+
         interval: 1000
-        onTriggered: monitor.running = root.active
+        onTriggered: {
+            startedAt = Date.now();
+            monitor.running = root.active;
+        }
     }
 }

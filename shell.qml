@@ -29,12 +29,21 @@ Scope {
 
     WeatherService {
         id: weather
+
+        online: !!net.wifiNetwork || (!!net.wiredDevice && net.wiredDevice.connected)
     }
 
     NotificationService {
         id: center
 
         onFocusModeChanged: shellRoot.announce("bell", focusMode ? "Notifications silenced" : "Notifications on")
+    }
+
+    // The night light schedule is checked on the clock's minute rather than on a timer of its own.
+    Connections {
+        target: clock
+
+        function onCurrentTimeChanged() { quick.checkSchedule(); }
     }
 
     QuickSettingsService {

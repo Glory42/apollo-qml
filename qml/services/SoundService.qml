@@ -15,14 +15,17 @@ Item {
     readonly property var source: Pipewire.defaultAudioSource
 
     // Sorted by type, which PipeWire reports for every node; most other details only arrive once a node is followed.
-    readonly property var outputs: Pipewire.nodes.values.filter((node) => !node.isStream
+    // The lists are only built while the Sound view is open.
+    readonly property var outputs: !root.watching ? [] : Pipewire.nodes.values.filter((node) => !node.isStream
         && (node.type === PwNodeType.AudioSink || node.type === PwNodeType.AudioDuplex))
-    readonly property var inputs: Pipewire.nodes.values.filter((node) => !node.isStream
+    readonly property var inputs: !root.watching ? [] : Pipewire.nodes.values.filter((node) => !node.isStream
         && (node.type === PwNodeType.AudioSource || node.type === PwNodeType.AudioDuplex))
-    readonly property var streams: Pipewire.nodes.values.filter((node) => node.type === PwNodeType.AudioOutStream)
+    readonly property var streams: !root.watching ? [] : Pipewire.nodes.values.filter((node) => node.type === PwNodeType.AudioOutStream)
 
     // One entry per app with a stream that is playing into a device: { key, name, nodes }. Filled while watching.
     readonly property var apps: {
+        if (!root.watching)
+            return [];
         const playing = new Set(Pipewire.linkGroups.values
             .filter((group) => group.state === PwLinkState.Active && group.source)
             .map((group) => group.source.id));

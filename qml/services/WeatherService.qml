@@ -34,6 +34,8 @@ Item {
     property real _longitude: 0
     property bool _locationReady: false
     property int _failures: 0
+    // While there is no connection a failed request is not retried; the weather is fetched when it returns.
+    property bool online: true
     // Seconds to wait before trying again after each failure in a row; the last one repeats.
     readonly property var _retryAfter: [5, 15, 30, 60, 120, 300]
 
@@ -87,7 +89,7 @@ Item {
         root.loading = false;
         root.errorMessage = message;
         root.isStale = root.hasData;
-        if (again === false)
+        if (again === false || !root.online)
             return;
         retry.interval = root._retryAfter[Math.min(root._failures, root._retryAfter.length - 1)] * 1000;
         root._failures += 1;
@@ -127,6 +129,14 @@ Item {
     }
 
     // Re-fetches for the resolved location, resolving one first on the first call.
+    onOnlineChanged: {
+        if (online && (errorMessage !== "" || !hasData)) {
+            root._failures = 0;
+            retry.stop();
+            root.refresh();
+        }
+    }
+
     function refresh() {
         if (!weatherEnabled)
             return;
