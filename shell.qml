@@ -206,6 +206,8 @@ Scope {
 
     ClipboardService {
         id: clipboard
+
+        onUnavailable: (summary, body) => center.post("Logbook", summary, body)
     }
 
     Logbook {

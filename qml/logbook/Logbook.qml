@@ -200,7 +200,7 @@ Scope {
                     Text {
                         anchors.centerIn: parent
                         visible: list.count === 0
-                        text: field.text === "" ? "Nothing copied yet" : "No matches"
+                        text: field.text !== "" ? "No matches" : (root.clipboard && root.clipboard.problem) || "Nothing copied yet"
                         color: Theme.faint
                         font.family: Theme.fontFamily
                         font.pixelSize: 13

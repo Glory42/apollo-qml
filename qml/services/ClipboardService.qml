@@ -17,6 +17,18 @@ Item {
     // { type: "text", text } or { type: "image", path, at }
     property var history: []
 
+    // Packages not installed: without wl-clipboard nothing is recorded, without wtype entries are only copied.
+    property var missing: []
+    // Why nothing is being recorded, for Logbook to show; empty while recording works.
+    property string problem: ""
+    readonly property bool canPaste: missing.indexOf("wtype") < 0
+    // Watcher restarts since they last ran a minute without exiting; past the limit they are left stopped.
+    property int restarts: 0
+    property bool closing: false
+
+    // Posted once at start when something Logbook needs is not installed.
+    signal unavailable(string summary, string body)
+
     function same(a, b) {
         return a.type === b.type && (a.type === "text" ? a.text === b.text : a.path === b.path);
     }
@@ -93,7 +105,7 @@ Item {
         const copy = entry.type === "image"
             ? 'wl-copy --type image/png < "$1"; wl-copy --primary --type image/png < "$1"'
             : 'printf %s "$1" | wl-copy; printf %s "$1" | wl-copy --primary';
-        const then = paste ? "; sleep 0.15; wtype -M shift -k Insert -m shift" : "";
+        const then = paste && root.canPaste ? "; sleep 0.15; wtype -M shift -k Insert -m shift" : "";
         Quickshell.execDetached(["sh", "-c", copy + then, "sh", entry.type === "image" ? entry.path : entry.text]);
     }
 
@@ -106,6 +118,7 @@ Item {
     }
 
     Component.onDestruction: {
+        root.closing = true;
         if (saver.running) {
             root.write();
             store.waitForJob();
@@ -127,20 +140,98 @@ Item {
         }
     }
 
-    // The watchers sleep until something is copied. setpriv makes them exit with the shell.
-    Process {
-        running: true
-        command: ["setpriv", "--pdeathsig", "TERM", "wl-paste", "--type", "text", "--watch", root.script, "text", root.imageDir]
-        stdout: SplitParser {
-            onRead: (line) => root.received(line)
+    function checked(found) {
+        const tools = found.split("\n");
+        const packages = [];
+        if (tools.indexOf("wl-paste") >= 0 || tools.indexOf("wl-copy") >= 0)
+            packages.push("wl-clipboard");
+        if (tools.indexOf("wtype") >= 0)
+            packages.push("wtype");
+        root.missing = packages;
+        if (packages.length > 0) {
+            console.warn("Logbook: not installed: " + packages.join(", "));
+            root.unavailable("Logbook needs " + packages.join(" and "), packages[0] === "wl-clipboard"
+                ? "Nothing copied is recorded until it is installed."
+                : "Entries are copied but not pasted until it is installed.");
         }
+        if (packages[0] === "wl-clipboard") {
+            root.problem = "Install wl-clipboard to record copies";
+            return;
+        }
+        textWatcher.running = true;
+        imageWatcher.running = true;
+    }
+
+    function watcherExited(exitCode) {
+        if (root.closing)
+            return;
+        steady.stop();
+        // 127 is setpriv failing to find wl-paste, removed since the check at start.
+        if (exitCode === 127) {
+            root.problem = "Install wl-clipboard to record copies";
+            console.warn("Logbook: wl-paste not found, install wl-clipboard");
+            return;
+        }
+        if (root.restarts >= 5) {
+            restartWatchers.stop();
+            textWatcher.running = false;
+            imageWatcher.running = false;
+            if (root.problem === "")
+                console.warn("Logbook: the clipboard watchers keep exiting, leaving them stopped");
+            root.problem = "Clipboard recording stopped";
+            return;
+        }
+        root.restarts += 1;
+        console.warn("Logbook: a clipboard watcher exited with " + exitCode + ", restarting it");
+        restartWatchers.restart();
     }
 
     Process {
         running: true
+        command: ["sh", "-c", 'for t in wl-paste wl-copy wtype; do command -v "$t" >/dev/null 2>&1 || echo "$t"; done']
+        stdout: StdioCollector {
+            onStreamFinished: root.checked(text.trim())
+        }
+    }
+
+    // The watchers sleep until something is copied. setpriv makes them exit with the shell.
+    Process {
+        id: textWatcher
+
+        command: ["setpriv", "--pdeathsig", "TERM", "wl-paste", "--type", "text", "--watch", root.script, "text", root.imageDir]
+        stdout: SplitParser {
+            onRead: (line) => root.received(line)
+        }
+        onExited: (exitCode) => root.watcherExited(exitCode)
+    }
+
+    Process {
+        id: imageWatcher
+
         command: ["setpriv", "--pdeathsig", "TERM", "wl-paste", "--type", "image/png", "--watch", root.script, "image", root.imageDir]
         stdout: SplitParser {
             onRead: (line) => root.received(line)
         }
+        onExited: (exitCode) => root.watcherExited(exitCode)
+    }
+
+    // Both watchers exit together when the compositor goes away, so one restart serves them.
+    Timer {
+        id: restartWatchers
+
+        interval: 2000
+        onTriggered: {
+            textWatcher.running = true;
+            imageWatcher.running = true;
+            steady.restart();
+        }
+    }
+
+    // A copy cannot show the watchers are well: wl-paste --watch sends the clipboard as it starts.
+    Timer {
+        id: steady
+
+        interval: 60000
+        onTriggered: root.restarts = 0
     }
 }
