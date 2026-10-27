@@ -67,7 +67,20 @@ Item {
         if (ids.indexOf(activeWorkspace) < 0)
             ids.push(activeWorkspace);
         ids.sort((a, b) => a - b);
-        return ids.slice(0, 7);
+        // At most seven dots, kept around the active one so its dot never drops off the end.
+        const start = Math.max(0, Math.min(ids.indexOf(activeWorkspace) - 3, ids.length - 7));
+        return ids.slice(start, start + 7);
+    }
+
+    function focusWorkspace(id) {
+        Hyprland.dispatch("hl.dsp.focus({ workspace = " + id + " })");
+    }
+
+    // Steps to the next or previous workspace that has windows on this monitor.
+    function stepWorkspace(direction) {
+        const index = workspaceIds.indexOf(activeWorkspace) + direction;
+        if (index >= 0 && index < workspaceIds.length)
+            focusWorkspace(workspaceIds[index]);
     }
 
     function open(target) {

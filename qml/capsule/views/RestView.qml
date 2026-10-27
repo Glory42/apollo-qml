@@ -27,6 +27,18 @@ Item {
             }
             root.ctl.open(mouse.button === Qt.RightButton ? "quick" : root.ctl.lastOpened);
         }
+
+        property real wheelSum: 0
+
+        onWheel: (wheel) => {
+            if (!root.ctl || Math.abs(wheel.angleDelta.y) <= Math.abs(wheel.angleDelta.x))
+                return;
+            wheelSum += wheel.angleDelta.y;
+            if (Math.abs(wheelSum) >= 120) {
+                root.ctl.stepWorkspace(wheelSum < 0 ? 1 : -1);
+                wheelSum = 0;
+            }
+        }
     }
 
     Row {
@@ -60,27 +72,42 @@ Item {
         Row {
             visible: !root.recording
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 4
 
             Repeater {
                 model: ScriptModel {
                     values: root.ctl ? root.ctl.workspaceIds : []
                 }
 
-                Rectangle {
+                // Each dot clicks through to its workspace; the hit area is wider than the dot so it is easy to hit.
+                Item {
+                    id: slot
+
                     required property int modelData
                     readonly property bool current: root.ctl && modelData === root.ctl.activeWorkspace
 
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: current ? 12 : 4
-                    height: 4
-                    radius: 2
-                    color: current ? Theme.fg : Theme.faint
+                    width: dot.width + 4
+                    height: Theme.restHeight
 
-                    Behavior on width {
-                        NumberAnimation {
-                            duration: 200
-                            easing.type: Easing.OutCubic
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.ctl.focusWorkspace(slot.modelData)
+                    }
+
+                    Rectangle {
+                        id: dot
+
+                        anchors.centerIn: parent
+                        width: slot.current ? 12 : 4
+                        height: 4
+                        radius: 2
+                        color: slot.current ? Theme.fg : Theme.faint
+
+                        Behavior on width {
+                            NumberAnimation {
+                                duration: 200
+                                easing.type: Easing.OutCubic
+                            }
                         }
                     }
                 }
