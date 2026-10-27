@@ -74,17 +74,25 @@ Item {
             sink.audio.volume = clamp01(value);
     }
 
+    // While brightnessctl runs, the newest value waits and runs next, so the slider's last value always lands.
+    function runLatest(process, command) {
+        if (process.running) {
+            process.pending = command;
+            return;
+        }
+        process.command = command;
+        process.running = true;
+    }
+
     function setBrightness(value) {
-        brightnessSet.command = ["brightnessctl", "s", Math.round(clamp01(value) * 100) + "%"];
-        brightnessSet.running = true;
+        runLatest(brightnessSet, ["brightnessctl", "s", Math.round(clamp01(value) * 100) + "%"]);
     }
 
     // Keyboard backlights have only a few steps, so this goes to the nearest one.
     function setKeyboardBrightness(value) {
         if (!keyboardDevice || keyboardMax <= 0)
             return;
-        keyboardSet.command = ["brightnessctl", "-d", keyboardDevice, "s", String(Math.round(clamp01(value) * keyboardMax))];
-        keyboardSet.running = true;
+        runLatest(keyboardSet, ["brightnessctl", "-d", keyboardDevice, "s", String(Math.round(clamp01(value) * keyboardMax))]);
     }
 
     // Reads both backlights again; a change made by the hardware keys is not always seen.
@@ -179,6 +187,16 @@ Item {
 
     Process {
         id: brightnessSet
+
+        property var pending: null
+
+        onExited: {
+            if (pending) {
+                command = pending;
+                pending = null;
+                running = true;
+            }
+        }
     }
 
     Process {
@@ -214,7 +232,17 @@ Item {
     Process {
         id: keyboardSet
 
-        onExited: keyboardFile.reload()
+        property var pending: null
+
+        onExited: {
+            if (pending) {
+                command = pending;
+                pending = null;
+                running = true;
+            } else {
+                keyboardFile.reload();
+            }
+        }
     }
 
     Process {
