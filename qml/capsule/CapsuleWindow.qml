@@ -16,10 +16,8 @@ PanelWindow {
     color: "transparent"
     anchors.top: true
     margins.top: win.dev ? 60 : 0
-    // At rest the window hugs the pill, so the compositor blurs and redraws only that, not the whole 480x560 area.
-    readonly property bool compact: ctl.view === "rest" && capsule.width <= capsule.restingWidth + 0.5 && capsule.height <= Theme.restHeight + 0.5
-    implicitWidth: compact ? Math.ceil(capsule.width + 2 * capsule.fillet) + 2 : Theme.windowWidth
-    implicitHeight: compact ? Theme.topMargin + Math.ceil(capsule.height) + 1 : Theme.windowHeight
+    implicitWidth: Theme.windowWidth
+    implicitHeight: Theme.windowHeight
     exclusiveZone: win.dev ? 0 : Theme.topMargin + Theme.restHeight + Config.windowGap
     WlrLayershell.namespace: "apollo-capsule"
     WlrLayershell.layer: ctl.view !== "rest" ? WlrLayer.Overlay : WlrLayer.Top
