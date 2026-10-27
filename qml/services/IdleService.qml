@@ -113,6 +113,20 @@ Item {
         running: root.active
         stdinEnabled: true
         command: ["systemd-inhibit", "--what=sleep", "--mode=delay", "--who=Apollo", "--why=Lock before sleep", "cat"]
+        onExited: (exitCode) => {
+            // Let go on purpose before sleep; any other exit would mean suspends without the lock, so take it again.
+            if (root.active && !root.sleeping) {
+                console.warn("IdleService: the sleep inhibitor exited with " + exitCode + ", taking it again in 2 s");
+                retakeHold.restart();
+            }
+        }
+    }
+
+    Timer {
+        id: retakeHold
+
+        interval: 2000
+        onTriggered: hold.running = root.active && !root.sleeping
     }
 
     // logind sleeps anyway once its window runs out, so let go a little earlier and say so, rather than be overrun.

@@ -108,9 +108,9 @@ Scope {
         return Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss");
     }
 
-    // A notification whose click runs `command` on `file`; notify-send waits to hear whether it was clicked.
+    // A notification whose click runs `command` on `file`; notify-send waits up to ten minutes to hear whether it was clicked.
     function notice(summary, body, file, image, label, command) {
-        const args = ["notify-send", "-a", "Hasselblad", "-A", "default=" + label, "--wait"];
+        const args = ["timeout", "600", "notify-send", "-a", "Hasselblad", "-A", "default=" + label, "--wait"];
         if (image)
             args.push("-i", file);
         noticeJob.createObject(root, { command: args.concat([summary, body]), file: file, openCommand: command });

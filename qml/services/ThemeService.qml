@@ -82,7 +82,7 @@ Item {
     function setWallpaper(path) {
         if (!path)
             return;
-        Quickshell.execDetached(Config.wallpaperCommand.concat([path]));
+        root.runLatest(wallpaperSet, Config.wallpaperCommand.concat([path]));
         root.wallpaper = path;
         save();
     }
@@ -91,11 +91,60 @@ Item {
         const next = root.themes.find((entry) => entry.id === id);
         if (!next)
             return;
-        Quickshell.execDetached(["sh", "-c", 'cp "$1/themes/$2/palette.json" "$1/palette.json"; ' + Config.themeApplyCommand, "sh", Config.themeDir, id]);
+        root.runLatest(themeSet, ["sh", "-c", 'cp "$1/themes/$2/palette.json" "$1/palette.json" && ' + Config.themeApplyCommand, "sh", Config.themeDir, id]);
         root.current = id;
         reread.restart();
         setWallpaper(next.wallpapers[0]);
         save();
+    }
+
+    // A switch made while the last one still runs waits and runs next, so the newest choice always lands.
+    function runLatest(process, command) {
+        if (process.running) {
+            process.pending = command;
+            return;
+        }
+        process.command = command;
+        process.running = true;
+    }
+
+    function failed(summary, output) {
+        const detail = output.trim().split("\n").slice(-2).join(" ");
+        Quickshell.execDetached(["notify-send", "-a", "Apollo", "-u", "critical", summary, detail || "See journalctl --user -u apollo"]);
+    }
+
+    Process {
+        id: themeSet
+
+        property var pending: null
+
+        stderr: StdioCollector { id: themeErrors }
+        onExited: (exitCode) => {
+            if (exitCode !== 0)
+                root.failed("Theme not fully applied", themeErrors.text);
+            if (pending) {
+                command = pending;
+                pending = null;
+                running = true;
+            }
+        }
+    }
+
+    Process {
+        id: wallpaperSet
+
+        property var pending: null
+
+        stderr: StdioCollector { id: wallpaperErrors }
+        onExited: (exitCode) => {
+            if (exitCode !== 0)
+                root.failed("Wallpaper not set", wallpaperErrors.text);
+            if (pending) {
+                command = pending;
+                pending = null;
+                running = true;
+            }
+        }
     }
 
     Component.onCompleted: refresh()
