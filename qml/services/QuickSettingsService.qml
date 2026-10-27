@@ -47,13 +47,13 @@ Item {
     // Warmer also means on: dragging the warmth shows what it looks like.
     function setTemperature(kelvin) {
         temperature = Math.round(Math.max(warmest, Math.min(coolest, kelvin)) / 100) * 100;
-        save();
+        saveLater.restart();
         runNight("on", false);
     }
 
     function setGamma(percent) {
         gamma = Math.round(Math.max(dimmest, Math.min(100, percent)));
-        save();
+        saveLater.restart();
         runNight("keep", false);
     }
 
@@ -118,6 +118,14 @@ Item {
     }
 
     Component.onCompleted: profileGet.running = true
+
+    // A slider drag saves once, a second after it stops, instead of writing the file on every step.
+    Timer {
+        id: saveLater
+
+        interval: 1000
+        onTriggered: root.save()
+    }
 
     Process {
         id: nightProcess

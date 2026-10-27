@@ -40,6 +40,7 @@ Item {
     property real rxTotal: -1
     property real txTotal: -1
     property real lastSample: 0
+    property real lastTxSample: 0
 
     // Recent pings in milliseconds, -1 for one that got no answer.
     property var pings: []
@@ -241,9 +242,11 @@ Item {
         printErrors: false
         onLoaded: {
             const total = parseFloat(text());
-            if (root.txTotal >= 0)
-                root.txRate = Math.max(0, total - root.txTotal);
+            const now = Date.now();
+            if (root.txTotal >= 0 && root.lastTxSample > 0)
+                root.txRate = Math.max(0, (total - root.txTotal) * 1000 / Math.max(1, now - root.lastTxSample));
             root.txTotal = total;
+            root.lastTxSample = now;
         }
     }
 

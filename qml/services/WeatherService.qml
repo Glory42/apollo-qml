@@ -33,6 +33,7 @@ Item {
     property real _latitude: 0
     property real _longitude: 0
     property bool _locationReady: false
+    property real _resolvedAt: 0
     property int _failures: 0
     // While there is no connection a failed request is not retried; the weather is fetched when it returns.
     property bool online: true
@@ -129,8 +130,11 @@ Item {
     }
 
     // Re-fetches for the resolved location, resolving one first on the first call.
+    // A detected location is looked up again after a reconnect past half an hour, as a laptop may have moved.
     onOnlineChanged: {
-        if (online && (errorMessage !== "" || !hasData)) {
+        if (online && (root.location || "").trim() === "" && Date.now() - root._resolvedAt > 1800000)
+            root._locationReady = false;
+        if (online && (errorMessage !== "" || !hasData || !root._locationReady)) {
             root._failures = 0;
             retry.stop();
             root.refresh();
@@ -211,6 +215,7 @@ Item {
                 root.countryName = match.country || "";
                 root.displayLocation = root.countryName.length > 0 ? (root.cityName + ", " + root.countryName) : root.cityName;
                 root._locationReady = true;
+                root._resolvedAt = Date.now();
                 root._fetchWeather();
             } catch (err) {
                 root._fail("Location lookup error");

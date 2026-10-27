@@ -60,10 +60,7 @@ Item {
     readonly property string wifiName: {
         if (!wifiDevice) return "No adapter";
         if (!wifiEnabled) return "Off";
-        const nets = wifiDevice.networks.values;
-        for (let i = 0; i < nets.length; i++)
-            if (nets[i].connected) return nets[i].name;
-        return "Not connected";
+        return wifiNetwork ? wifiNetwork.name : "Not connected";
     }
     // Built only while the Wi-Fi view is open, as bluetoothRows is while the Bluetooth view is.
     readonly property var wifiNetworks: {

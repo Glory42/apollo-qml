@@ -13,10 +13,10 @@ Item {
     signal nowPlaying(string title, string artist, string artUrl)
 
     property string lastActivePlayerDbusName: ""
-    property var playersList: Mpris.players.values !== undefined ? Mpris.players.values : Mpris.players
+    property var playersList: Mpris.players.values
     property var activePlayer: resolveActivePlayer()
 
-    readonly property string currentTrack: activePlayer ? (activePlayer.trackTitle || activePlayer.title || "Unknown") : ""
+    readonly property string currentTrack: activePlayer ? (activePlayer.trackTitle || "Unknown") : ""
     readonly property string currentArtist: {
         if (!activePlayer) return "";
         let artist = activePlayer.artist;
@@ -24,7 +24,7 @@ Item {
         if (artist) return Array.isArray(artist) ? artist.join(", ") : String(artist);
         return "Unknown";
     }
-    readonly property string currentArtUrl: activePlayer ? (activePlayer.trackArtUrl || activePlayer.artUrl || "") : ""
+    readonly property string currentArtUrl: activePlayer ? (activePlayer.trackArtUrl || "") : ""
 
     property real trackProgress: 0
     property string timePlayed: "0:00"
@@ -40,7 +40,7 @@ Item {
         if (!player || !player.dbusName)
             return;
         playerStates[player.dbusName] = player.playbackState === MprisPlaybackState.Playing;
-        announcedKeys[player.dbusName] = (player.trackTitle || player.title || "") + "|" + String(player.trackArtist || "");
+        announcedKeys[player.dbusName] = (player.trackTitle || "") + "|" + String(player.trackArtist || "");
     }
 
     // What plays as the shell starts is not news, including a player that only turns up a moment later.
@@ -62,7 +62,7 @@ Item {
         const playing = player.playbackState === MprisPlaybackState.Playing;
         const started = playing && !playerStates[name];
         playerStates[name] = playing;
-        const title = player.trackTitle || player.title || "";
+        const title = player.trackTitle || "";
         if (!playing || title === "")
             return;
         const artist = String(player.trackArtist || "");
@@ -174,7 +174,7 @@ Item {
 
     function playerHasTrackInfo(player) {
         if (!player) return false;
-        if ((player.trackTitle || player.title || "") !== "") return true;
+        if ((player.trackTitle || "") !== "") return true;
         if (!player.metadata) return false;
         return Boolean(
             player.metadata["xesam:title"]
@@ -224,10 +224,11 @@ Item {
     Timer {
         id: progressPoller
 
-        interval: 500
-        running: root.activePlayer !== null && root.expanded
+        interval: 1000
+        running: root.activePlayer !== null && root.expanded && root.activePlayer.isPlaying
         repeat: true
 
+        onRunningChanged: root.syncProgress()
         onTriggered: root.syncProgress()
     }
 }
