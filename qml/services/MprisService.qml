@@ -120,17 +120,14 @@ Item {
     }
 
     function formatTime(value) {
-        const numberValue = Number(value);
-        if (isNaN(numberValue) || numberValue <= 0) return "0:00";
+        const totalSeconds = Math.floor(Number(value));
+        if (isNaN(totalSeconds) || totalSeconds <= 0) return "0:00";
 
-        let totalSeconds = 0;
-        if (numberValue < 10000) totalSeconds = Math.floor(numberValue);
-        else if (numberValue < 100000000) totalSeconds = Math.floor(numberValue / 1000);
-        else totalSeconds = Math.floor(numberValue / 1000000);
-
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = Math.floor(totalSeconds % 60);
-        return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor(totalSeconds % 3600 / 60);
+        const seconds = totalSeconds % 60;
+        const pad = n => (n < 10 ? "0" : "") + n;
+        return hours > 0 ? hours + ":" + pad(minutes) + ":" + pad(seconds) : minutes + ":" + pad(seconds);
     }
 
     function syncProgress(positionOverride) {
@@ -147,7 +144,7 @@ Item {
             : Number(positionOverride) || 0;
         let totalLength = Number(player.length) || 0;
         if (totalLength <= 0 && player.metadata && player.metadata["mpris:length"])
-            totalLength = Number(player.metadata["mpris:length"]);
+            totalLength = Number(player.metadata["mpris:length"]) / 1000000;
 
         if (totalLength > 0) {
             root.trackProgress = Math.max(0, Math.min(1, currentPosition / totalLength));
