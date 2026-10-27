@@ -1,3 +1,5 @@
+//@ pragma StateDir $BASE/apollo
+//@ pragma CacheDir $BASE/apollo
 import QtQuick
 import Quickshell
 import "qml"
