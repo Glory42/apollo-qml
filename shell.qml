@@ -166,19 +166,13 @@ Scope {
     }
 
     // One piece is open at a time, so whichever opens closes the rest (null is the capsule); peeks are left alone.
+    readonly property var pieces: [splashdown, launchpad, logbook, earthrise, visor, hasselblad]
+
     function only(piece) {
-        if (piece !== splashdown)
-            splashdown.close();
-        if (piece !== launchpad)
-            launchpad.close();
-        if (piece !== logbook)
-            logbook.close();
-        if (piece !== earthrise)
-            earthrise.close();
-        if (piece !== visor)
-            visor.close();
-        if (piece !== hasselblad)
-            hasselblad.close();
+        for (const other of pieces) {
+            if (other !== piece)
+                other.close();
+        }
         if (!piece)
             return;
         for (const ctl of controllers()) {
@@ -200,8 +194,9 @@ Scope {
         onSuspendRequested: idle.suspend()
     }
 
-    SplashdownIpc {
-        splashdown: splashdown
+    PieceIpc {
+        name: "splashdown"
+        piece: splashdown
     }
 
     Launchpad {
@@ -211,8 +206,9 @@ Scope {
         onOpened: shellRoot.only(launchpad)
     }
 
-    LaunchpadIpc {
-        launchpad: launchpad
+    PieceIpc {
+        name: "launchpad"
+        piece: launchpad
     }
 
     ClipboardService {
@@ -229,8 +225,9 @@ Scope {
         onOpened: shellRoot.only(logbook)
     }
 
-    LogbookIpc {
-        logbook: logbook
+    PieceIpc {
+        name: "logbook"
+        piece: logbook
     }
 
     ThemeService {
@@ -245,8 +242,9 @@ Scope {
         onOpened: shellRoot.only(earthrise)
     }
 
-    EarthriseIpc {
-        earthrise: earthrise
+    PieceIpc {
+        name: "earthrise"
+        piece: earthrise
     }
 
     Visor {
@@ -257,8 +255,9 @@ Scope {
         onOpened: shellRoot.only(visor)
     }
 
-    VisorIpc {
-        visor: visor
+    PieceIpc {
+        name: "visor"
+        piece: visor
     }
 
     RecorderService {

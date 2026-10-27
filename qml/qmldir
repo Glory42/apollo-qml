@@ -25,7 +25,6 @@ DismissCatcher surface/DismissCatcher.qml
 DisplayView capsule/views/DisplayView.qml
 Dock capsule/Dock.qml
 Earthrise earthrise/Earthrise.qml
-EarthriseIpc earthrise/EarthriseIpc.qml
 Hasselblad hasselblad/Hasselblad.qml
 HasselbladIpc hasselblad/HasselbladIpc.qml
 Icon widgets/Icon.qml
@@ -33,10 +32,8 @@ IdleService services/IdleService.qml
 Lander surface/Lander.qml
 LanderWindow surface/LanderWindow.qml
 Launchpad launchpad/Launchpad.qml
-LaunchpadIpc launchpad/LaunchpadIpc.qml
 ListRow widgets/ListRow.qml
 Logbook logbook/Logbook.qml
-LogbookIpc logbook/LogbookIpc.qml
 MprisService services/MprisService.qml
 MusicView capsule/views/MusicView.qml
 NotificationAvatar widgets/NotificationAvatar.qml
@@ -45,6 +42,7 @@ NotificationsView capsule/views/NotificationsView.qml
 OrbiterWindow surface/OrbiterWindow.qml
 PeekView capsule/views/PeekView.qml
 Picker hasselblad/Picker.qml
+PieceIpc surface/PieceIpc.qml
 QuickSettingsService services/QuickSettingsService.qml
 QuickView capsule/views/QuickView.qml
 QuietSlider widgets/QuietSlider.qml
@@ -54,7 +52,6 @@ RoundButton widgets/RoundButton.qml
 SoundService services/SoundService.qml
 SoundView capsule/views/SoundView.qml
 Splashdown splashdown/Splashdown.qml
-SplashdownIpc splashdown/SplashdownIpc.qml
 StatPair widgets/StatPair.qml
 SurfaceWindow surface/SurfaceWindow.qml
 SwitchesIpc services/SwitchesIpc.qml
@@ -64,7 +61,6 @@ Tile widgets/Tile.qml
 Toggle widgets/Toggle.qml
 ViewFrame capsule/views/ViewFrame.qml
 Visor visor/Visor.qml
-VisorIpc visor/VisorIpc.qml
 WeatherService services/WeatherService.qml
 WeatherView capsule/views/WeatherView.qml
 WifiView capsule/views/WifiView.qml

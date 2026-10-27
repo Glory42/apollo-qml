@@ -24,16 +24,17 @@ qml/capsule/               the capsule
   CapsuleScreen (per monitor), CapsuleWindow, CapsuleController, Capsule (the shape that morphs),
   Dock, CapsuleIpc
   views/                   one file per view, plus ViewFrame they all sit in
-qml/earthrise/             the wallpaper picker: Earthrise, EarthriseIpc
-qml/launchpad/             the application launcher: Launchpad, LaunchpadIpc
-qml/logbook/               clipboard history: Logbook, LogbookIpc, capture.sh (run on every copy)
-qml/splashdown/            the power menu: Splashdown, SplashdownIpc
+qml/earthrise/             the wallpaper picker: Earthrise
+qml/launchpad/             the application launcher: Launchpad
+qml/logbook/               clipboard history: Logbook, capture.sh (run on every copy)
+qml/splashdown/            the power menu: Splashdown
 qml/hasselblad/            capturing the screen: Hasselblad (the menu and what each choice does),
                            Picker (the frozen or live window and region picker), HasselbladIpc
 qml/surface/               where pieces appear: SurfaceWindow (screen, keyboard, a window no larger than the surface),
                            LanderWindow and Lander (bottom edge), OrbiterWindow (centre, with or without a hull),
-                           DismissCatcher (the click outside the capsule or a surface)
-qml/visor/                 the theme picker: Visor, VisorIpc
+                           DismissCatcher (the click outside the capsule or a surface),
+                           PieceIpc (the houston commands and toggle keybind of each piece)
+qml/visor/                 the theme picker: Visor
 qml/widgets/               Carousel (the slanted picture cards, drawn by shaders/card.frag), Icon, Tile, ListRow, QuietSlider, RoundButton, ...
 ```
 
