@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Pam
 import Quickshell.Wayland
 import ".."
@@ -73,6 +74,21 @@ Scope {
         function onReceived() {
             if (lock.locked)
                 root.missed += 1;
+        }
+    }
+
+    // A lock still held when Apollo starts was left by an Apollo that crashed while locked: take it over and stay locked.
+    Process {
+        running: true
+        command: ["hyprctl", "-j", "monitors"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    if (JSON.parse(text).some((monitor) => (monitor.solitaryBlockedBy || []).indexOf("LOCK") >= 0))
+                        root.lock();
+                } catch (error) {
+                }
+            }
         }
     }
 
