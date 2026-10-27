@@ -25,7 +25,10 @@ Item {
         "connection": "views/ConnectionView.qml"
     })
 
-    width: loader.item ? loader.item.implicitWidth : Theme.restWidth
+    // The width the shape is springing towards; width itself lags behind it while it animates.
+    readonly property real restingWidth: loader.item ? loader.item.implicitWidth : Theme.restWidth
+
+    width: restingWidth
     height: loader.item ? loader.item.implicitHeight : Theme.restHeight
     readonly property real cornerRadius: Math.min(height / 2, Theme.maxRadius)
     readonly property bool shrinking: !!loader.item && (loader.item.implicitHeight < height || loader.item.implicitWidth < width)
