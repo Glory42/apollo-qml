@@ -98,7 +98,10 @@ Scope {
         next[entry.id] = (next[entry.id] || 0) + 1;
         root.counts = next;
         store.setText(JSON.stringify(next));
-        entry.execute();
+        if (Config.appLaunchCommand.length > 0)
+            Quickshell.execDetached(Config.appLaunchCommand.concat([entry.id + ".desktop"]));
+        else
+            entry.execute();
     }
 
     // Once read, the application list is read again when something is installed or removed.

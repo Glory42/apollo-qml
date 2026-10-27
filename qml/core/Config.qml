@@ -40,6 +40,8 @@ QtObject {
     readonly property string themeDir: Quickshell.env("APOLLO_THEME_DIR") || Quickshell.env("HOME") + "/.config/theme"
     // Run through sh after a theme's palette becomes the current one, to recolour the rest of the rice.
     readonly property string themeApplyCommand: 'PATH="$HOME/.local/bin:$PATH" apply-theme && hyprctl reload'
+    // Put in front of apps Apollo starts so each gets its own scope and outlives an Apollo restart; [] runs them directly.
+    readonly property var appLaunchCommand: ["uwsm", "app", "--"]
     // The wallpaper's path is added as the last argument.
     readonly property var wallpaperCommand: ["awww", "img"]
 }

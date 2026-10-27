@@ -100,8 +100,8 @@ Scope {
 
     // Super+Alt+,: the newest screenshot in the editor.
     function edit() {
-        Quickshell.execDetached(["sh", "-c", 'f=$(ls -t "$1"/*.png 2>/dev/null | head -n1); [ -n "$f" ] && exec sh -c "$2" sh "$f"', "sh",
-            Config.screenshotDir, Config.screenshotEditCommand]);
+        Quickshell.execDetached(Config.appLaunchCommand.concat(["sh", "-c", 'f=$(ls -t "$1"/*.png 2>/dev/null | head -n1); [ -n "$f" ] && exec sh -c "$2" sh "$f"', "sh",
+            Config.screenshotDir, Config.screenshotEditCommand]));
     }
 
     function stamp() {
@@ -133,7 +133,7 @@ Scope {
             stdout: StdioCollector {
                 onStreamFinished: {
                     if (text.trim() === "default")
-                        Quickshell.execDetached(["sh", "-c", job.openCommand, "sh", job.file]);
+                        Quickshell.execDetached(Config.appLaunchCommand.concat(["sh", "-c", job.openCommand, "sh", job.file]));
                 }
             }
             onExited: Qt.callLater(() => job.destroy())
