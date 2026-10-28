@@ -33,6 +33,7 @@ Item {
     property string peekBody: ""
     property string peekAppIcon: ""
     property string peekImage: ""
+    property string peekSymbol: ""
     property string peekIcon: ""
     property real peekProgress: -1
     // The notification behind a notify peek, while it still exists; a transient one is gone at once.
@@ -134,7 +135,7 @@ Item {
         peekTimer.restart();
     }
 
-    function notify(app, summary, body, icon, image, critical, timeout, source) {
+    function notify(app, summary, body, icon, image, critical, timeout, source, symbol) {
         if (view === "notifications" && center)
             center.unread = 0;
         if (isOpen || (center && center.focusMode && !critical))
@@ -145,6 +146,7 @@ Item {
         peekBody = body !== title ? body : "";
         peekAppIcon = icon;
         peekImage = image;
+        peekSymbol = symbol || "";
         peekSource = source || null;
         startPeek("notify", timeout > 0 ? Math.max(3000, Math.min(timeout, 10000)) : 5000);
     }
@@ -174,6 +176,7 @@ Item {
         peekSummary = title;
         peekBody = artist;
         peekAppIcon = "";
+        peekSymbol = "";
         peekImage = artUrl;
         startPeek("media", 4000);
     }

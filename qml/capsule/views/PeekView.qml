@@ -43,6 +43,7 @@ Item {
             image: root.ctl ? root.ctl.peekImage : ""
             appIcon: root.ctl ? root.ctl.peekAppIcon : ""
             app: root.ctl ? root.ctl.peekApp : ""
+            symbol: root.ctl ? root.ctl.peekSymbol : ""
         }
 
         Column {

@@ -3,13 +3,14 @@ import QtQuick.Effects
 import Quickshell
 import ".."
 
-// Round avatar: the notification image, else the app icon, else the app's first letter.
+// Round avatar: the notification image, else the app icon, else a symbol from the shell, else the app's first letter.
 Item {
     id: root
 
     property string image: ""
     property string appIcon: ""
     property string app: ""
+    property string symbol: ""
     property int size: 36
 
     readonly property string source: {
@@ -29,12 +30,19 @@ Item {
 
     Text {
         anchors.centerIn: parent
-        visible: !pic.visible
+        visible: !pic.visible && root.symbol === ""
         text: root.app !== "" ? root.app.charAt(0).toUpperCase() : "!"
         color: Theme.fg
         font.family: Theme.fontFamily
         font.pixelSize: root.size * 0.4
         font.weight: Font.Medium
+    }
+
+    Icon {
+        anchors.centerIn: parent
+        visible: !pic.visible && root.symbol !== ""
+        name: root.symbol
+        size: root.size * 0.55
     }
 
     Image {

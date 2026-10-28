@@ -58,8 +58,8 @@ PanelWindow {
     Connections {
         target: win.services ? win.services.center : null
 
-        function onReceived(app, summary, body, icon, image, critical, timeout, source) {
-            ctl.notify(app, summary, body, icon, image, critical, timeout, source);
+        function onReceived(app, summary, body, icon, image, critical, timeout, source, symbol) {
+            ctl.notify(app, summary, body, icon, image, critical, timeout, source, symbol);
         }
     }
 

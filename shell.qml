@@ -26,7 +26,7 @@ Scope {
     SystemService {
         id: system
 
-        onLow: (percent) => center.post("Battery", "Battery low", percent + "% left", true)
+        onLow: (percent) => center.post("Battery", "Battery low", percent + "% left", true, system.batteryIconFor(percent, false))
     }
 
     WeatherService {
@@ -214,7 +214,7 @@ Scope {
     ClipboardService {
         id: clipboard
 
-        onUnavailable: (summary, body) => center.post("Logbook", summary, body)
+        onUnavailable: (summary, body) => center.post("Logbook", summary, body, false, "bell")
     }
 
     Logbook {
@@ -264,7 +264,7 @@ Scope {
         id: recorder
 
         onSaved: (file) => hasselblad.recordingSaved(file)
-        onFailed: (message) => center.post("Hasselblad", "Recording failed", message)
+        onFailed: (message) => center.post("Hasselblad", "Recording failed", message, false, "videocam")
     }
 
     Hasselblad {
@@ -274,7 +274,7 @@ Scope {
         onlyScreen: shellRoot.onlyScreen
         onOpened: shellRoot.only(hasselblad)
         onAnnounce: (icon, text, color) => shellRoot.announce(icon, text, color)
-        onFailed: (message) => center.post("Hasselblad", message, "")
+        onFailed: (message) => center.post("Hasselblad", message, "", false, "camera")
     }
 
     HasselbladIpc {
@@ -288,7 +288,7 @@ Scope {
         locked: airlock.isLocked
         secure: airlock.isSecure
         onLockRequested: airlock.lock()
-        onSleptUnsecured: center.post("Airlock", "Screen did not lock before suspend", "The session may have slept unlocked.", true)
+        onSleptUnsecured: center.post("Airlock", "Screen did not lock before suspend", "The session may have slept unlocked.", true, "lock")
         onStayAwakeChanged: shellRoot.announce("sun", stayAwake ? "Staying awake" : "Idle on")
     }
 

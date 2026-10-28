@@ -13,12 +13,12 @@ QtObject {
     readonly property var tracked: server.trackedNotifications
     readonly property int count: tracked.values.length
 
-    // `source` is the notification itself, or null for one posted from inside the shell.
-    signal received(string app, string summary, string body, string icon, string image, bool critical, int timeout, var source)
+    // `source` is the notification itself, or null for one posted from inside the shell; `symbol` is a Material symbol for those.
+    signal received(string app, string summary, string body, string icon, string image, bool critical, int timeout, var source, string symbol)
 
-    function post(app, summary, body, critical) {
+    function post(app, summary, body, critical, symbol) {
         unread += 1;
-        received(app, summary, body, "", "", critical === true, 0, null);
+        received(app, summary, body, "", "", critical === true, 0, null, symbol || "");
     }
 
     // Runs the newest notification's main action and dismisses it, as clicking it would.
@@ -57,7 +57,7 @@ QtObject {
             if (!notification.transient)
                 root.unread += 1;
             root.received(notification.appName, notification.summary, notification.body, notification.appIcon,
-                notification.image, notification.urgency === NotificationUrgency.Critical, notification.expireTimeout, notification);
+                notification.image, notification.urgency === NotificationUrgency.Critical, notification.expireTimeout, notification, "");
         }
     }
 }
