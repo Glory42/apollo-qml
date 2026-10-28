@@ -1,9 +1,10 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.UPower
 import ".."
 
-// Night light (on/off, warmth, schedule), dimming and power profile, all driven by their usual command line tools.
+// Night light (on/off, warmth, schedule) and dimming through their command line tools; the power profile straight from power-profiles-daemon.
 Item {
     id: root
 
@@ -12,7 +13,8 @@ Item {
     height: 0
 
     property bool nightLight: false
-    property string profile: "balanced"
+    readonly property var profileNames: ["power-saver", "balanced", "performance"]
+    readonly property string profile: profileNames[PowerProfiles.profile] || "balanced"
     // How warm the night light is, in kelvin; kept between sessions.
     property int temperature: 4500
     readonly property int warmest: 2500
@@ -112,12 +114,10 @@ Item {
     }
 
     function setProfile(mode) {
-        profile = mode;
-        profileSet.command = ["powerprofilesctl", "set", mode];
-        profileSet.running = true;
+        const index = profileNames.indexOf(mode);
+        if (index >= 0)
+            PowerProfiles.profile = index;
     }
-
-    Component.onCompleted: profileGet.running = true
 
     // A slider drag saves once, a second after it stops, instead of writing the file on every step.
     Timer {
@@ -186,23 +186,6 @@ Item {
                     root.runNight("keep", false);
                 root.checkSchedule();
             } catch (error) {
-            }
-        }
-    }
-
-    Process {
-        id: profileSet
-    }
-
-    Process {
-        id: profileGet
-
-        command: ["powerprofilesctl", "get"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const active = text.trim();
-                if (active !== "")
-                    root.profile = active;
             }
         }
     }
