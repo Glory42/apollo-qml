@@ -48,7 +48,7 @@ QtObject {
     readonly property color tileOnInk: themed ? mix(hull, fg, 0.05) : "#0b0c0e"
     readonly property color tileOnSub: alpha(tileOnInk, 0.58)
 
-    readonly property int restWidth: 136
+    readonly property int restWidth: 100
     readonly property int restHeight: 30
     readonly property int openWidth: 400
     readonly property int peekNotifyWidth: 340

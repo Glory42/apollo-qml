@@ -2,13 +2,30 @@ import QtQuick
 import Quickshell
 import "../.."
 
-// Resting capsule: workspace dots and the time. Nothing else.
+// Resting capsule: the time, swapped for the workspace dots for a moment after a workspace switch.
 Item {
     id: root
 
     property var ctl: null
 
     readonly property bool recording: !!ctl && !!ctl.recorder && ctl.recorder.recording
+    property bool showDots: false
+
+    Connections {
+        target: root.ctl
+
+        function onActiveWorkspaceChanged() {
+            root.showDots = true;
+            dotsTimer.restart();
+        }
+    }
+
+    Timer {
+        id: dotsTimer
+
+        interval: 1500
+        onTriggered: root.showDots = false
+    }
 
     implicitWidth: Math.max(Theme.restWidth, content.width + 32)
     implicitHeight: Theme.restHeight
@@ -69,39 +86,42 @@ Item {
             }
         }
 
-        Row {
-            visible: !root.recording
-            anchors.verticalCenter: parent.verticalCenter
+        // The clock and the dots share one spot and fade into each other; it is as wide as whichever is showing.
+        Item {
+            readonly property bool dotsShown: !root.recording && root.showDots
 
-            Repeater {
-                model: ScriptModel {
-                    values: root.ctl ? root.ctl.workspaceIds : []
+            anchors.verticalCenter: parent.verticalCenter
+            width: dotsShown ? dots.width : clock.width
+            height: Math.max(dots.height, clock.height)
+
+            Row {
+                id: dots
+
+                anchors.centerIn: parent
+                spacing: 4
+                opacity: parent.dotsShown ? 1 : 0
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 180
+                        easing.type: Easing.OutCubic
+                    }
                 }
 
-                // Each dot clicks through to its workspace; the hit area is wider than the dot so it is easy to hit.
-                Item {
-                    id: slot
-
-                    required property int modelData
-                    readonly property bool current: root.ctl && modelData === root.ctl.activeWorkspace
-
-                    width: dot.width + 4
-                    height: Theme.restHeight
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: root.ctl.focusWorkspace(slot.modelData)
+                Repeater {
+                    model: ScriptModel {
+                        values: root.ctl ? root.ctl.workspaceIds : []
                     }
 
                     Rectangle {
-                        id: dot
+                        required property int modelData
+                        readonly property bool current: root.ctl && modelData === root.ctl.activeWorkspace
 
-                        anchors.centerIn: parent
-                        width: slot.current ? 12 : 4
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: current ? 12 : 4
                         height: 4
                         radius: 2
-                        color: slot.current ? Theme.fg : Theme.faint
+                        color: current ? Theme.fg : Theme.faint
 
                         Behavior on width {
                             NumberAnimation {
@@ -112,15 +132,25 @@ Item {
                     }
                 }
             }
-        }
 
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            text: root.ctl && root.ctl.clock ? root.ctl.clock.currentTime : ""
-            color: Theme.fg
-            font.family: Theme.fontFamily
-            font.pixelSize: 13
-            font.weight: Font.Medium
+            Text {
+                id: clock
+
+                anchors.centerIn: parent
+                opacity: parent.dotsShown ? 0 : 1
+                text: root.ctl && root.ctl.clock ? root.ctl.clock.currentTime : ""
+                color: Theme.fg
+                font.family: Theme.fontFamily
+                font.pixelSize: 13
+                font.weight: Font.Medium
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 180
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            }
         }
     }
 }
