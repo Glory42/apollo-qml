@@ -25,6 +25,8 @@ Item {
     property int budgetMs: 4000
 
     readonly property bool watching: active && !stayAwake
+    // With no real screen (only Qt's nameless placeholder) the compositor confirms a lock that is drawn nowhere, so it only counts once a screen shows it.
+    readonly property bool covered: secure && Quickshell.screens.some((screen) => screen.name !== "")
 
     signal lockRequested()
     // Sleep went ahead before the lock was confirmed, so the session may have slept exposed.
@@ -33,7 +35,7 @@ Item {
     function suspend() {
         root.suspendWanted = true;
         root.lockRequested();
-        if (root.secure)
+        if (root.covered)
             suspendNow();
         else
             suspendDeadline.restart();
@@ -46,10 +48,10 @@ Item {
     }
 
     function goingToSleep() {
-        console.info("IdleService: sleep is starting, secure=" + root.secure);
+        console.info("IdleService: sleep is starting, secure=" + root.secure + ", covered=" + root.covered);
         root.sleeping = true;
         root.lockRequested();
-        if (root.secure) {
+        if (root.covered) {
             letGo();
             return;
         }
@@ -76,8 +78,8 @@ Item {
         Quickshell.execDetached(Config.screenOnCommand);
     }
 
-    onSecureChanged: {
-        if (!secure)
+    onCoveredChanged: {
+        if (!covered)
             return;
         if (sleeping)
             letGo();
