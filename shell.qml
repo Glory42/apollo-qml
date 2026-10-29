@@ -165,7 +165,7 @@ Scope {
             ctl.close();
     }
 
-    // One piece is open at a time, so whichever opens closes the rest (null is the capsule); peeks are left alone.
+    // One piece is open at a time, so whichever opens (a capsule passes its controller) closes the rest; peeks are left alone.
     readonly property var pieces: [splashdown, launchpad, logbook, earthrise, visor, hasselblad]
 
     function only(piece) {
@@ -173,10 +173,8 @@ Scope {
             if (other !== piece)
                 other.close();
         }
-        if (!piece)
-            return;
         for (const ctl of controllers()) {
-            if (ctl.isOpen)
+            if (ctl !== piece && ctl.isOpen)
                 ctl.close();
         }
     }
@@ -316,12 +314,14 @@ Scope {
         model: Quickshell.screens.filter((screen) => shellRoot.onlyScreen === "" || screen.name === shellRoot.onlyScreen)
 
         CapsuleScreen {
+            id: capsuleScreen
+
             required property var modelData
 
             screen: modelData
             services: shellRoot.services
             dev: shellRoot.dev
-            onOpened: shellRoot.only(null)
+            onOpened: shellRoot.only(capsuleScreen.controller)
         }
     }
 }
