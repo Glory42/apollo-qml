@@ -76,6 +76,7 @@ ViewFrame {
                 image: card.modelData.image
                 appIcon: card.modelData.appIcon
                 app: card.modelData.appName
+                symbol: root.center ? root.center.symbolOf(card.modelData) : ""
             }
 
             Column {

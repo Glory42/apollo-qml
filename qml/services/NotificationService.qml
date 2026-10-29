@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Services.Notifications
 
 // The one notification server for the whole shell; every monitor listens to `received`.
@@ -13,12 +14,24 @@ QtObject {
     readonly property var tracked: server.trackedNotifications
     readonly property int count: tracked.values.length
 
-    // `source` is the notification itself, or null for one posted from inside the shell; `symbol` is a Material symbol for those.
+    // `source` is the notification itself; `symbol` is the Material symbol a notification from inside the shell carries.
     signal received(string app, string summary, string body, string icon, string image, bool critical, int timeout, var source, string symbol)
 
+    // The hint that carries a shell notification's Material symbol; read it with symbolOf().
+    readonly property string symbolHint: "x-apollo-symbol"
+
+    // The shell's own notifications go through this server like any other, so each one is listed as well as counted.
     function post(app, summary, body, critical, symbol) {
-        unread += 1;
-        received(app, summary, body, "", "", critical === true, 0, null, symbol || "");
+        const command = ["notify-send", "-a", app, "-u", critical === true ? "critical" : "normal"];
+        if (symbol)
+            command.push("-h", "string:" + symbolHint + ":" + symbol);
+        command.push("--", summary, body || "");
+        Quickshell.execDetached(command);
+    }
+
+    function symbolOf(notification) {
+        const hints = notification ? notification.hints : null;
+        return hints && hints[symbolHint] ? String(hints[symbolHint]) : "";
     }
 
     // Runs the newest notification's main action and dismisses it, as clicking it would.
@@ -57,7 +70,7 @@ QtObject {
             if (!notification.transient)
                 root.unread += 1;
             root.received(notification.appName, notification.summary, notification.body, notification.appIcon,
-                notification.image, notification.urgency === NotificationUrgency.Critical, notification.expireTimeout, notification, "");
+                notification.image, notification.urgency === NotificationUrgency.Critical, notification.expireTimeout, notification, root.symbolOf(notification));
         }
     }
 }
