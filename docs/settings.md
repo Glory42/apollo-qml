@@ -14,7 +14,7 @@ Edit the values in `qml/core/Config.qml`:
 | `idleScreenOffSeconds`, `idleLockSeconds`, `idleSleepSeconds` | Seconds without input before the screens turn off, Airlock locks and the machine suspends. `0` turns a step off. |
 | `screenOffCommand`, `screenOnCommand` | Commands that turn the screens off and on; the defaults are Hyprland's `dpms` dispatcher in its Lua form. |
 | `themeDir` | Where themes live, `~/.config/theme` by default. `APOLLO_THEME_DIR` overrides it. |
-| `themeApplyCommand` | Shell command run after the palette changes: `apply-theme` (also looked for in `~/.local/bin`), then `hyprctl reload`. |
+| `themeSetCommand` | Command that makes a theme current, with the theme's name added: `set-theme` from the dotfiles, which checks the palette, copies it in, runs `apply-theme` and reloads Hyprland. |
 | `logoutCommand` | Shell command behind Splashdown's Log out: `uwsm stop` when uwsm is installed, otherwise Hyprland's exit. |
 | `wallpaperCommand` | Command that sets a wallpaper; the file is added as the last argument. |
 | `screenshotDir`, `recordingDir` | Where Hasselblad saves screenshots and recordings: `~/Pictures/Screenshots` and `~/Videos/Recordings`. |

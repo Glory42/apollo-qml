@@ -23,8 +23,9 @@ colours under it, outlined in the theme's accent.
   (`~/.cache/quickshell/by-shell/<id>/previews`) and can be deleted at any time; the cards
   then show the full pictures until the previews are made again. Setting a wallpaper always
   uses the original file.
-- Choosing a theme copies its `palette.json` over `~/.config/theme/palette.json`, runs
-  `themeApplyCommand` to recolour the rest of the rice, and sets the main wallpaper.
+- Choosing a theme runs `themeSetCommand` with its name (`set-theme <name>` from the
+  dotfiles, which checks the palette, makes it the current one and recolours the rest of the
+  rice), then sets the main wallpaper. A bad palette is refused with a notification.
 - Apollo takes its own colours from `~/.config/theme/palette.json` (`bg`, `fg`, `accent`,
   `regular1` for warnings; the greys are mixed from `bg` and `fg`) and follows the file when
   it changes. Without that file it uses the colours in `qml/core/Theme.qml`.

@@ -91,7 +91,7 @@ Item {
         const next = root.themes.find((entry) => entry.id === id);
         if (!next)
             return;
-        root.runLatest(themeSet, ["sh", "-c", 'cp "$1/themes/$2/palette.json" "$1/palette.json" && ' + Config.themeApplyCommand, "sh", Config.themeDir, id]);
+        root.runLatest(themeSet, Config.themeSetCommand.concat([id]));
         root.current = id;
         reread.restart();
         setWallpaper(next.wallpapers[0]);
