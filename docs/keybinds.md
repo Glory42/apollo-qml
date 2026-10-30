@@ -3,7 +3,7 @@
 `houston` talks to the running shell from any directory:
 
 ```
-houston capsule open|toggle <quick|music|weather|calendar|notifications|wifi|bt|sound|display|connection>
+houston capsule open|toggle <quick|music|weather|calendar|notifications|wifi|bt|sound|display|connection|focus>
 houston capsule next|prev
 houston capsule close
 houston capsule notify <app> <summary> <body>
@@ -90,7 +90,7 @@ hl.bind("SUPER + CTRL + W", hl.dsp.global("apollo:capsule-toggle-wifi"))
 
 | Shortcut | Same as |
 |---|---|
-| `capsule-toggle-<view>` | `houston capsule toggle <view>`, for `quick`, `music`, `weather`, `calendar`, `notifications`, `wifi`, `bt`, `sound`, `display` and `connection` |
+| `capsule-toggle-<view>` | `houston capsule toggle <view>`, for `quick`, `music`, `weather`, `calendar`, `notifications`, `wifi`, `bt`, `sound`, `display`, `connection` and `focus` |
 | `capsule-next`, `capsule-prev`, `capsule-close`, `capsule-invoke` | `houston capsule next`, `prev`, `close`, `invoke` |
 | `launchpad-toggle`, `splashdown-toggle`, `logbook-toggle`, `visor-toggle`, `earthrise-toggle` | `houston <piece> toggle` |
 | `airlock-lock` | `houston airlock lock` |

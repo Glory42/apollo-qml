@@ -7,7 +7,7 @@ Edit the values in `qml/core/Config.qml`:
 | `fontFamily` | Font for all text. |
 | `clockFormat` | `"24"` or `"12"`. |
 | `windowGap` | Extra space between the capsule and your windows, on top of `gaps_out`. |
-| `mediaPeek` | Show a short "now playing" peek when media starts or the track changes. |
+| `mediaPeek` | Show a short "now playing" peek when media starts or the track changes. Only the starting value: the switch in the Focus view overrides it and is remembered. |
 | `swipeReverse` | Set to `true` if the touchpad swipe goes the wrong way. |
 | `weatherEnabled`, `weatherLocation`, `weatherUnits`, `weatherRefreshInterval` | Weather. An empty location is detected from your IP, units are `"metric"` or `"imperial"`. |
 | `nightLightFrom`, `nightLightTo` | When the night light's schedule turns it on and off, as `"HH:MM"`. The schedule itself is switched on in the Display view. |

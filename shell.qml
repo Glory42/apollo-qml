@@ -84,7 +84,7 @@ Scope {
 
     readonly property var services: ({
         clock: clock, mpris: mpris, system: system, weather: weather,
-        center: center, quick: quick, net: net, sound: sound, recorder: recorder
+        center: center, quick: quick, net: net, sound: sound, recorder: recorder, idle: idle
     })
 
     function controllers() {

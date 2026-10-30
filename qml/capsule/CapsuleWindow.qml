@@ -44,6 +44,7 @@ PanelWindow {
         net: win.services ? win.services.net : null
         sound: win.services ? win.services.sound : null
         recorder: win.services ? win.services.recorder : null
+        idle: win.services ? win.services.idle : null
     }
 
     Capsule {
@@ -67,7 +68,7 @@ PanelWindow {
         target: win.services ? win.services.mpris : null
 
         function onNowPlaying(title, artist, artUrl) {
-            if (Config.mediaPeek)
+            if (win.services.center && win.services.center.trackPeeks)
                 ctl.media(title, artist, artUrl);
         }
     }

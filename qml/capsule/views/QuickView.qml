@@ -51,9 +51,11 @@ ViewFrame {
             width: (parent.width - 8) / 2
             icon: "bell"
             title: "Focus"
+            detail: true
             subtitle: root.center && root.center.focusMode ? "Alerts silenced" : "Alerts on"
             on: !!root.center && root.center.focusMode
             onClicked: root.center.focusMode = !root.center.focusMode
+            onDetailRequested: root.ctl.open("focus")
         }
     }
 

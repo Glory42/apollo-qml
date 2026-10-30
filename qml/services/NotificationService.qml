@@ -1,6 +1,8 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Notifications
+import ".."
 
 // The one notification server for the whole shell; every monitor listens to `received`.
 QtObject {
@@ -10,6 +12,8 @@ QtObject {
     // Past this many listed, the oldest is dismissed, so a long session does not keep every one and its image.
     readonly property int limit: 50
     property bool focusMode: false
+    // Whether a new track peeks; set in the Focus view and kept between sessions, starting from Config.mediaPeek.
+    property bool trackPeeks: Config.mediaPeek
 
     readonly property var tracked: server.trackedNotifications
     readonly property int count: tracked.values.length
@@ -49,10 +53,28 @@ QtObject {
         }
     }
 
+    function setTrackPeeks(on) {
+        trackPeeks = on;
+        store.setText(JSON.stringify({ trackPeeks: on }));
+    }
+
     function dismissAll() {
         const list = [...tracked.values];
         for (const notification of list)
             notification.dismiss();
+    }
+
+    property FileView store: FileView {
+        path: Quickshell.statePath("notifications.json")
+        printErrors: false
+        onLoaded: {
+            try {
+                const saved = JSON.parse(root.store.text());
+                if (typeof saved.trackPeeks === "boolean")
+                    root.trackPeeks = saved.trackPeeks;
+            } catch (error) {
+            }
+        }
     }
 
     property NotificationServer server: NotificationServer {

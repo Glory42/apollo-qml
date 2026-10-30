@@ -16,7 +16,9 @@ slider, or on the night light tile, opens the Display view: screen and keyboard 
 dim slider that darkens every screen through hyprsunset (external monitors too, never below
 25%), how warm the night light is (dragging it turns the night light on), and a schedule that turns
 it on and off at `nightLightFrom` and `nightLightTo` in `Config.qml`. The dimming, the warmth and whether
-the schedule is on are remembered between sessions.
+the schedule is on are remembered between sessions. The arrow on the focus tile opens the Focus
+view: focus itself, stay awake, whether a new track peeks (remembered between sessions, starting
+from `mediaPeek`) and muting the microphone.
 
 In the Wi-Fi view, "Details" on the connected network (or on the wired row, on a machine
 with an Ethernet port or adapter) opens the connection page: ping and packet loss to

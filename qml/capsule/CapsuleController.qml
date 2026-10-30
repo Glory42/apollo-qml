@@ -19,6 +19,7 @@ Item {
     property var net: null
     property var sound: null
     property var recorder: null
+    property var idle: null
 
     property string view: "rest"
     // The network device the connection page is about.
@@ -48,10 +49,10 @@ Item {
         { id: "calendar", label: "Calendar", icon: "cal" },
         { id: "notifications", label: "Notifications", icon: "bell" }
     ]
-    readonly property var openViews: ["music", "quick", "weather", "calendar", "notifications", "wifi", "bt", "sound", "display", "connection"]
+    readonly property var openViews: ["music", "quick", "weather", "calendar", "notifications", "wifi", "bt", "sound", "display", "connection", "focus"]
     readonly property bool isOpen: openViews.indexOf(view) >= 0
     // The detail views belong to the quick settings tab.
-    readonly property string dockCurrent: ["wifi", "bt", "sound", "display", "connection"].indexOf(view) >= 0 ? "quick" : view
+    readonly property string dockCurrent: ["wifi", "bt", "sound", "display", "connection", "focus"].indexOf(view) >= 0 ? "quick" : view
     readonly property int unread: center && view !== "notifications" ? center.unread : 0
     readonly property bool wantsKeyboard: typing || !!net && ((view === "wifi" && net.pendingSsid !== "")
         || (view === "bt" && (net.agent.promptKind === "passkey" || net.agent.promptKind === "pin")))
