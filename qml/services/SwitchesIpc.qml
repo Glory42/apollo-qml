@@ -2,8 +2,8 @@ import QtQuick
 import Quickshell.Io
 import ".."
 
-// `houston nightlight toggle`, `houston silence toggle` and `houston awake toggle`, for keybinds;
-// a Hyprland bind can use `apollo:nightlight-toggle`, `apollo:silence-toggle` and `apollo:awake-toggle` instead.
+// `houston nightlight toggle`, `houston silence toggle`, `houston awake toggle` and `houston touchpad toggle`, for keybinds;
+// a Hyprland bind can use `apollo:nightlight-toggle`, `apollo:silence-toggle`, `apollo:awake-toggle` and `apollo:touchpad-toggle` instead.
 QtObject {
     id: wrapper
 
@@ -23,6 +23,12 @@ QtObject {
         function toggle() { wrapper.center.focusMode = !wrapper.center.focusMode; }
     }
 
+    property IpcHandler touchpad: IpcHandler {
+        target: "touchpad"
+
+        function toggle() { wrapper.quick.toggleTouchpad(); }
+    }
+
     property IpcHandler awake: IpcHandler {
         target: "awake"
 
@@ -37,6 +43,11 @@ QtObject {
     property Keybind silenceKey: Keybind {
         name: "silence-toggle"
         onPressed: wrapper.center.focusMode = !wrapper.center.focusMode
+    }
+
+    property Keybind touchpadKey: Keybind {
+        name: "touchpad-toggle"
+        onPressed: wrapper.quick.toggleTouchpad()
     }
 
     property Keybind awakeKey: Keybind {

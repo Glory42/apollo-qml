@@ -1,86 +1,18 @@
 import QtQuick
 import "../.."
 
-// What may interrupt: focus itself in the header, then staying awake, track peeks and the microphone.
+// What may interrupt: focus itself in the header, then staying awake, track peeks, the microphone and the touchpad.
 ViewFrame {
     id: root
 
     readonly property var center: ctl ? ctl.center : null
     readonly property var idle: ctl ? ctl.idle : null
     readonly property var sound: ctl ? ctl.sound : null
+    readonly property var quick: ctl ? ctl.quick : null
     readonly property var mic: sound && sound.source ? sound.source.audio : null
     readonly property bool focusMode: !!root.center && root.center.focusMode
 
     spacing: 10
-
-    // An icon, what the switch does, and the switch; the whole row flips it.
-    component SwitchRow: Rectangle {
-        id: row
-
-        property string icon: ""
-        property string title: ""
-        property string subtitle: ""
-        property bool checked: false
-        signal toggled()
-
-        width: parent.width
-        implicitHeight: 52
-        radius: 14
-        color: rowArea.containsMouse ? Theme.fill : "transparent"
-
-        Icon {
-            id: glyph
-
-            x: 12
-            anchors.verticalCenter: parent.verticalCenter
-            name: row.icon
-            color: row.checked ? Theme.fg : Theme.dim
-        }
-
-        Column {
-            anchors.left: glyph.right
-            anchors.leftMargin: 12
-            anchors.right: rowSwitch.left
-            anchors.rightMargin: 8
-            anchors.verticalCenter: parent.verticalCenter
-
-            Text {
-                width: parent.width
-                text: row.title
-                elide: Text.ElideRight
-                color: Theme.fg
-                font.family: Theme.fontFamily
-                font.pixelSize: 13
-            }
-
-            Text {
-                width: parent.width
-                text: row.subtitle
-                elide: Text.ElideRight
-                color: Theme.dim
-                font.family: Theme.fontFamily
-                font.pixelSize: 11
-            }
-        }
-
-        MouseArea {
-            id: rowArea
-
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: row.toggled()
-        }
-
-        Toggle {
-            id: rowSwitch
-
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            checked: row.checked
-            onToggled: row.toggled()
-        }
-    }
 
     DetailHeader {
         width: parent.width
@@ -117,6 +49,14 @@ ViewFrame {
             subtitle: root.sound && root.sound.source ? (root.sound.source.description || root.sound.source.name) : ""
             checked: !!root.mic && root.mic.muted
             onToggled: root.sound.toggleMute(root.sound.source)
+        }
+
+        SwitchRow {
+            icon: root.quick && root.quick.touchpadOff ? "touchpad_off" : "touchpad"
+            title: "Touchpad off"
+            subtitle: "The F6 key flips it too"
+            checked: !!root.quick && root.quick.touchpadOff
+            onToggled: root.quick.toggleTouchpad()
         }
     }
 }

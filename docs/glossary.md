@@ -21,7 +21,7 @@ A keybind that reaches Apollo straight from Hyprland, without starting Houston. 
 _Avoid_: Hotkey, keymap
 
 **Switch**:
-A setting that is either on or off and can be flipped from a keybind: the night light, silence (notifications stop peeking) and stay awake (the idle steps are held off). Flipping one peeks to say what it changed to.
+A setting that is either on or off and can be flipped from a keybind: the night light, silence (notifications stop peeking), stay awake (the idle steps are held off) and the touchpad (off or on). Flipping one peeks to say what it changed to.
 _Avoid_: Toggle, mode
 
 ## Surfaces

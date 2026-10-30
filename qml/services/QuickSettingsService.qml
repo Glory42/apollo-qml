@@ -1,10 +1,12 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.UPower
 import ".."
 
-// Night light (on/off, warmth, schedule) and dimming through their command line tools; the power profile straight from power-profiles-daemon.
+// Night light (on/off, warmth, schedule) and dimming through their command line tools; the power profile straight from power-profiles-daemon;
+// the touchpad through Hyprland.
 Item {
     id: root
 
@@ -27,6 +29,11 @@ Item {
     property int gamma: 100
     // Low enough to read by in the dark, high enough that the screen never goes black.
     readonly property int dimmest: 25
+    // Not kept between sessions, so a new session always has a pointer.
+    property bool touchpadOff: false
+    // $1 is true or false. Each touchpad also reports a mouse device of the same name, and both are switched.
+    readonly property string touchpadSet: 'for n in $(hyprctl devices -j | jq -r \'.mice[].name | select(test("touchpad"))\'); do'
+        + ' for d in "$n" "${n%-touchpad}-mouse"; do hyprctl eval "hl.device({ name = \\"$d\\", enabled = $1 })" >/dev/null; done; done'
 
     // Sets $on when the screen is warmer than daylight now; a hyprsunset schedule may have changed it since the last toggle.
     readonly property string nightRead: 'i=$(hyprctl hyprsunset identity get 2>/dev/null); t=$(hyprctl hyprsunset temperature 2>/dev/null) || t=;'
@@ -111,6 +118,25 @@ Item {
 
     function save() {
         store.setText(JSON.stringify({ temperature: temperature, scheduled: scheduled, gamma: gamma }));
+    }
+
+    function toggleTouchpad() {
+        touchpadOff = !touchpadOff;
+        applyTouchpad();
+    }
+
+    function applyTouchpad() {
+        Quickshell.execDetached(["sh", "-c", touchpadSet, "sh", touchpadOff ? "false" : "true"]);
+    }
+
+    // A config reload (every theme change) turns every device back on.
+    Connections {
+        target: Hyprland
+
+        function onRawEvent(event) {
+            if (event.name === "configreloaded" && root.touchpadOff)
+                root.applyTouchpad();
+        }
     }
 
     function setProfile(mode) {

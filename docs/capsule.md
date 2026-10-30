@@ -18,7 +18,7 @@ dim slider that darkens every screen through hyprsunset (external monitors too, 
 it on and off at `nightLightFrom` and `nightLightTo` in `Config.qml`. The dimming, the warmth and whether
 the schedule is on are remembered between sessions. The arrow on the focus tile opens the Focus
 view: focus itself, stay awake, whether a new track peeks (remembered between sessions, starting
-from `mediaPeek`) and muting the microphone.
+from `mediaPeek`), muting the microphone, and switching the touchpad off.
 
 In the Wi-Fi view, "Details" on the connected network (or on the wired row, on a machine
 with an Ethernet port or adapter) opens the connection page: ping and packet loss to

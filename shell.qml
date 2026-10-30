@@ -52,6 +52,7 @@ Scope {
         id: quick
 
         onNightLightSet: (on) => shellRoot.announce("moon", on ? "Night light on" : "Night light off")
+        onTouchpadOffChanged: shellRoot.announce(touchpadOff ? "touchpad_off" : "touchpad", touchpadOff ? "Touchpad off" : "Touchpad on")
     }
 
     ConnectivityService {

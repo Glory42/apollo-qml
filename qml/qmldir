@@ -25,6 +25,7 @@ DismissCatcher surface/DismissCatcher.qml
 DisplayView capsule/views/DisplayView.qml
 Dock capsule/Dock.qml
 Earthrise earthrise/Earthrise.qml
+FocusView capsule/views/FocusView.qml
 Hasselblad hasselblad/Hasselblad.qml
 HasselbladIpc hasselblad/HasselbladIpc.qml
 Icon widgets/Icon.qml
@@ -54,6 +55,7 @@ SoundView capsule/views/SoundView.qml
 Splashdown splashdown/Splashdown.qml
 StatPair widgets/StatPair.qml
 SurfaceWindow surface/SurfaceWindow.qml
+SwitchRow widgets/SwitchRow.qml
 SwitchesIpc services/SwitchesIpc.qml
 SystemService services/SystemService.qml
 ThemeService services/ThemeService.qml

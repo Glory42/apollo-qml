@@ -23,13 +23,15 @@ houston hasselblad colour
 houston nightlight toggle
 houston silence toggle
 houston awake toggle
+houston touchpad toggle
 ```
 
 `invoke` runs the newest notification's main action, such as editing the screenshot just
 taken. `say` shows a short peek of an icon and a few words that is not kept anywhere, for a script to
 say what it just did; the icon is a name from `qml/widgets/IconPaths.js`, such as `bell`,
 `sun` or `lock`. `nightlight` is the night light, `silence` stops notifications from peeking (critical ones
-still do), and `awake` holds off the idle steps. Each shows a short peek saying what it
+still do), `awake` holds off the idle steps, and `touchpad` switches the touchpad off and on (it is always
+on in a new session). Each shows a short peek saying what it
 changed to.
 
 Example Hyprland binds:
