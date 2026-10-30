@@ -79,3 +79,28 @@ function displayName(alias, advertisedName, address, icon) {
 function addressLabel(address) {
     return normalizedAddress(address);
 }
+
+// What a device can do, from the 16-bit service ids bluetoothctl lists; each label once, in a fixed order.
+function profileLabels(ids) {
+    const groups = [
+        ["Music", ["110a", "110b", "110d"]],
+        ["Calls", ["1108", "1112", "111e", "111f"]],
+        ["Media controls", ["110c", "110e", "110f"]],
+        ["Input", ["1124", "1812"]],
+        ["Files", ["1105", "1106"]],
+        ["Network", ["1115", "1116"]]
+    ];
+    const have = ids.map((id) => cleanText(id).toLowerCase());
+    return groups.filter((group) => group[1].some((id) => have.indexOf(id) >= 0)).map((group) => group[0]);
+}
+
+// PipeWire's name for a Bluetooth codec, as it is usually written.
+function codecLabel(codec) {
+    const names = {
+        sbc: "SBC", sbc_xq: "SBC XQ", msbc: "mSBC", cvsd: "CVSD", aac: "AAC", aac_eld: "AAC-ELD", ldac: "LDAC",
+        aptx: "aptX", aptx_hd: "aptX HD", aptx_ll: "aptX LL", aptx_ll_duplex: "aptX LL", faststream: "FastStream",
+        faststream_duplex: "FastStream", opus_05: "Opus", opus_g: "Opus", lc3: "LC3", lc3plus_h3: "LC3plus"
+    };
+    const key = cleanText(codec).toLowerCase();
+    return names[key] || key.toUpperCase();
+}

@@ -24,6 +24,8 @@ Item {
     property string view: "rest"
     // The network device the connection page is about.
     property var detailDevice: null
+    // The Bluetooth device the device view shows.
+    property var bluetoothDevice: null
     // Set by a view while it shows a text field, so the capsule takes the keyboard.
     property bool typing: false
     property string lastOpened: "music"
@@ -49,10 +51,10 @@ Item {
         { id: "calendar", label: "Calendar", icon: "cal" },
         { id: "notifications", label: "Notifications", icon: "bell" }
     ]
-    readonly property var openViews: ["music", "quick", "weather", "calendar", "notifications", "wifi", "bt", "sound", "display", "connection", "focus"]
+    readonly property var openViews: ["music", "quick", "weather", "calendar", "notifications", "wifi", "bt", "sound", "display", "connection", "focus", "btdevice"]
     readonly property bool isOpen: openViews.indexOf(view) >= 0
     // The detail views belong to the quick settings tab.
-    readonly property string dockCurrent: ["wifi", "bt", "sound", "display", "connection", "focus"].indexOf(view) >= 0 ? "quick" : view
+    readonly property string dockCurrent: ["wifi", "bt", "sound", "display", "connection", "focus", "btdevice"].indexOf(view) >= 0 ? "quick" : view
     readonly property int unread: center && view !== "notifications" ? center.unread : 0
     readonly property bool wantsKeyboard: typing || !!net && ((view === "wifi" && net.pendingSsid !== "")
         || (view === "bt" && (net.agent.promptKind === "passkey" || net.agent.promptKind === "pin")))
@@ -99,6 +101,11 @@ Item {
         if (target === "connection" && !detailDevice && net)
             detailDevice = net.wiredDevice && net.wiredDevice.connected ? net.wiredDevice : net.wifiDevice;
         view = target;
+    }
+
+    function openBluetoothDevice(device) {
+        bluetoothDevice = device;
+        open("btdevice");
     }
 
     function openConnection(device) {

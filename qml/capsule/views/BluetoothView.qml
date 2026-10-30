@@ -61,10 +61,11 @@ ViewFrame {
                 subtitle: row.device ? root.net.deviceSubtitle(row.device) : ""
                 highlighted: row.modelData.section === "connected"
                 busy: row.device ? root.net.deviceBusy(row.device) : false
+                // A tap connects or disconnects; a known device offers its page on hover.
                 action: row.modelData.section === "connected" ? "Disconnect" : (row.modelData.section === "paired" ? "Connect" : "Pair")
-                secondary: row.modelData.section === "paired" ? "Forget" : ""
+                secondary: row.modelData.section === "available" ? "" : "Details"
                 onActivated: root.net.pressDevice(row.device)
-                onSecondaryActivated: root.net.forgetDevice(row.device)
+                onSecondaryActivated: root.ctl.openBluetoothDevice(row.device)
             }
         }
     }

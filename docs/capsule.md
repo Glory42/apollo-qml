@@ -9,7 +9,10 @@ The dock has five tabs, in this order: quick settings, music, weather,
 calendar, notifications. Quick settings holds volume, brightness, Wi-Fi, Bluetooth,
 night light, focus, the power profile and battery details (time left and
 power draw), and its Wi-Fi and Bluetooth tiles open
-detail views for joining networks and pairing devices. The arrow at the end of the volume
+detail views for joining networks and pairing devices. A known Bluetooth device offers Details on
+hover: its page renames it (Reset gives back its own name), shows its type, battery, address,
+codec and what it can do, switches whether it is trusted, blocked or may wake the computer, and
+forgets it after a second tap. The arrow at the end of the volume
 slider opens the Sound view: pick the output and input device, set their levels, and give
 each app that is playing its own volume (up to 150%) and mute. The arrow on the brightness
 slider, or on the night light tile, opens the Display view: screen and keyboard brightness, a

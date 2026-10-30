@@ -23,7 +23,8 @@ Item {
         "sound": "views/SoundView.qml",
         "display": "views/DisplayView.qml",
         "connection": "views/ConnectionView.qml",
-        "focus": "views/FocusView.qml"
+        "focus": "views/FocusView.qml",
+        "btdevice": "views/BluetoothDeviceView.qml"
     })
 
     // The width the shape is springing towards; width itself lags behind it while it animates.

@@ -219,6 +219,24 @@ Item {
         return BluetoothFormatting.displayName(device.name, device.deviceName, device.address, device.icon);
     }
 
+    function deviceType(device) {
+        return BluetoothFormatting.typeLabel(device.icon);
+    }
+
+    function profileLabels(ids) {
+        return BluetoothFormatting.profileLabels(ids);
+    }
+
+    function codecLabel(codec) {
+        return BluetoothFormatting.codecLabel(codec);
+    }
+
+    // Your own name for the device; an empty one gives back the name the device reports itself.
+    function renameDevice(device, name) {
+        clearFeedback();
+        device.name = String(name).trim();
+    }
+
     function deviceBusy(device) {
         if (device.pairing || device.state === BluetoothDeviceState.Connecting || device.state === BluetoothDeviceState.Disconnecting)
             return true;

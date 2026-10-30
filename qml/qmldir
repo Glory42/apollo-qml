@@ -6,6 +6,7 @@ AirlockBackdrop airlock/AirlockBackdrop.qml
 AirlockIpc airlock/AirlockIpc.qml
 AirlockScreen airlock/AirlockScreen.qml
 BluetoothAgent services/BluetoothAgent.qml
+BluetoothDeviceView capsule/views/BluetoothDeviceView.qml
 BluetoothView capsule/views/BluetoothView.qml
 CalendarView capsule/views/CalendarView.qml
 Capsule capsule/Capsule.qml
