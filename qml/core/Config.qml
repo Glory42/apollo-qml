@@ -40,8 +40,8 @@ QtObject {
     readonly property string themeDir: Quickshell.env("APOLLO_THEME_DIR") || Quickshell.env("HOME") + "/.config/theme"
     // Makes a theme the current one and recolours the rest of the rice; the theme's name is added as the last argument.
     readonly property var themeSetCommand: ["set-theme"]
-    // Put in front of apps Apollo starts so each gets its own scope and outlives an Apollo restart; [] runs them directly.
-    readonly property var appLaunchCommand: ["uwsm", "app", "--"]
+    // Put in front of apps Apollo starts so each runs as its own unit with the session's environment, not Apollo's, and outlives an Apollo restart; [] runs them directly.
+    readonly property var appLaunchCommand: ["uwsm", "app", "-t", "service", "--"]
     // The wallpaper's path is added as the last argument.
     readonly property var wallpaperCommand: ["awww", "img"]
 }
