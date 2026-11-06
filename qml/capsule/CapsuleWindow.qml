@@ -13,6 +13,7 @@ PanelWindow {
     readonly property alias controller: ctl
     readonly property bool monitorFocused: !!ctl.monitor && !!Hyprland.focusedMonitor && ctl.monitor.name === Hyprland.focusedMonitor.name
     readonly property bool tucked: ctl.view === "rest" && !!ctl.monitor && !!ctl.monitor.activeWorkspace && ctl.monitor.activeWorkspace.hasFullscreen
+    readonly property rect hitArea: Qt.rect(Math.floor(capsule.x - capsule.fillet), Math.floor(capsule.y), Math.ceil(capsule.width + 2 * capsule.fillet), Math.ceil(capsule.height))
 
     color: "transparent"
     anchors.top: true
@@ -26,10 +27,10 @@ PanelWindow {
 
     // Only the capsule takes input; everything else in this window falls through to what is underneath.
     mask: Region {
-        x: Math.floor(capsule.x - capsule.fillet)
-        y: Math.floor(capsule.y)
-        width: win.tucked ? 0 : Math.ceil(capsule.width + 2 * capsule.fillet)
-        height: Math.ceil(capsule.height)
+        x: win.hitArea.x
+        y: win.hitArea.y
+        width: win.tucked ? 0 : win.hitArea.width
+        height: win.hitArea.height
     }
 
     CapsuleController {

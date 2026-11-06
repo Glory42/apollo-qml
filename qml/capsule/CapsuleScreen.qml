@@ -33,9 +33,12 @@ Scope {
     }
 
     DismissCatcher {
+        id: catcher
+
         screen: root.screen
         active: window.controller.isOpen
         overlay: true
+        hole: Qt.rect(Math.floor((catcher.width - window.width) / 2) + window.hitArea.x, window.margins.top + window.hitArea.y, window.hitArea.width, window.hitArea.height)
         onDismissed: window.controller.close()
     }
 }

@@ -9,6 +9,7 @@ PanelWindow {
     property bool active: false
     // Whether it also covers fullscreen windows and other overlays.
     property bool overlay: false
+    property rect hole: Qt.rect(0, 0, 0, 0)
 
     signal dismissed()
 
@@ -24,6 +25,19 @@ PanelWindow {
     WlrLayershell.namespace: "apollo-dismiss"
     WlrLayershell.layer: root.overlay ? WlrLayer.Overlay : WlrLayer.Top
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+
+    mask: Region {
+        width: root.width
+        height: root.height
+
+        Region {
+            intersection: Intersection.Subtract
+            x: root.hole.x
+            y: root.hole.y
+            width: root.hole.width
+            height: root.hole.height
+        }
+    }
 
     MouseArea {
         anchors.fill: parent
