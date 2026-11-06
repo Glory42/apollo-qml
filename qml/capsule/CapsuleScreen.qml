@@ -35,6 +35,7 @@ Scope {
     DismissCatcher {
         screen: root.screen
         active: window.controller.isOpen
+        overlay: true
         onDismissed: window.controller.close()
     }
 }

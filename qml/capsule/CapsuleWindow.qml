@@ -12,6 +12,7 @@ PanelWindow {
 
     readonly property alias controller: ctl
     readonly property bool monitorFocused: !!ctl.monitor && !!Hyprland.focusedMonitor && ctl.monitor.name === Hyprland.focusedMonitor.name
+    readonly property bool tucked: ctl.view === "rest" && !!ctl.monitor && !!ctl.monitor.activeWorkspace && ctl.monitor.activeWorkspace.hasFullscreen
 
     color: "transparent"
     anchors.top: true
@@ -20,14 +21,14 @@ PanelWindow {
     implicitHeight: Theme.windowHeight
     exclusiveZone: win.dev ? 0 : Theme.topMargin + Theme.restHeight + Config.windowGap
     WlrLayershell.namespace: "apollo-capsule"
-    WlrLayershell.layer: ctl.view !== "rest" ? WlrLayer.Overlay : WlrLayer.Top
+    WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: ctl.wantsKeyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // Only the capsule takes input; everything else in this window falls through to what is underneath.
     mask: Region {
         x: Math.floor(capsule.x - capsule.fillet)
         y: Math.floor(capsule.y)
-        width: Math.ceil(capsule.width + 2 * capsule.fillet)
+        width: win.tucked ? 0 : Math.ceil(capsule.width + 2 * capsule.fillet)
         height: Math.ceil(capsule.height)
     }
 
@@ -53,6 +54,11 @@ PanelWindow {
         ctl: ctl
         x: Math.round((win.width - width) / 2)
         y: Theme.topMargin
+        opacity: win.tucked ? 0 : 1
+
+        Behavior on opacity {
+            NumberAnimation { duration: Theme.fadeDuration }
+        }
     }
 
     // Every monitor shows every event.
